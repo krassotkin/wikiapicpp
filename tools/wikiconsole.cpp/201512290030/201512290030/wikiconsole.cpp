@@ -6,15 +6,14 @@ make
 
 Usage:
 ./wikiconsole
-
-./wikiconsole
 ./wikiconsole <command> <options>
 
 Examples:
-
+./wikiconsole -h
 ./wikiconsole -v
+./wikiconsole
 
- Public Domain by authors: Alexander Krassotkin
+ Public Domain by authors: Alexander Krassotkin, Simon Krassotkin
  since 2015-12-29
 */ 
 
@@ -32,7 +31,7 @@ using namespace std;
 const string versionMajor = "201512290030";
 const string versionMinor = "201512290030";
 
-const string consolePrefixDefault = "[anonymously]> ";
+const string consolePrefixDefault = "[anonymous]> ";
 string consolePrefix = consolePrefixDefault;
 MediaWikiActionAPI mwaapi;
 
@@ -155,6 +154,7 @@ void showVersions() {
  cout << endl << "Versions of wikiconsole and components (major.minor):" << endl;
  cout << "\twikiconsole " << versionMajor << "." << versionMinor << endl;
  cout << "\tCurlWrapper " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
+ cout << "\tLoginInfo " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
  cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl << endl;
 }
 
