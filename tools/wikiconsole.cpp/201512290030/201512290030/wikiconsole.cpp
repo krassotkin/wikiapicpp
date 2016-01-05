@@ -33,6 +33,7 @@ const string versionMinor = "201512290030";
 
 const string consolePrefixDefault = "[anonymous]> ";
 string consolePrefix = consolePrefixDefault;
+LoginInfo loginInfo;
 MediaWikiActionAPI mwaapi;
 
 void showHelp();
@@ -59,7 +60,6 @@ bool expectsLogin(const vector<string>& commandVector) {
   cout << "\tlogin https://en.wikipedia.org/ bob bobsecretpass" << endl;
   return true;
  }
- LoginInfo loginInfo;
  loginInfo.site = commandVector[1];
  loginInfo.lgusername = commandVector[2];
  loginInfo.lgpassword = commandVector[3];
@@ -73,6 +73,17 @@ bool expectsLogin(const vector<string>& commandVector) {
   cout << "Success logined..." << endl;
   consolePrefix = "["+loginInfo.lgusername+"@"+loginInfo.cookieprefix+"]> ";
  }
+ return true;
+}
+
+bool expectsLogout(const string& commandLine) {
+ if(commandLine.compare("logout") != 0) return false;
+ if(loginInfo.result.compare("Success") != 0) {
+  cout << "You are not logined..." << endl;
+  return true;
+ };
+ mwaapi.logout(&loginInfo);
+ consolePrefix = consolePrefixDefault;
  return true;
 }
 
@@ -99,6 +110,7 @@ bool expectsVersions(const string& commandLine) {
 bool parseCommandLine(const string& commandLine) {
  //for commands without options
  if(expectsHelp(commandLine)) return true;
+ else if(expectsLogout(commandLine)) return true;
  else if(expectsVersions(commandLine)) return true; 
  vector<string> commandVector;
  //for commands with options
@@ -143,6 +155,7 @@ void showHelp() {
  cout << "\tlogin - login to a media wiki server." << endl;
  cout << "\t\tformat: login site username userpassword" << endl;
  cout << "\t\texample: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
+ cout << "\tlogout - log out and clear session data." << endl;
  cout << "\tquit - exit from console." << endl;
  cout << "\t\taliases: bye, q." << endl;
  cout << "\tversions - show versions of wikiconsole and components (major.minor)." << endl; 

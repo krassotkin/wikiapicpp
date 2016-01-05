@@ -8,7 +8,7 @@
  The MediaWiki action API Help: https://en.wikipedia.org/w/api.php
  The MediaWiki action API Sandbox: https://en.wikipedia.org/wiki/Special:ApiSandbox
 
- Public Domain by authors: Alexander Krassotkin
+ Public Domain by authors: Alexander Krassotkin, Simon Krassotkin
  since 2015-12-29
 */
 
@@ -58,6 +58,17 @@ https://www.mediawiki.org/wiki/API:Login
    string res=curlWrapper.getFirstPagePost(fullUrl);
    loginInfo->fromJsonString(res);
    if(firstPass && loginInfo->result.compare("NeedToken")==0) this->login(loginInfo);
+  }
+
+/*
+ Logout:
+https://en.wikipedia.org/w/api.php?action=help&modules=logout
+https://www.mediawiki.org/wiki/API:Logout
+*/
+  void logout(LoginInfo* loginInfo) {
+   string fullUrl = loginInfo->site+endpointPart+"?"+"action=logout";
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   loginInfo->clear();
   }
 
 };
