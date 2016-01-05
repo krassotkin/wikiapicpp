@@ -30,7 +30,7 @@ Second:
     }
 }
 
- Public Domain by authors: Alexander Krassotkin
+ Public Domain by authors: Alexander Krassotkin, Simon Krassotkin
  since 2015-12-29
 */
 
@@ -70,6 +70,20 @@ class LoginInfo {
   
   LoginInfo(const json11::Json& json) {
    fromJson(json);
+  }
+
+  void clear() {
+   cookieprefix="";
+   errJson="";
+   lgname="";
+   lgpassword="";
+   lgtoken="";
+   lguserid=0;
+   lgusername="";
+   result="";
+   sessionid="";
+   site="";
+   token="";
   }
   
   void fromJsonString(const string& jsonString) {
