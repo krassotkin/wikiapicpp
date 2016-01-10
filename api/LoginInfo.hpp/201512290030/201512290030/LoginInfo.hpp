@@ -1,14 +1,14 @@
 #ifndef LOGININFO_HPP
 #define LOGININFO_HPP
 /*
- LoginInfo.hpp represent login request and response of The MediaWiki action API С++ wrapper.
+ LoginInfo.hpp represent login request and response of The MediaWiki action API.
 
  You must predefine site, lgusername, and lgpassword for login with MediaWikiActionAPI.hpp login(LoginInfo* loginInfo)
 
 https://en.wikipedia.org/w/api.php?action=help&modules=login
 https://www.mediawiki.org/wiki/API:LoginInfo .
 
-First:
+First response:
 {
     "login": {
         "result": "NeedToken",
@@ -18,7 +18,7 @@ First:
     }
 }
 
-Second:
+Second response:
 {
     "login": {
         "result": "Success",
@@ -30,14 +30,13 @@ Second:
     }
 }
 
- Public Domain by authors: Alexander Krassotkin, Simon Krassotkin
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
  since 2015-12-29
 */
 
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
-#include <map>
 #include <string>
 
 using namespace std;
@@ -67,6 +66,10 @@ class LoginInfo {
   string token;
 
   LoginInfo() {}
+  
+  LoginInfo(const string& jsonString) {
+   fromJsonString(jsonString);
+  }
   
   LoginInfo(const json11::Json& json) {
    fromJson(json);

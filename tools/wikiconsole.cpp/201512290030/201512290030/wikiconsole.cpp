@@ -13,11 +13,19 @@ Examples:
 ./wikiconsole -v
 ./wikiconsole
 
- Public Domain by authors: Alexander Krassotkin, Simon Krassotkin
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
  since 2015-12-29
 */ 
 
+#ifndef _TERMIOS_H
+#include <termios.h>
+#endif
+#ifndef _STDIO_H
+#include <stdio.h>
+#endif
+
 #include <algorithm>
+//#include <conio.h> 
 #include <iostream>
 #include <string>
 #include <vector>
@@ -25,6 +33,7 @@ Examples:
 // api
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
+#include "Revisions.hpp"
 
 using namespace std;
 
@@ -32,12 +41,123 @@ const string versionMajor = "201512290030";
 const string versionMinor = "201512290030";
 
 const string consolePrefixDefault = "[anonymous]> ";
+
+vector<string> commandsHistoryVector;
+unsigned long commanHistoryIndex = 0;
 string consolePrefix = consolePrefixDefault;
 LoginInfo loginInfo;
 MediaWikiActionAPI mwaapi;
 
 void showHelp();
 void showVersions();
+
+char getch() {
+ struct termios t;
+ tcgetattr(0,&t);
+ t.c_lflag&=~ECHO+~ICANON;
+ tcsetattr(0,TCSANOW,&t);
+ fflush(stdout);
+ char c=getchar();
+ t.c_lflag|=ICANON+ECHO;
+ tcsetattr(0,TCSANOW,&t);
+ return c;
+}
+
+string getCommandLine() {
+ //cout << "\tcommanHistoryIndex: " << commanHistoryIndex << endl;
+ string commandLine = "";
+ int unsigned pos = 0;
+ while(true) {
+  char c = getch();
+  if(c==27) {
+   c = getch();
+   if(c=='[') {
+    c = getch();
+    if(c=='A') {
+     if(commanHistoryIndex>0) {
+      if(commandLine.length()>0) {
+       commandsHistoryVector.push_back(commandLine);
+       commanHistoryIndex--;
+      }
+      printf("\r%c[2K", 27);
+      commandLine = commandsHistoryVector[commanHistoryIndex];
+      cout << consolePrefix << commandsHistoryVector[commanHistoryIndex];
+      pos=commandLine.length();
+     }
+    } else if(c=='B') {
+     if(commanHistoryIndex<commandsHistoryVector.size()-1) {
+      commanHistoryIndex++;
+      printf("\r%c[2K", 27);
+      commandLine = commandsHistoryVector[commanHistoryIndex];
+      cout << consolePrefix << commandsHistoryVector[commanHistoryIndex];
+      pos=commandLine.length();
+     }
+    } else if(c=='D') {
+     cout << "\b";
+     pos--;
+    } else {
+     cout << " --> " << int(c);
+    }
+   }
+   continue;
+  }
+  if(c == 127) { 
+   if(pos==0) continue;
+   cout << "\b \b";
+   pos--;
+   string cl;
+   unsigned int i=0;
+   for(; i<pos; i++) cl+=commandLine[i];
+   for(; i<commandLine.length()-1; i++) cl+=commandLine[i];
+   commandLine = cl;
+   continue;
+  }
+  if(c == '\b') {   
+   cout << '\b';
+   pos--;
+   continue;
+  }
+  putchar(c);
+  pos++;
+  if(c=='\n') return commandLine;
+  commandLine+=c;
+ }
+}
+
+vector<string> getCommandVector() {
+ commanHistoryIndex = commandsHistoryVector.size()>0 ? commandsHistoryVector.size()-1 : 0;
+ string commandLine = getCommandLine();
+ cout << "\tcommandLine: " << commandLine << endl;
+ vector<string> commandVector;
+ if(commandLine.length() == 0) return commandVector;
+ commandsHistoryVector.push_back(commandLine);
+ commanHistoryIndex++;
+ string commandLinePart;
+ bool inQuotes1 = false;
+ bool inQuotes2 = false;
+ for(char c : commandLine) {
+  if(!inQuotes1 && !inQuotes2 && c == ' ') {
+   if(commandLinePart.length()>0) commandVector.push_back(commandLinePart);
+   commandLinePart.clear();
+   continue;
+  }
+  if(!inQuotes2 && c == '\'') {
+   if(inQuotes1) inQuotes1 = false;
+   else inQuotes1 = true;
+  } else if(!inQuotes1 && c == '\"') {
+   if(inQuotes2) inQuotes2 = false;
+   else inQuotes2 = true;
+  } else {
+   commandLinePart+=c;
+  }
+ }
+ if(commandLinePart.length()>0) commandVector.push_back(commandLinePart);
+ cout << "\tcommandVector: ";
+ for(string s : commandVector) cout << "\"" << s << "\" ";
+ cout << endl;
+ commanHistoryIndex = commandsHistoryVector.size()-1;
+ return commandVector;
+}
 
 bool expectsHelp(const string& commandLine) {
  if(string(commandLine).compare("--help") == 0
@@ -107,35 +227,25 @@ bool expectsVersions(const string& commandLine) {
  return false;
 }
 
-bool parseCommandLine(const string& commandLine) {
+bool parseCommandLine(const vector<string>& commandVector) {
+ if(commandVector.size() == 0) return false;
  //for commands without options
- if(expectsHelp(commandLine)) return true;
- else if(expectsLogout(commandLine)) return true;
- else if(expectsVersions(commandLine)) return true; 
- vector<string> commandVector;
+ if(expectsHelp(commandVector[0])) return true;
+ else if(expectsLogout(commandVector[0])) return true;
+ else if(expectsVersions(commandVector[0])) return true;
  //for commands with options
- string commandLinePart;
- for(char ci : commandLine) {
-  if(ci==' ') {
-   commandVector.push_back(commandLinePart);
-   commandLinePart = "";
-  } else {
-   commandLinePart+=ci;
-  }
- }
- commandVector.push_back(commandLinePart);
  if(expectsLogin(commandVector))return true;
  return false;
 }
 
 void runConsole() {
  cout << "wikiconsole is runing..." << endl;
- string commandLine;
  while(true) {
   cout << consolePrefix;
-  getline(cin, commandLine);
-  if(!parseCommandLine(commandLine)) {
-   if(expectsQuit(commandLine)) break;
+  vector<string> commandVector = getCommandVector();
+  if(commandVector.size() == 0) continue;
+  if(!parseCommandLine(commandVector)) {
+   if(expectsQuit(commandVector[0])) break;
    cout << "Command not found. Type \"h\" for help or \"q\" for quit." << endl;
   }
  }
@@ -149,17 +259,17 @@ void showHelp() {
  cout << "\t\tWithout command and options run console." << endl;
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
- cout << endl << "Commands:" << endl;
- cout << "\thelp - show this help." << endl;
- cout << "\t\taliases: --help, -h, h, help." << endl;
- cout << "\tlogin - login to a media wiki server." << endl;
- cout << "\t\tformat: login site username userpassword" << endl;
- cout << "\t\texample: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
- cout << "\tlogout - log out and clear session data." << endl;
- cout << "\tquit - exit from console." << endl;
- cout << "\t\taliases: bye, q." << endl;
- cout << "\tversions - show versions of wikiconsole and components (major.minor)." << endl; 
- cout << "\t\taliases: --version, --versions, -v, version, versions." << endl;
+ cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
+ cout << "  help        Show this help." << endl;
+ cout << "              Aliases: --help, -h, h, help." << endl;
+ cout << "  login       Login to a media wiki server." << endl;
+ cout << "              Format: login site username userpassword" << endl;
+ cout << "              Example: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
+ cout << "  logout      Log out and clear session data." << endl;
+ cout << "  quit        Exit from console." << endl;
+ cout << "              Aliases: bye, q." << endl;
+ cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;
+ cout << "              Aliases: --version, --versions, -v, version, versions." << endl;
  cout << endl;
 }
 
