@@ -79,6 +79,8 @@ class Revisions {
   static const string versionMajor;
   static const string versionMinor;
 
+  const long rvlimitDefault = 10;
+
   // Servo
   string errJson;
 
@@ -101,16 +103,16 @@ class Revisions {
                     tags - Tags for the revision.
                     parsetree - The XML parse tree of revision content (requires content model wikitext).
                     flagged - (no description) */
-  long rvlimit; /* Limit how many revisions will be returned. May only be used with a single page (mode #2). No more than 500 (5,000 for bots) allowed.Type: integer or max */
-  bool rvexpandtemplates; /*  Expand templates in revision content (requires rvprop=content). */
-  bool rvparse; /* Parse revision content (requires rvprop=content). For performance reasons, if this option is used, rvlimit is enforced to 1. */
-  long rvsection; /* Only retrieve the content of this section number. */
-  long rvdiffto; /* Revision ID to diff each revision to. Use prev, next and cur for the previous, next and current revision respectively. */
-  long rvdifftotext; /* Text to diff each revision to. Only diffs a limited number of revisions. Overrides rvdiffto. If rvsection is set, only that section will be diffed against this text. */
-  bool rvdifftotextpst; /* Perform a pre-save transform on the text before diffing it. Only valid when used with rvdifftotext. */
+  long rvlimit = -1; /* Limit how many revisions will be returned. May only be used with a single page (mode #2). No more than 500 (5,000 for bots) allowed.Type: integer or max */
+  int rvexpandtemplates = -1; /*  Expand templates in revision content (requires rvprop=content). */
+  int rvparse = -1; /* Parse revision content (requires rvprop=content). For performance reasons, if this option is used, rvlimit is enforced to 1. */
+  long rvsection = -1; /* Only retrieve the content of this section number. */
+  long rvdiffto = -1; /* Revision ID to diff each revision to. Use prev, next and cur for the previous, next and current revision respectively. */
+  long rvdifftotext = -1; /* Text to diff each revision to. Only diffs a limited number of revisions. Overrides rvdiffto. If rvsection is set, only that section will be diffed against this text. */
+  int rvdifftotextpst = -1; /* Perform a pre-save transform on the text before diffing it. Only valid when used with rvdifftotext. */
   string rvcontentformat; /* Serialization format used for rvdifftotext and expected for output of content.  of the following values: application/json, text/x-wiki, text/javascript, text/css, text/plain */
-  long rvstartid; /* From which revision ID to start enumeration. */
-  long rvendid; /* Stop revision enumeration on this revision ID. */
+  long rvstartid = -1; /* From which revision ID to start enumeration. */
+  long rvendid = -1; /* Stop revision enumeration on this revision ID. */
   string rvstart; /* From which revision timestamp to start enumeration.Type: string of timestamp (allowed formats) */
   string rvend; /* Enumerate up to this timestamp. Type: string of timestamp (allowed formats) */
   string rvdir; /* In which direction to enumerate: "newer" -  List oldest first. Note: rvstart has to be before rvend. "older" - List newest first (default). Note: rvstart has to be later than rvend. */
@@ -142,16 +144,16 @@ class Revisions {
    pageids = "";
 
    rvprop = "";
-   rvlimit = 0;
-   rvexpandtemplates = false;
-   rvparse = false;
-   rvsection = 0;
-   rvdiffto = 0;
-   rvdifftotext = 0;
-   rvdifftotextpst = false;
+   rvlimit = -1;
+   rvexpandtemplates = -1;
+   rvparse = -1;
+   rvsection = -1;
+   rvdiffto = -1;
+   rvdifftotext = -1;
+   rvdifftotextpst = -1;
    rvcontentformat = "";
-   rvstartid = 0;
-   rvendid = 0;
+   rvstartid = -1;
+   rvendid = -1;
    rvstart = "";
    rvend = "";
    rvdir = "";
@@ -174,7 +176,7 @@ class Revisions {
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto query = json["query"].object_items();
-   auto pagesJson = json["pages"].object_items();
+   auto pagesJson = query["pages"].object_items();
    for(auto ipr : pagesJson) {
     PageRevisions pageRevisions(ipr.second);
     pages.push_back(pageRevisions);

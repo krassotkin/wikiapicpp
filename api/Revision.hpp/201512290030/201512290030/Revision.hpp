@@ -58,6 +58,7 @@ class Revision {
   string contentformat;
   string contentmodel;
   string errJson;
+  string minor = "not";
   long int parentid;
   string parsedcomment;
   string parsetree;
@@ -84,6 +85,7 @@ class Revision {
    content = "";
    contentformat = "";
    contentmodel = "";
+   minor = "not";
    parentid = 0;
    parsedcomment = "";
    parsetree = "";
@@ -106,6 +108,7 @@ class Revision {
    content = json["*"].string_value();
    contentformat = json["contentformat"].string_value();
    contentmodel = json["contentmodel"].string_value();
+   minor = json["minor"].string_value();
    parentid = json["parentid"].int_value();
    parsedcomment = json["parsedcomment"].string_value();
    parsetree = json["parsetree"].string_value();
@@ -125,7 +128,7 @@ class Revision {
     tagsJsonString+= (tagsJsonString.length()>0) ? "," : "";
     tagsJsonString+= "\""+it+"\"";
    }
-   return "{\"revid\":"+to_string(revid)+",\"parentid\":"+to_string(parentid)+",\"user\":\""+user+"\",\"userid\":"+to_string(userid)+",\"timestamp\":\""+timestamp+"\",\"size\":"+to_string(size)+",\"sha1\":\""+sha1+"\",\"contentmodel\":\""+contentmodel+"\",\"comment\":\""+comment+"\",\"parsedcomment\":\""+parsedcomment+"\",to_string(\"tags\":["+tagsJsonString+"],\"parsetree\":\""+parsetree+"\",\"contentformat\":\""+contentformat+"\",\"*\":\""+content+"\"}";
+   return "{\"revid\":"+to_string(revid)+",\"parentid\":"+to_string(parentid)+(minor.compare("not")==0 ? ",\"minor\":\"\"" : "") +",\"user\":\""+user+"\",\"userid\":"+to_string(userid)+",\"timestamp\":\""+timestamp+"\",\"size\":"+to_string(size)+",\"sha1\":\""+sha1+"\",\"contentmodel\":\""+contentmodel+"\",\"comment\":\""+comment+"\",\"parsedcomment\":\""+parsedcomment+"\",to_string(\"tags\":["+tagsJsonString+"],\"parsetree\":\""+parsetree+"\",\"contentformat\":\""+contentformat+"\",\"*\":\""+content+"\"}";
   }
 
 };

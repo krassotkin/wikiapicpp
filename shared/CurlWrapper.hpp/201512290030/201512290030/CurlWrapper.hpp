@@ -50,6 +50,13 @@ class CurlWrapper {
    }
    return result;
   } 
+
+  string escape(const string& s) {
+   char *output = curl_easy_escape(curl, s.c_str(), s.length());
+   string res(output);
+   if(output) curl_free(output);
+   return res;
+  }
  
   string getFirstPagePost(const string& url) {
    string postFields;

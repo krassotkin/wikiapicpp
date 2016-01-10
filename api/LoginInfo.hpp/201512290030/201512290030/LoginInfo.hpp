@@ -88,6 +88,10 @@ class LoginInfo {
    site="";
    token="";
   }
+
+  bool isLogin() {
+   return (result.compare("Success") == 0);
+  }
   
   void fromJsonString(const string& jsonString) {
    auto json = json11::Json::parse(jsonString, errJson);

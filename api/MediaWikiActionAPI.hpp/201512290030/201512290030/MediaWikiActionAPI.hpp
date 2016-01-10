@@ -43,6 +43,24 @@ class MediaWikiActionAPI {
 
   MediaWikiActionAPI() {}
 
+
+/***************************************************************************
+*                             Servo                                        *
+***************************************************************************/
+
+ string escape(const string& s) {
+  string res;
+  for(char c : s) {
+   if(c == ' ') res+='_';
+   else res += c;
+  }
+  return curlWrapper.escape(res);
+ }
+
+/***************************************************************************
+*                              API                                         *
+***************************************************************************/
+
 /*
  Login: 
 https://en.wikipedia.org/w/api.php?action=help&modules=login
@@ -86,18 +104,18 @@ https://www.mediawiki.org/wiki/API:Revisions
 */
   void revisions(LoginInfo* loginInfo, Revisions* revisions) {
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&prop=revisions";
-   fullUrl+= "&" + (revisions->titles.length()>0 ? revisions->titles : revisions->pageids);
+   fullUrl+= "&" + (revisions->titles.length()>0 ? "titles="+escape(revisions->titles) : "pageids="+revisions->pageids);
    fullUrl+= revisions->rvprop.length()==0 ? "" : "&rvprop=" + revisions->rvprop;
-   fullUrl+= "&rvlimit=" + to_string(revisions->rvlimit);
-   fullUrl+= "&rvexpandtemplates=" + to_string(revisions->rvexpandtemplates);
-   fullUrl+= "&rvparse=" + to_string(revisions->rvparse);
-   fullUrl+= "&rvsection=" + to_string(revisions->rvsection);
-   fullUrl+= "&rvdiffto=" + to_string(revisions->rvdiffto);
-   fullUrl+= "&rvdifftotext=" + to_string(revisions->rvdifftotext);
-   fullUrl+= "&rvdifftotextpst=" + to_string(revisions->rvdifftotextpst);
+   fullUrl+= revisions->rvlimit == -1 ? "" : "&rvlimit=" + to_string(revisions->rvlimit);
+   fullUrl+= revisions->rvexpandtemplates == -1 ? "" : "&rvexpandtemplates=" + to_string(revisions->rvexpandtemplates);
+   fullUrl+= revisions->rvparse == -1 ? "" : "&rvparse=" + to_string(revisions->rvparse);
+   fullUrl+= revisions->rvsection == -1 ? "" : "&rvsection=" + to_string(revisions->rvsection);
+   fullUrl+= revisions->rvdiffto == -1 ? "" : "&rvdiffto=" + to_string(revisions->rvdiffto);
+   fullUrl+= revisions->rvdifftotext == -1 ? "" : "&rvdifftotext=" + to_string(revisions->rvdifftotext);
+   fullUrl+= revisions->rvdifftotextpst == -1 ? "" : "&rvdifftotextpst=" + to_string(revisions->rvdifftotextpst);
    fullUrl+= revisions->rvcontentformat.length()==0 ? "" : "&rvcontentformat=" + revisions->rvcontentformat;
-   fullUrl+= "&rvstartid=" + to_string(revisions->rvstartid);
-   fullUrl+= "&rvendid=" + to_string(revisions->rvendid);
+   fullUrl+= revisions->rvstartid == -1 ? "" : "&rvstartid=" + to_string(revisions->rvstartid);
+   fullUrl+= revisions->rvendid == -1 ? "" : "&rvendid=" + to_string(revisions->rvendid);
    fullUrl+= revisions->rvstart.length()==0 ? "" : "&rvstart=" + revisions->rvstart;
    fullUrl+= revisions->rvend.length()==0 ? "" : "&rvend=" + revisions->rvend;
    fullUrl+= revisions->rvdir.length()==0 ? "" : "&rvdir=" + revisions->rvdir;
@@ -106,7 +124,9 @@ https://www.mediawiki.org/wiki/API:Revisions
    fullUrl+= revisions->rvtag.length()==0 ? "" : "&rvtag=" + revisions->rvtag;
    fullUrl+= revisions->rvcontinue.length()==0 ? "" : "&rvcontinue=" + revisions->rvcontinue;
    fullUrl+= formatPart;
+   //cout << "\t\tRevisions::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tRevisions::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
 
