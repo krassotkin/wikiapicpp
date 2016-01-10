@@ -207,6 +207,7 @@ bool expectsLogin(const vector<string>& commandVector) {
   cout << "Success logined..." << endl;
   consolePrefix = "["+loginInfo.lgusername+"@"+loginInfo.cookieprefix+"]> ";
  }
+ cout << "\t\twikiconsole::expectsLogin loginInfo.token: "  << loginInfo.token << endl;
  return true;
 }
 
@@ -240,6 +241,25 @@ bool expectsSite(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsThank(const vector<string>& commandVector){
+ if(commandVector[0].compare("thank") != 0) return false;
+ cout << "\t\twikiconsole::expectsThank loginInfo.token: "  << loginInfo.token << endl;
+ if(commandVector.size() < 2) {
+  cout << "Very few arguments to thank..." << endl;
+  cout << "Thank format:" << endl;
+  cout << "\tthank id" << endl;
+  cout << "Example:" << endl;
+  cout << "\tthank 419305" << endl;
+  return true;
+ }
+ if(loginInfo.result.compare("Success") != 0) {
+  cout << "You are not logined..." << endl;
+  return true;
+ };
+ mwaapi.thank(&loginInfo, commandVector[1]);
+ return true;
+}
+
 bool expectsVersions(const vector<string>& commandVector) {
  if(commandVector[0].compare("--version") == 0
     || commandVector[0].compare("--versions") == 0
@@ -260,6 +280,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
+ if(expectsThank(commandVector)) return true;
  if(expectsVersions(commandVector)) return true;
  return false;
 }
@@ -300,6 +321,8 @@ void showHelp() {
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
+ cout << "  thank       Send a thank-you notification to an editor."
+<< endl; 
  cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;
  cout << "              Aliases: --version, --versions, -v, version, versions." << endl;
  cout << endl;

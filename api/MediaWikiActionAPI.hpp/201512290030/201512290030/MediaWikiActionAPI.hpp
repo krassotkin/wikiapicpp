@@ -75,8 +75,10 @@ https://www.mediawiki.org/wiki/API:Login
    }
    fullUrl+= formatPart;
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   cout << "\t\tmwaapi::login res: " << res << endl;
    loginInfo->fromJsonString(res);
    if(firstPass && loginInfo->result.compare("NeedToken")==0) this->login(loginInfo);
+   cout << "\t\tmwaapi::login loginInfo->token: " << loginInfo->token << endl;
   }
 
 /*
@@ -130,6 +132,17 @@ https://www.mediawiki.org/wiki/API:Revisions
    revisions->fromJsonString(res);
   } 
 
+/*
+  Thank:
+https://www.mediawiki.org/wiki/Extension:Thanks#API_Documentation
+https://en.wikipedia.org/w/api.php?action=help&modules=thank
+*/
+  void thank(LoginInfo* loginInfo, const string& revidString) {
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=thank&rev="+revidString+"&token="+loginInfo->token+formatPart;
+   cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   cout << "\t\tmwaapi::thank res: " << res << endl;
+  }
 };
 
 const string MediaWikiActionAPI::versionMajor = "201512290030";
