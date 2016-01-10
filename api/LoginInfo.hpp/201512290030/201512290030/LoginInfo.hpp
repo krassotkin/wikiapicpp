@@ -101,14 +101,14 @@ class LoginInfo {
   void fromJson(const json11::Json& json) {
    json11::Json::object login = json["login"].object_items();
    cookieprefix = login["cookieprefix"].string_value();
-   token = login["token"].string_value();
+   string tmpToken = login["token"].string_value();
+   if(tmpToken.length()!=0) token = tmpToken;
    lgtoken = login["lgtoken"].string_value();
    lguserid = login["lguserid"].int_value();
    string username = login["lgusername"].string_value();
    lgusername = (username.length()>0) ? username : lgusername;
    result = login["result"].string_value();
    sessionid = login["sessionid"].string_value();
-   token = login["token"].string_value();
   }
   
   string toJson() {
