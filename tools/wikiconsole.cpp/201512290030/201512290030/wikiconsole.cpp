@@ -243,9 +243,35 @@ bool expectsSite(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsTokens(const vector<string>& commandVector){
+ if(commandVector[0].compare("tokens") != 0) return false;
+ if(!loginInfo.isLogin()) {
+  cout << "You are not logined..." << endl;
+  return true;
+ };
+ string type = (commandVector.size()>1) ? commandVector[1] : tokens.allTokens;
+ mwaapi.getTokens(&loginInfo, &tokens, type);
+ if(tokens.csrftoken.length() != 0)) cout << "csrftoken: " << tokens.csrftoken << endl;
+ if(tokens.deletetoken.length() != 0) cout << "deletetoken: " << tokens.deletetoken << endl;
+ if(tokens.deleteglobalaccounttoken.length() != 0) cout << "deleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << endl;
+ if(tokens.edittoken.length() != 0) cout << "edittoken: " << tokens.edittoken << endl;
+ if(tokens.emailtoken.length() != 0) cout << "emailtoken: " << tokens.emailtoken << endl;
+ if(tokens.importtoken.length() != 0) cout << "importtoken: " << tokens.importtoken << endl;
+ if(tokens.movetoken.length() != 0) cout << "movetoken: " << tokens.movetoken << endl;
+ if(tokens.optionstoken.length() != 0) cout << "optionstoken: " << tokens.optionstoken << endl;
+ if(tokens.patroltoken.length() != 0) cout << "patroltoken: " << tokens.patroltoken << endl;
+ if(tokens.protecttoken.length() != 0) cout << "protecttoken: " << tokens.protecttoken << endl;
+ if(tokens.rollbacktoken.length() != 0) cout << "rollbacktoken: " << tokens.rollbacktoken << endl;
+ if(tokens.setglobalaccountstatustoken.length() != 0) cout << "setglobalaccountstatustoken: " << tokens.setglobalaccountstatustoken << endl;
+ if(tokens.unblocktoken.length() != 0) cout << "unblocktoken: " << tokens.unblocktoken << endl;
+ if(tokens.userrightstoken.length() != 0) cout << "userrightstoken: " << tokens.userrightstoken << endl;
+ if(tokens.watchtoken.length() != 0) cout << "watchtoken: " << tokens.watchtoken << endl;
+ return true;
+}
+
 bool expectsThank(const vector<string>& commandVector){
  if(commandVector[0].compare("thank") != 0) return false;
- cout << "\t\twikiconsole::expectsThank loginInfo.token: "  << loginInfo.token << endl;
+ //cout << "\t\twikiconsole::expectsThank loginInfo.token: "  << loginInfo.token << endl;
  if(commandVector.size() < 2) {
   cout << "Very few arguments to thank..." << endl;
   cout << "Thank format:" << endl;
@@ -282,6 +308,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
+ if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
  if(expectsVersions(commandVector)) return true;
  return false;
@@ -323,6 +350,10 @@ void showHelp() {
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
+ cout << "  tokens      Get tokens for data-modifying actions." << endl;
+ cout << "              Format: tokens <type>" << endl; 
+ cout << "                <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
+ cout << "              Example: tokens csrf" << endl;
  cout << "  thank       Send a thank-you notification to an editor."
 << endl; 
  cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;
