@@ -34,6 +34,7 @@ Examples:
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
 #include "Revisions.hpp"
+#include "Tokens.hpp"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ const string consolePrefixDefault = "[anonymous]> ";
 string consolePrefix = consolePrefixDefault;
 LoginInfo loginInfo;
 MediaWikiActionAPI mwaapi;
+Tokens tokens;
 
 void showHelp();
 void showVersions();
@@ -207,7 +209,7 @@ bool expectsLogin(const vector<string>& commandVector) {
   cout << "Success logined..." << endl;
   consolePrefix = "["+loginInfo.lgusername+"@"+loginInfo.cookieprefix+"]> ";
  }
- cout << "\t\twikiconsole::expectsLogin loginInfo.token: "  << loginInfo.token << endl;
+ //cout << "\t\twikiconsole::expectsLogin loginInfo.token: "  << loginInfo.token << endl;
  return true;
 }
 
@@ -256,7 +258,7 @@ bool expectsThank(const vector<string>& commandVector){
   cout << "You are not logined..." << endl;
   return true;
  };
- mwaapi.thank(&loginInfo, commandVector[1]);
+ mwaapi.thank(&loginInfo, &tokens, commandVector[1]);
  return true;
 }
 

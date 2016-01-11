@@ -100,15 +100,26 @@ class LoginInfo {
   
   void fromJson(const json11::Json& json) {
    json11::Json::object login = json["login"].object_items();
-   cookieprefix = login["cookieprefix"].string_value();
-   string tmpToken = login["token"].string_value();
-   if(tmpToken.length()!=0) token = tmpToken;
-   lgtoken = login["lgtoken"].string_value();
-   lguserid = login["lguserid"].int_value();
-   string username = login["lgusername"].string_value();
-   lgusername = (username.length()>0) ? username : lgusername;
+
+   string tmpCooprefix = login["cookieprefix"].string_value();
+   cookieprefix = (tmpCooprefix.length()>0) ? tmpCooprefix : cookieprefix;
+
+   string tmpLgtoken = login["lgtoken"].string_value();
+   lgtoken = (tmpLgtoken.length()>0) ? tmpLgtoken : lgtoken;
+
+   long tpmLguserid = login["lguserid"].int_value();
+   lguserid = (tpmLguserid>0) ? tpmLguserid : lguserid;
+
+   string tmpLgusername = login["lgusername"].string_value();
+   lgusername = (tmpLgusername.length()>0) ? tmpLgusername : lgusername;
+
    result = login["result"].string_value();
-   sessionid = login["sessionid"].string_value();
+
+   string tpmSessionid = login["sessionid"].string_value();
+   sessionid = (tpmSessionid.length()>0) ? tpmSessionid : sessionid;
+
+   string tmpToken = login["token"].string_value();
+   token = (tmpToken.length()>0) ? tmpToken : token;
   }
   
   string toJson() {

@@ -119,7 +119,7 @@ class PageRevisions {
   
   string toJson() {
    /* not implemented */
-   return "";
+   return "{\"not implemented\":\"not implemented\"}";
   }
 
 };

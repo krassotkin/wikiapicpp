@@ -60,6 +60,10 @@ class CurlWrapper {
  
   string getFirstPagePost(const string& url) {
    string postFields;
+   return getFirstPagePost(url, postFields);
+  }
+ 
+  string getFirstPagePost(const string& url, const string& postFields) {
    map<string,string> headersMap;
    return getFirstPagePost(url, postFields, headersMap);
   }

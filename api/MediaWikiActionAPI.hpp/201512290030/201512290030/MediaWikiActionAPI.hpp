@@ -26,6 +26,7 @@ using namespace std;
 // api
 #include "LoginInfo.hpp"
 #include "Revisions.hpp"
+#include "Tokens.hpp"
 
 class MediaWikiActionAPI {
 
@@ -75,10 +76,10 @@ https://www.mediawiki.org/wiki/API:Login
    }
    fullUrl+= formatPart;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::login res: " << res << endl;
+   //cout << "\t\tmwaapi::login res: " << res << endl;
    loginInfo->fromJsonString(res);
    if(firstPass && loginInfo->result.compare("NeedToken")==0) this->login(loginInfo);
-   cout << "\t\tmwaapi::login loginInfo->token: " << loginInfo->token << endl;
+   //cout << "\t\tmwaapi::login loginInfo->token: " << loginInfo->token << endl;
   }
 
 /*
@@ -126,9 +127,9 @@ https://www.mediawiki.org/wiki/API:Revisions
    fullUrl+= revisions->rvtag.length()==0 ? "" : "&rvtag=" + revisions->rvtag;
    fullUrl+= revisions->rvcontinue.length()==0 ? "" : "&rvcontinue=" + revisions->rvcontinue;
    fullUrl+= formatPart;
-   //cout << "\t\tRevisions::revisions fullUrl: " << fullUrl << endl;
+   //cout << "\t\ttmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\tRevisions::revisions res: " << res << endl;
+   //cout << "\t\ttmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
 
@@ -136,12 +137,33 @@ https://www.mediawiki.org/wiki/API:Revisions
   Thank:
 https://www.mediawiki.org/wiki/Extension:Thanks#API_Documentation
 https://en.wikipedia.org/w/api.php?action=help&modules=thank
+
+  Must get csrf token before.
 */
-  void thank(LoginInfo* loginInfo, const string& revidString) {
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=thank&rev="+revidString+"&token="+loginInfo->token+formatPart;
+  void thank(LoginInfo* loginInfo, Tokens* tokens, const string& revidString) {
+   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=thank&rev="+revidString+formatPart;
    cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
-   string res=curlWrapper.getFirstPagePost(fullUrl);
+   string postFields = "token="+escape(tokens->csrftoken);
+   cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    cout << "\t\tmwaapi::thank res: " << res << endl;
+  }
+
+/*
+  Tokens:
+https://en.wikipedia.org/w/api.php?action=help&modules=tokens
+https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
+
+  type
+    Values (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch
+*/
+  void getTokens(LoginInfo* loginInfo, Tokens* tokens, const string& type) {
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&meta=tokens&type="+type+formatPart;
+   cout << "\t\tmwaapi::tokens fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   cout << "\t\tmwaapi::tokens res: " << res << endl;
+   tokens->fromJsonString(res);
   }
 };
 
