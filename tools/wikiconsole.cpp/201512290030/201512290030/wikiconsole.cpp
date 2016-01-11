@@ -245,32 +245,27 @@ bool expectsSite(const vector<string>& commandVector) {
 
 bool expectsTokens(const vector<string>& commandVector){
  if(commandVector[0].compare("tokens") != 0) return false;
- if((commandVector.size() < 2) || (commandVector.size() != 1)){
-  cout << "csrftoken: " << tokens.csrftoken << "\tdeletetoken: " << tokens.deletetoken << "\tdeleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << "\tedittoken: " << tokens.edittoken << "\temailtoken: " << tokens.emailtoken << "\timporttoken: " << tokens.importtoken << "\tmovetoken: " << tokens.movetoken << "\toptionstoken: " << tokens.optionstoken << "\tpatroltoken: " << tokens.patroltoken << "\tprotecttoken: " << tokens.protecttoken << "\trollbacktoken: " << tokens.rollbacktoken << "\tsetglobalaccountstatustoken: " << tokens.setglobalaccountstatustoken << "\tunblocktoken: " << tokens.unblocktoken << "\tuserrightstoken: " << tokens.userrightstoken << "\twatchtoken: " << tokens.watchtoken << endl; 
-  cout << "If you wanna get specific token, enter: tokens type" << endl;
-  cout << "EXAMPLE: tokens edit";
-  return true;
- }
- if(loginInfo.result.compare("Success") != 0) {
+ if(!loginInfo.isLogin()) {
   cout << "You are not logined..." << endl;
   return true;
  };
- mwaapi.getTokens(&loginInfo, &tokens, commandVector[1]);
- if(tokens.csrftoken.length() != 0) cout << "csrftoken: " << tokens.csrftoken << endl;
- else if(tokens.deletetoken.length() != 0) cout << "deletetoken: " << tokens.deletetoken << endl;
- else if(tokens.deleteglobalaccounttoken.length() != 0) cout << "deleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << endl;
- else if(tokens.edittoken.length() != 0) cout << "edittoken: " << tokens.edittoken << endl;
- else if(tokens.emailtoken.length() != 0) cout << "emailtoken: " << tokens.emailtoken << endl;
- else if(tokens.importtoken.length() != 0) cout << "importtoken: " << tokens.importtoken << endl;
- else if(tokens.movetoken.length() != 0) cout << "movetoken: " << tokens.movetoken << endl;
- else if(tokens.optionstoken.length() != 0) cout << "optionstoken: " << tokens.optionstoken << endl;
- else if(tokens.patroltoken.length() != 0) cout << "patroltoken: " << tokens.patroltoken << endl;
- else if(tokens.protecttoken.length() != 0) cout << "protecttoken: " << tokens.protecttoken << endl;
- else if(tokens.rollbacktoken.length() != 0) cout << "rollbacktoken: " << tokens.rollbacktoken << endl;
- else if(tokens.setglobalaccountstatustoken.length() != 0) cout << "setglobalaccountstatustoken: " << tokens.setglobalaccountstatustoken << endl;
- else if(tokens.unblocktoken.length() != 0) cout << "unblocktoken: " << tokens.unblocktoken << endl;
- else if(tokens.userrightstoken.length() != 0) cout << "userrightstoken: " << tokens.userrightstoken << endl;
- else if(tokens.watchtoken.length() != 0) cout << "watchtoken: " << tokens.watchtoken << endl;
+ string type = (commandVector.size()>1) ? commandVector[1] : tokens.allTokens;
+ mwaapi.getTokens(&loginInfo, &tokens, type);
+ if(tokens.csrftoken.length() != 0)) cout << "csrftoken: " << tokens.csrftoken << endl;
+ if(tokens.deletetoken.length() != 0) cout << "deletetoken: " << tokens.deletetoken << endl;
+ if(tokens.deleteglobalaccounttoken.length() != 0) cout << "deleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << endl;
+ if(tokens.edittoken.length() != 0) cout << "edittoken: " << tokens.edittoken << endl;
+ if(tokens.emailtoken.length() != 0) cout << "emailtoken: " << tokens.emailtoken << endl;
+ if(tokens.importtoken.length() != 0) cout << "importtoken: " << tokens.importtoken << endl;
+ if(tokens.movetoken.length() != 0) cout << "movetoken: " << tokens.movetoken << endl;
+ if(tokens.optionstoken.length() != 0) cout << "optionstoken: " << tokens.optionstoken << endl;
+ if(tokens.patroltoken.length() != 0) cout << "patroltoken: " << tokens.patroltoken << endl;
+ if(tokens.protecttoken.length() != 0) cout << "protecttoken: " << tokens.protecttoken << endl;
+ if(tokens.rollbacktoken.length() != 0) cout << "rollbacktoken: " << tokens.rollbacktoken << endl;
+ if(tokens.setglobalaccountstatustoken.length() != 0) cout << "setglobalaccountstatustoken: " << tokens.setglobalaccountstatustoken << endl;
+ if(tokens.unblocktoken.length() != 0) cout << "unblocktoken: " << tokens.unblocktoken << endl;
+ if(tokens.userrightstoken.length() != 0) cout << "userrightstoken: " << tokens.userrightstoken << endl;
+ if(tokens.watchtoken.length() != 0) cout << "watchtoken: " << tokens.watchtoken << endl;
  return true;
 }
 
@@ -355,7 +350,10 @@ void showHelp() {
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
- cout << "  tokens      Get tokens for data-modifying actions. Get arguments: block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
+ cout << "  tokens      Get tokens for data-modifying actions." << endl;
+ cout << "              Format: tokens <type>" << endl; 
+ cout << "                <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
+ cout << "              Example: tokens csrf" << endl;
  cout << "  thank       Send a thank-you notification to an editor."
 << endl; 
  cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;

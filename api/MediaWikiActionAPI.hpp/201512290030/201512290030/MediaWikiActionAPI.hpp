@@ -63,6 +63,24 @@ class MediaWikiActionAPI {
 ***************************************************************************/
 
 /*
+  Tokens:
+https://en.wikipedia.org/w/api.php?action=help&modules=tokens
+https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
+
+  type
+    Values (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch
+*/
+  void getTokens(LoginInfo* loginInfo, Tokens* tokens, const string& type) {
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&meta=tokens&type="+type+formatPart;
+   //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tmwaapi::getTokens res: " << res << endl;
+   tokens->fromJsonString(res);
+   //cout<<  "\t\tmwaapi::getTokens tokens:" << tokens << endl;
+  }
+};
+
+/*
  Login: 
 https://en.wikipedia.org/w/api.php?action=help&modules=login
 https://www.mediawiki.org/wiki/API:Login 
@@ -149,24 +167,6 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
-
-/*
-  Tokens:
-https://en.wikipedia.org/w/api.php?action=help&modules=tokens
-https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
-
-  type
-    Values (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch
-*/
-  void getTokens(LoginInfo* loginInfo, Tokens* tokens, const string& type) {
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&meta=tokens&type="+type+formatPart;
-   cout << "\t\tmwaapi::tokens fullUrl: " << fullUrl << endl;
-   string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::tokens res: " << res << endl;
-   tokens->fromJsonString(res);
-   cout<<  "\t\tmwaapi::tokens tokens:" << tokens << endl;
-  }
-};
 
 const string MediaWikiActionAPI::versionMajor = "201512290030";
 const string MediaWikiActionAPI::versionMinor = "201512290030";

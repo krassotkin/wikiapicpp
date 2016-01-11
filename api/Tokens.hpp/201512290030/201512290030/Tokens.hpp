@@ -42,6 +42,8 @@ class Tokens {
   static const string versionMajor;
   static const string versionMinor;
 
+  const string allTokens = "block|centralauth|csrf|delete|deleteglobalaccount|edit|email|import|move|options|patrol|protect|rollback|setglobalaccountstatus|unblock|userrights|watch";
+
   string batchcomplete;
   string blocktoken;
   string centralauthtoken;  
