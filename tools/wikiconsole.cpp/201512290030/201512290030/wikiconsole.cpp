@@ -243,9 +243,40 @@ bool expectsSite(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsTokens(const vector<string>& commandVector){
+ if(commandVector[0].compare("tokens") != 0) return false;
+ if((commandVector.size() < 2) || (commandVector.size() != 1)){
+  cout << "csrftoken: " << tokens.csrftoken << "\tdeletetoken: " << tokens.deletetoken << "\tdeleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << "\tedittoken: " << tokens.edittoken << "\temailtoken: " << tokens.emailtoken << "\timporttoken: " << tokens.importtoken << "\tmovetoken: " << tokens.movetoken << "\toptionstoken: " << tokens.optionstoken << "\tpatroltoken: " << tokens.patroltoken << "\tprotecttoken: " << tokens.protecttoken << "\trollbacktoken: " << tokens.rollbacktoken << "\tsetglobalaccountstatustoken: " << tokens.setglobalaccountstatustoken << "\tunblocktoken: " << tokens.unblocktoken << "\tuserrightstoken: " << tokens.userrightstoken << "\twatchtoken: " << tokens.watchtoken << endl; 
+  cout << "If you wanna get specific token, enter: tokens type" << endl;
+  cout << "EXAMPLE: tokens edit";
+  return true;
+ }
+ if(loginInfo.result.compare("Success") != 0) {
+  cout << "You are not logined..." << endl;
+  return true;
+ };
+ mwaapi.getTokens(&loginInfo, &tokens, commandVector[1]);
+ if(tokens.csrftoken.length() != 0) cout << "csrftoken: " << tokens.csrftoken << endl;
+ else if(tokens.deletetoken.length() != 0) cout << "deletetoken: " << tokens.deletetoken << endl;
+ else if(tokens.deleteglobalaccounttoken.length() != 0) cout << "deleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << endl;
+ else if(tokens.edittoken.length() != 0) cout << "edittoken: " << tokens.edittoken << endl;
+ else if(tokens.emailtoken.length() != 0) cout << "emailtoken: " << tokens.emailtoken << endl;
+ else if(tokens.importtoken.length() != 0) cout << "importtoken: " << tokens.importtoken << endl;
+ else if(tokens.movetoken.length() != 0) cout << "movetoken: " << tokens.movetoken << endl;
+ else if(tokens.optionstoken.length() != 0) cout << "optionstoken: " << tokens.optionstoken << endl;
+ else if(tokens.patroltoken.length() != 0) cout << "patroltoken: " << tokens.patroltoken << endl;
+ else if(tokens.protecttoken.length() != 0) cout << "protecttoken: " << tokens.protecttoken << endl;
+ else if(tokens.rollbacktoken.length() != 0) cout << "rollbacktoken: " << tokens.rollbacktoken << endl;
+ else if(tokens.setglobalaccountstatustoken.length() != 0) cout << "setglobalaccountstatustoken: " << tokens.setglobalaccountstatustoken << endl;
+ else if(tokens.unblocktoken.length() != 0) cout << "unblocktoken: " << tokens.unblocktoken << endl;
+ else if(tokens.userrightstoken.length() != 0) cout << "userrightstoken: " << tokens.userrightstoken << endl;
+ else if(tokens.watchtoken.length() != 0) cout << "watchtoken: " << tokens.watchtoken << endl;
+ return true;
+}
+
 bool expectsThank(const vector<string>& commandVector){
  if(commandVector[0].compare("thank") != 0) return false;
- cout << "\t\twikiconsole::expectsThank loginInfo.token: "  << loginInfo.token << endl;
+ //cout << "\t\twikiconsole::expectsThank loginInfo.token: "  << loginInfo.token << endl;
  if(commandVector.size() < 2) {
   cout << "Very few arguments to thank..." << endl;
   cout << "Thank format:" << endl;
@@ -282,6 +313,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
+ if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
  if(expectsVersions(commandVector)) return true;
  return false;
@@ -323,6 +355,7 @@ void showHelp() {
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
+ cout << "  tokens      Get tokens for data-modifying actions. Get arguments: block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
  cout << "  thank       Send a thank-you notification to an editor."
 << endl; 
  cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;

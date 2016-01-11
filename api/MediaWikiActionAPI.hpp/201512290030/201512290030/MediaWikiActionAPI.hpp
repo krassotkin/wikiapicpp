@@ -143,11 +143,11 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
   void thank(LoginInfo* loginInfo, Tokens* tokens, const string& revidString) {
    if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=thank&rev="+revidString+formatPart;
-   cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
    string postFields = "token="+escape(tokens->csrftoken);
-   cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
+   //cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
-   cout << "\t\tmwaapi::thank res: " << res << endl;
+   //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
 
 /*
@@ -164,6 +164,7 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
    string res=curlWrapper.getFirstPagePost(fullUrl);
    cout << "\t\tmwaapi::tokens res: " << res << endl;
    tokens->fromJsonString(res);
+   cout<<  "\t\tmwaapi::tokens tokens:" << tokens << endl;
   }
 };
 
