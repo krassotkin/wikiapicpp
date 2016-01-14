@@ -17,23 +17,24 @@ Examples:
  since 2015-12-29
 */ 
 
-#ifndef _TERMIOS_H
-#include <termios.h>
-#endif
-#ifndef _STDIO_H
-#include <stdio.h>
-#endif
-
-#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
 
+// shared
+#include "CurlWrapper.hpp"
+#include "json11.hpp"
+
 // api
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
+#include "PageRevisions.hpp"
+#include "Revision.hpp"
 #include "Revisions.hpp"
 #include "Tokens.hpp"
+
+// abstract
+#include "WikimediaProjects.hpp"
 
 using namespace std;
 
@@ -52,7 +53,6 @@ void showVersions();
 
 vector<string> getCommandVector() {
  string commandLine;
- //cin >> commandLine;
  getline(cin, commandLine);
  //cout << "\tcommandLine: " << commandLine << endl;
  vector<string> commandVector;
@@ -208,7 +208,6 @@ bool expectsLogin(const vector<string>& commandVector) {
   cout << "Success logined..." << endl;
   consolePrefix = "["+loginInfo.lgusername+"@"+loginInfo.cookieprefix+"]> ";
  }
- //cout << "\t\twikiconsole::expectsLogin loginInfo.token: "  << loginInfo.token << endl;
  return true;
 }
 
@@ -242,6 +241,12 @@ bool expectsSite(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsSites(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("sites")!=0) return false;
+ for(WikimediaProject wp : WikimediaProjects::list) cout << wp.getSite() << endl;
+ return true;
+}
+
 bool expectsTokens(const vector<string>& commandVector){
  if(commandVector[0].compare("tokens") != 0) return false;
  if(!loginInfo.isLogin()) {
@@ -250,7 +255,7 @@ bool expectsTokens(const vector<string>& commandVector){
  };
  string type = (commandVector.size()>1) ? commandVector[1] : tokens.allTokens;
  mwaapi.getTokens(&loginInfo, &tokens, type);
- if(tokens.csrftoken.length() != 0)) cout << "csrftoken: " << tokens.csrftoken << endl;
+ if(tokens.csrftoken.length() != 0) cout << "csrftoken: " << tokens.csrftoken << endl;
  if(tokens.deletetoken.length() != 0) cout << "deletetoken: " << tokens.deletetoken << endl;
  if(tokens.deleteglobalaccounttoken.length() != 0) cout << "deleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << endl;
  if(tokens.edittoken.length() != 0) cout << "edittoken: " << tokens.edittoken << endl;
@@ -270,7 +275,6 @@ bool expectsTokens(const vector<string>& commandVector){
 
 bool expectsThank(const vector<string>& commandVector){
  if(commandVector[0].compare("thank") != 0) return false;
- //cout << "\t\twikiconsole::expectsThank loginInfo.token: "  << loginInfo.token << endl;
  if(commandVector.size() < 2) {
   cout << "Very few arguments to thank..." << endl;
   cout << "Thank format:" << endl;
@@ -307,6 +311,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
+ if(expectsSites(commandVector)) return true;
  if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
  if(expectsVersions(commandVector)) return true;
@@ -349,6 +354,7 @@ void showHelp() {
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
+ cout << "  sites       Print urls of all wikimedia projects." << endl;
  cout << "  tokens      Get tokens for data-modifying actions." << endl;
  cout << "              Format: tokens <type>" << endl; 
  cout << "                <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
@@ -361,11 +367,18 @@ void showHelp() {
 }
 
 void showVersions() {
- cout << endl << "Versions of wikiconsole and components (major.minor):" << endl;
- cout << "\twikiconsole " << versionMajor << "." << versionMinor << endl;
+ cout << endl << "Versions of wikiconsole and components (major.minor):" << endl << endl;
+ cout << "\twikiconsole " << versionMajor << "." << versionMinor << endl << endl;
  cout << "\tCurlWrapper " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
  cout << "\tLoginInfo " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
- cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl << endl;
+ cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
+ cout << "\tPageRevisions " << PageRevisions::versionMajor << "." << PageRevisions::versionMinor << endl;
+ cout << "\tRevision " << Revision::versionMajor << "." << Revision::versionMinor << endl;
+ cout << "\tRevisions " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;
+ cout << "\tWikimediaProject " << WikimediaProject::versionMajor << "." << WikimediaProject::versionMinor << endl;
+ cout << "\tWikimediaProjects " << WikimediaProjects::versionMajor << "." << WikimediaProjects::versionMinor << endl;
+ cout << "\tTokens " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
+ cout << endl;
 }
 
 int main(int argc, char *argv[]) {

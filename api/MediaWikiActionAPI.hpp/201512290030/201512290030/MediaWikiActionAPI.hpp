@@ -12,7 +12,6 @@
  since 2015-12-29
 */
 
-#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -22,9 +21,13 @@ using namespace std;
 
 // shared
 #include "CurlWrapper.hpp"
+#include "json11.hpp"
 
 // api
 #include "LoginInfo.hpp"
+#include "MediaWikiActionAPI.hpp"
+#include "PageRevisions.hpp"
+#include "Revision.hpp"
 #include "Revisions.hpp"
 #include "Tokens.hpp"
 
@@ -76,9 +79,7 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::getTokens res: " << res << endl;
    tokens->fromJsonString(res);
-   //cout<<  "\t\tmwaapi::getTokens tokens:" << tokens << endl;
   }
-};
 
 /*
  Login: 
@@ -167,6 +168,8 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
+
+};
 
 const string MediaWikiActionAPI::versionMajor = "201512290030";
 const string MediaWikiActionAPI::versionMinor = "201512290030";
