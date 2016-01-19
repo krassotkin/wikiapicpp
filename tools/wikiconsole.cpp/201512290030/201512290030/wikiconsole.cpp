@@ -17,8 +17,10 @@ Examples:
  since 2015-12-29
 */ 
 
+#include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 // shared
@@ -34,6 +36,7 @@ Examples:
 #include "Tokens.hpp"
 
 // abstract
+#include "WikimediaProject.hpp"
 #include "WikimediaProjects.hpp"
 
 using namespace std;
@@ -46,6 +49,7 @@ const string consolePrefixDefault = "[anonymous]> ";
 string consolePrefix = consolePrefixDefault;
 LoginInfo loginInfo;
 MediaWikiActionAPI mwaapi;
+chrono::nanoseconds timeout = chrono::seconds(1);
 Tokens tokens;
 
 void showHelp();
@@ -211,6 +215,39 @@ bool expectsLogin(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsLoginAll(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("loginall")!=0) return false;
+ if(commandVector.size() < 3) {
+  cout << "Very few arguments to loginall..." << endl;
+  cout << "Loginall format:" << endl;
+  cout << "\tloginall username userpassword" << endl;
+  cout << "Example:" << endl;
+  cout << "\tloginall bob bobsecretpass" << endl;
+  return true;
+ }
+ for(WikimediaProject wikimediaProject : WikimediaProjects::list) {
+  if(wikimediaProject.active == 0) continue;
+  loginInfo.site = wikimediaProject.getSite();
+  loginInfo.lgusername = commandVector[1];
+  loginInfo.lgpassword = commandVector[2];
+  cout << "Login to: " << loginInfo.site << " ... ";
+  mwaapi.login(&loginInfo);
+  if(loginInfo.result.compare("Success") != 0) {
+   cout << "failed!" << endl;
+   cout << "\tResponse:" << endl;
+   cout << loginInfo.toJson() << endl;
+  } else {
+   cout << "success .";
+   mwaapi.logout(&loginInfo);
+   cout << ".";
+   this_thread::sleep_for(timeout);
+   cout << ". logout" << endl;
+  }
+  this_thread::sleep_for(timeout);
+ }
+ return true;
+}
+
 bool expectsLogout(const vector<string>& commandVector) {
  if(commandVector[0].compare("logout") != 0) return false;
  if(loginInfo.result.compare("Success") != 0) {
@@ -309,6 +346,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsHelp(commandVector)) return true;
  if(expectsHistory(commandVector)) return true;
  if(expectsLogin(commandVector))return true;
+ if(expectsLoginAll(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
  if(expectsSites(commandVector)) return true;
@@ -350,6 +388,9 @@ void showHelp() {
  cout << "  login       Login to a media wiki server." << endl;
  cout << "              Format: login site username userpassword" << endl;
  cout << "              Example: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
+ cout << "  loginall    Login to all media wiki projects." << endl;
+ cout << "              Format: loginall username userpassword" << endl;
+ cout << "              Example: loginall bob bobsecretpass" << endl;
  cout << "  logout      Log out and clear session data." << endl;
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
@@ -375,9 +416,9 @@ void showVersions() {
  cout << "\tPageRevisions " << PageRevisions::versionMajor << "." << PageRevisions::versionMinor << endl;
  cout << "\tRevision " << Revision::versionMajor << "." << Revision::versionMinor << endl;
  cout << "\tRevisions " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;
+ cout << "\tTokens " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
  cout << "\tWikimediaProject " << WikimediaProject::versionMajor << "." << WikimediaProject::versionMinor << endl;
  cout << "\tWikimediaProjects " << WikimediaProjects::versionMajor << "." << WikimediaProjects::versionMinor << endl;
- cout << "\tTokens " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
  cout << endl;
 }
 
