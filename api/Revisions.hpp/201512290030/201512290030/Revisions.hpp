@@ -18,8 +18,11 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Brevisions
 https://www.mediawiki.org/wiki/API:Revisions
 
  Example:
+
+ Request:
 https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krassotkin&rvlimit=20&rvprop=ids|flags|timestamp|user|userid|size|sha1|contentmodel|comment|parsedcomment|content|tags|parsetree|flagged
 
+ Response:
 {
     "batchcomplete": "",
     "query": {
@@ -46,6 +49,39 @@ https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krass
                         "*": "[[File:Premia Runeta 2012 - Aleksandr Krassotkin.jpg|right|250px]]\n{{#babel:ru|uk|en-1}}\n'''Alexander N Krassotkin'''\n\nUser of [[n:ru:User:Krassotkin|Russian Wikinews]] and [[w:ru:User:Krassotkin|Russian Wikipedia]], [[c:User:Krassotkin|Wikimedia Commons]], [[d:User:Krassotkin|Wikidata]] and [https://tools.wmflabs.org/quentinv57-tools/tools/sulinfo.php?username=Krassotkin other projects].\n\nContacts: [http://krassotkin.com/ krassotkin.com].\n\n{{-}}\n\n{{userpage|User:Krassotkin}}\n\n[[fr:Utilisateur:Krassotkin]]\n[[it:Utente:Krassotkin]]\n[[pl:Wikipedysta:Krassotkin]]\n[[pt:Usu\u00e1rio:Krassotkin]]\n[[ru:\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:Krassotkin]]\n[[uk:\u041a\u043e\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447:Krassotkin]]"
                     },
                     ...
+                ]
+            }
+        }
+    }
+}
+
+ Example:
+
+ Request:
+https://ru.wikinews.org/w/api.php?action=query&prop=revisions&titles=User:Krassotkin&rvprop=content
+
+ Response:
+
+{
+    "batchcomplete": "",
+    "query": {
+        "normalized": [
+            {
+                "from": "User:Krassotkin",
+                "to": "\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:Krassotkin"
+            }
+        ],
+        "pages": {
+            "8143": {
+                "pageid": 8143,
+                "ns": 2,
+                "title": "\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:Krassotkin",
+                "revisions": [
+                    {
+                        "contentformat": "text/x-wiki",
+                        "contentmodel": "wikitext",
+                        "*": "<table style=\"float:left;vertical-align:top;width:100%\">\n <tr>\n  <td style=\"min-width:250px;vertical-align:top;width:80%\">\n'''\u0410\u043b\u0435\u043a\u0441\u0430\u043d\u0434\u0440 \u041a\u0440\u0430\u0441\u043e\u0442\u043a\u0438\u043d'''\n\n[[\u0412\u0438\u043a\u0438\u043d\u043e\u0432\u043e\u0441\u0442\u0438:\u0411\u044e\u0440\u043e\u043a\u0440\u0430\u0442\u044b|\u0411\u044e\u0440\u043e\u043a\u0440\u0430\u0442]] \u0438 [[\u0412\u0438\u043a\u0438\u043d\u043e\u0432\u043e\u0441\u0442\u0438:\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u044b|\u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440]] \u0420\u0443\u0441\u0441\u043a\u0438\u0445 \u0412\u0438\u043a\u0438\u043d\u043e\u0432\u043e\u0441\u0442\u0435\u0439, [[meta:Special:CentralAuth/Krassotkin|\u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a \u0434\u0440\u0443\u0433\u0438\u0445 \u043f\u0440\u043e\u0435\u043a\u0442\u043e\u0432 \u0412\u0438\u043a\u0438\u043c\u0435\u0434\u0438\u0430]].\n\n\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b: [http://www.krassotkin.ru/ krassotkin.ru].\n\n\u0420\u0443\u0447\u043d\u043e\u0439 \u0431\u043e\u0442: [[\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:NewsBots|NewsBots]].\n  </td>\n  <td style=\"vertical-align:top;\">\n<div style=\"float:left;\">\n   {{Userbox/\u0420\u0430\u0434 \u043f\u043e\u043c\u043e\u0447\u044c \u043d\u043e\u0432\u0438\u0447\u043a\u0443}}\n   {{Userbox/\u041e\u0431\u0440\u0430\u0449\u0435\u043d\u0438\u0435 \u043d\u0430 \u0442\u044b}}\n   {{Userbox|id=\u0421\u0410\u0428\u0410|id-c=#FFFFFF|id-s=8|info=\u042d\u0442\u043e\u0442 \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a  \u043f\u0440\u0435\u0434\u043f\u043e\u0447\u0438\u0442\u0430\u0435\u0442 \u043e\u0431\u0440\u0430\u0449\u0435\u043d\u0438\u0435 \u043f\u043e \u0438\u043c\u0435\u043d\u0438|info-c=#FFEF8F|border-c=#F1B7A8}}\n   {{Userbox/\u041f\u043e\u043f\u0440\u0430\u0432\u043b\u044f\u0439\u0442\u0435}}\n</div>\n  </td>\n  <td style=\"vertical-align:top;\"><div style=\"float:right\"><div>{{#babel:ru|uk|en-1}}</div></div></td>\n </tr>\n <tr>\n  <td colspan=\"4\" style=\"text-align:center;\">\n<inputbox>\ntype=create\npreload=\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a: Krassotkin/Create News\neditintro=\nwidth=42\nbgcolor=#ddf\n</inputbox>\n<div style=\"float:center;margin-left:auto;margin-right:auto;text-align:center;width:98%;\">{{Userpage}}</div>\n  </td>\n </tr>\n</table>\n\n[[\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f:\u0412\u0438\u043a\u0438\u043d\u043e\u0432\u043e\u0441\u0442\u0438:\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u044b]]\n[[\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f:\u0412\u0438\u043a\u0438\u043d\u043e\u0432\u043e\u0441\u0442\u0438:\u0411\u044e\u0440\u043e\u043a\u0440\u0430\u0442\u044b]]\n\n[[en:User:Krassotkin]]\n[[uk:\u041a\u043e\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447:Krassotkin]]"
+                    }
                 ]
             }
         }
@@ -126,6 +162,7 @@ class Revisions {
   vector<PageRevisions> pages;
   map<long, PageRevisions> pagesById;
   map<string, PageRevisions> pagesByTitle;
+  map<string, string> pagesNormalizedTitles;
 
   Revisions() {}
   
@@ -176,6 +213,12 @@ class Revisions {
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto query = json["query"].object_items();
+   auto normalizedJson = query["normalized"].array_items();
+   for(auto inor : normalizedJson) {
+    string from = inor["from"].string_value();
+    string to = inor["to"].string_value();
+    pagesNormalizedTitles[from] = to;
+   }
    auto pagesJson = query["pages"].object_items();
    for(auto ipr : pagesJson) {
     PageRevisions pageRevisions(ipr.second);

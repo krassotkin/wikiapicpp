@@ -89,6 +89,44 @@ vector<string> getCommandVector() {
  return commandVector;
 }
 
+bool expectsContent(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("content")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"content\"." << endl;
+  return true;
+ }
+ if(commandVector.size() < 2) {
+  cout << "Very few arguments for content..." << endl;
+  cout << "Content format:" << endl;
+  cout << "\tcontent \"Name or id of page\"" << endl;
+  cout << "Example:" << endl;
+  cout << "\tcontent \"Main Page\"" << endl;
+  cout << "\tcontent 15580374" << endl;
+  return true;
+ }
+ Revisions revisions;
+ try {
+  long pageids = stol(commandVector[1]);
+  revisions.pageids = to_string(pageids);
+ } catch(...) {
+  revisions.titles = commandVector[1];
+ }
+ revisions.rvprop="content";
+ mwaapi.revisions(&loginInfo, &revisions);
+ if(revisions.pages.size()==0) {
+  cout << "Page not found..." << endl;
+  return true;
+ }
+ cout << "Content of \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ")" << endl;
+ if(revisions.pages[0].revisions.size()==0) {
+  cout << "Content not found." << endl;
+  return true;
+ }
+ cout << revisions.pages[0].revisions[0].content << endl;
+ return true;
+}
+
 bool expectsEcho(const vector<string>& commandVector) {
  if(commandVector[0].compare("echo") != 0) return false;
  for(unsigned int ic = 1; ic < commandVector.size(); ic++) cout << "\"" << commandVector[ic] << "\" ";
@@ -172,7 +210,7 @@ bool expectsHistory(const vector<string>& commandVector) {
  }
  cout << "Revision history of \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ")" << endl;
  if(revisions.pages[0].revisions.size()==0) {
-  cout << "Not found." << endl;
+  cout << "Revisions not found." << endl;
   return true;
  }
  for(Revision r : revisions.pages[0].revisions) {
@@ -342,6 +380,7 @@ bool expectsVersions(const vector<string>& commandVector) {
 
 bool parseCommandLine(const vector<string>& commandVector) {
  if(commandVector.size() == 0) return false;
+ if(expectsContent(commandVector)) return true;
  if(expectsEcho(commandVector)) return true;
  if(expectsHelp(commandVector)) return true;
  if(expectsHistory(commandVector)) return true;
@@ -378,6 +417,10 @@ void showHelp() {
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
+ cout << "  content     Return content of a wikipage. Use after \"login\"." << endl;
+ cout << "              Format: content \"Name or id of page\"" << endl;
+ cout << "              Example: content \"Main Page\"" << endl;
+ cout << "              Type \"content\" without quotes and options for more information." << endl;
  cout << "  echo        Show parsed command line with options." << endl;
  cout << "  help        Show this help." << endl;
  cout << "              Aliases: --help, -h, h, help." << endl;
