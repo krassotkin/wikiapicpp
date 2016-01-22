@@ -28,6 +28,7 @@ Examples:
 #include "json11.hpp"
 
 // api
+#include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
 #include "PageRevisions.hpp"
@@ -58,7 +59,7 @@ void showVersions();
 vector<string> getCommandVector() {
  string commandLine;
  getline(cin, commandLine);
- //cout << "\tcommandLine: " << commandLine << endl;
+ //cout << "\tcommandLine (" << commandLine.length() << "): " << commandLine << endl;
  vector<string> commandVector;
  if(commandLine.length() == 0) return commandVector;
  string commandLinePart;
@@ -112,6 +113,7 @@ bool expectsContent(const vector<string>& commandVector) {
  } catch(...) {
   revisions.titles = commandVector[1];
  }
+ cout << "wikiconsole::expectsContent revisions.titles: " << revisions.titles << endl;
  revisions.rvprop="content";
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
@@ -124,6 +126,58 @@ bool expectsContent(const vector<string>& commandVector) {
   return true;
  }
  cout << revisions.pages[0].revisions[0].content << endl;
+ return true;
+}
+
+bool expectsCreate(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("create") != 0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" before \"create\"." << endl;
+  return true;
+ }
+ if(commandVector.size() < 2) {
+  cout << "Very few arguments for content..." << endl;
+  cout << "Content format:" << endl;
+  cout << "\tcreate \"Name of page\"" << endl;
+  cout << "Example:" << endl;
+  cout << "\tcreate \"User:Test/Test\"" << endl;
+  return true;
+ }
+ // Test page exists.
+ Revisions revisions;
+ revisions.titles = commandVector[1];
+ revisions.rvprop="ids|timestamp";
+ mwaapi.revisions(&loginInfo, &revisions);
+ if(revisions.pages.size()>0 && revisions.pages[0].revisions.size() > 0) {
+  cout << "Page \"" << revisions.titles << "\" already exists." << endl;
+  cout << "Please use \"edit\" or \"upload\" for update." << endl;
+  return true;
+ }
+ Edit edit;
+ edit.title = commandVector[1];
+ // One line editor
+ vector<string> contentVector;
+ cout << "Please type your conten of new page \"" << revisions.titles << "\" in this one line editor." << endl;
+ cout << "Use commands:" << endl;
+ cout << "%EOF      To end editing and save." << endl;
+ cout << "%QUIT     To quit from \"create\" wikiconsole command without save." << endl;
+ while(true) {
+  string s;
+  cout << (contentVector.size()+1) << " <<< ";
+  getline(cin, s);
+  if(s.compare("%EOF") == 0) break;
+  if(s.compare("%QUIT") == 0) {
+   cout << "Creating the new page was interrupted without saving." << endl;
+   return true;
+  }
+  contentVector.push_back(s);
+ }
+ for(string si : contentVector) edit.text += si+"\n";
+ // Summary
+ cout << "Please enter a summary (description) of the changes: " << endl;
+ getline(cin, edit.summary);
+ mwaapi.edit(&loginInfo, &tokens, &edit);
  return true;
 }
 
@@ -381,6 +435,7 @@ bool expectsVersions(const vector<string>& commandVector) {
 bool parseCommandLine(const vector<string>& commandVector) {
  if(commandVector.size() == 0) return false;
  if(expectsContent(commandVector)) return true;
+ if(expectsCreate(commandVector)) return true;
  if(expectsEcho(commandVector)) return true;
  if(expectsHelp(commandVector)) return true;
  if(expectsHistory(commandVector)) return true;
@@ -420,7 +475,9 @@ void showHelp() {
  cout << "  content     Return content of a wikipage. Use after \"login\"." << endl;
  cout << "              Format: content \"Name or id of page\"" << endl;
  cout << "              Example: content \"Main Page\"" << endl;
- cout << "              Type \"content\" without quotes and options for more information." << endl;
+ cout << "  create      Create a wikipage. Use after \"login\"." << endl;
+ cout << "              Format: create \"User:Wikiapicpp/test page\"" << endl;
+ cout << "              Example: content \"Main Page\"" << endl;
  cout << "  echo        Show parsed command line with options." << endl;
  cout << "  help        Show this help." << endl;
  cout << "              Aliases: --help, -h, h, help." << endl;
@@ -454,6 +511,7 @@ void showVersions() {
  cout << endl << "Versions of wikiconsole and components (major.minor):" << endl << endl;
  cout << "\twikiconsole " << versionMajor << "." << versionMinor << endl << endl;
  cout << "\tCurlWrapper " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
+ cout << "\tEdit " << Edit::versionMajor << "." << Edit::versionMinor << endl;
  cout << "\tLoginInfo " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
  cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
  cout << "\tPageRevisions " << PageRevisions::versionMajor << "." << PageRevisions::versionMinor << endl;

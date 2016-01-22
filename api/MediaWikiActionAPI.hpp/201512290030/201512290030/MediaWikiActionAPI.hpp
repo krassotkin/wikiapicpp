@@ -24,6 +24,7 @@ using namespace std;
 #include "json11.hpp"
 
 // api
+#include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
 #include "PageRevisions.hpp"
@@ -54,16 +55,63 @@ class MediaWikiActionAPI {
 
  string escape(const string& s) {
   string res;
+  /*
   for(char c : s) {
    if(c == ' ') res+='_';
    else res += c;
   }
   return curlWrapper.escape(res);
+  */
+  return curlWrapper.escape(s);
  }
 
 /***************************************************************************
 *                              API                                         *
 ***************************************************************************/
+
+/*
+ Edit:
+https://en.wikipedia.org/w/api.php?action=help&modules=edit
+https://www.mediawiki.org/wiki/API:Edit
+
+ See Edit.hpp for details.
+*/
+ void edit(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
+  if(loginInfo->site.length() == 0) return;
+  if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+  string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
+  //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
+  string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
+  postFields += edit->section == -1 ? "" : "&section="+to_string(edit->section);
+  postFields += edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle);
+  postFields += edit->text.length() == 0 ? "" : "&text="+escape(edit->text);
+  postFields += edit->summary.length() == 0 ? "" : "&summary="+escape(edit->summary);
+  postFields += edit->tags.length() == 0 ? "" : "&tags="+escape(edit->tags);
+  postFields += edit->minor == -1 ? "" : "&minor="+to_string(edit->minor);
+  postFields += edit->notminor == -1 ? "" : "&notminor="+to_string(edit->notminor);
+  postFields += edit->bot == -1 ? "" : "&bot="+to_string(edit->bot);
+  postFields += edit->basetimestamp.length() == 0 ? "" : "&basetimestamp="+escape(edit->basetimestamp);
+  postFields += edit->starttimestamp.length() == 0 ? "" : "&starttimestamp="+escape(edit->starttimestamp);
+  postFields += edit->recreate == -1 ? "" : "&recreate="+to_string(edit->recreate);
+  postFields += edit->createonly == -1 ? "" : "&createonly="+to_string(edit->createonly);
+  postFields += edit->nocreate == -1 ? "" : "&nocreate="+to_string(edit->nocreate);
+  postFields += edit->watchlist.length() == 0 ? "" : "&watchlist="+escape(edit->watchlist);
+  postFields += edit->md5.length() == 0 ? "" : "&md5="+escape(edit->md5);
+  postFields += edit->prependtext.length() == 0 ? "" : "&prependtext="+escape(edit->prependtext);
+  postFields += edit->appendtext.length() == 0 ? "" : "&appendtext="+escape(edit->appendtext);
+  postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
+  postFields += edit->undoafter == -1 ? "" : "&undoafter="+to_string(edit->undoafter);
+  postFields += edit->redirect == -1 ? "" : "&redirect="+to_string(edit->redirect);
+  postFields += edit->contentformat.length() == 0 ? "" : "&contentformat="+escape(edit->contentformat);
+  postFields += edit->contentmodel.length() == 0 ? "" : "&contentmodel="+escape(edit->contentmodel);
+  postFields += edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword);
+  postFields += edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid);
+  postFields += "&token="+escape(tokens->csrftoken);
+  postFields += "&token="+escape(tokens->csrftoken);
+  //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
+  string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
+  //cout << "\t\tmwaapi::edit res: " << res << endl;
+ }
 
 /*
   Tokens:
@@ -126,7 +174,7 @@ https://www.mediawiki.org/wiki/API:Revisions
 */
   void revisions(LoginInfo* loginInfo, Revisions* revisions) {
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&prop=revisions";
-   fullUrl+= "&" + (revisions->titles.length()>0 ? "titles="+escape(revisions->titles) : "pageids="+revisions->pageids);
+   fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
    fullUrl+= revisions->rvprop.length()==0 ? "" : "&rvprop=" + revisions->rvprop;
    fullUrl+= revisions->rvlimit == -1 ? "" : "&rvlimit=" + to_string(revisions->rvlimit);
    fullUrl+= revisions->rvexpandtemplates == -1 ? "" : "&rvexpandtemplates=" + to_string(revisions->rvexpandtemplates);
@@ -146,9 +194,9 @@ https://www.mediawiki.org/wiki/API:Revisions
    fullUrl+= revisions->rvtag.length()==0 ? "" : "&rvtag=" + revisions->rvtag;
    fullUrl+= revisions->rvcontinue.length()==0 ? "" : "&rvcontinue=" + revisions->rvcontinue;
    fullUrl+= formatPart;
-   //cout << "\t\ttmwaapi::revisions fullUrl: " << fullUrl << endl;
+   cout << "\t\ttmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\ttmwaapi::revisions res: " << res << endl;
+   cout << "\t\ttmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
 

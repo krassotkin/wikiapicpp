@@ -88,6 +88,11 @@ https://ru.wikinews.org/w/api.php?action=query&prop=revisions&titles=User:Krasso
     }
 }
 
+ Example (empty page):
+
+ Response:
+{"batchcomplete":"","query":{"normalized":[{"from":"test","to":"Test"}],"pages":{"-1":{"ns":0,"title":"Test","missing":""}}}}
+
  Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
  since 2015-12-29
 */

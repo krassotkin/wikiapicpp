@@ -33,7 +33,6 @@ https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krass
  since 2015-12-29
 */
 
-#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <string>
