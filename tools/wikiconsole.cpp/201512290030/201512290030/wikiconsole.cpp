@@ -18,8 +18,10 @@ Examples:
 */ 
 
 #include <chrono>
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 #include <thread>
 #include <vector>
 
@@ -113,7 +115,7 @@ bool expectsContent(const vector<string>& commandVector) {
  } catch(...) {
   revisions.titles = commandVector[1];
  }
- cout << "wikiconsole::expectsContent revisions.titles: " << revisions.titles << endl;
+ //cout << "wikiconsole::expectsContent revisions.titles: " << revisions.titles << endl;
  revisions.rvprop="content";
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
@@ -178,6 +180,50 @@ bool expectsCreate(const vector<string>& commandVector) {
  cout << "Please enter a summary (description) of the changes: " << endl;
  getline(cin, edit.summary);
  mwaapi.edit(&loginInfo, &tokens, &edit);
+ return true;
+}
+
+bool expectsDownload(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("download")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"download\"." << endl;
+  return true;
+ }
+ if(commandVector.size() < 3) {
+  cout << "Very few arguments for content..." << endl;
+  cout << "Download format:" << endl;
+  cout << "\tdownload \"Name or id of page\" \"Path to file\"" << endl;
+  cout << "Example:" << endl;
+  cout << "\tdownload \"Main Page\" \"wikipedia.main.page\"" << endl;
+  cout << "\tdownload 15580374 \"wikipedia.15580374\"" << endl;
+  return true;
+ }
+ Revisions revisions;
+ try {
+  long pageids = stol(commandVector[1]);
+  revisions.pageids = to_string(pageids);
+ } catch(...) {
+  revisions.titles = commandVector[1];
+ }
+ //cout << "wikiconsole::expectsDownload revisions.titles: " << revisions.titles << endl;
+ revisions.rvprop="content";
+ mwaapi.revisions(&loginInfo, &revisions);
+ if(revisions.pages.size()==0) {
+  cout << "Page not found..." << endl;
+  return true;
+ }
+ if(revisions.pages[0].revisions.size()==0) {
+  cout << "Content not found." << endl;
+  return true;
+ }
+ ofstream outfile(commandVector[2]);
+ if(outfile) {
+  outfile << revisions.pages[0].revisions[0].content;
+  cout << "Page \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ") saved to file \"" << commandVector[2] << "\"" << endl;
+ } else {
+  cout << "Cannot save to file: " << commandVector[2] << endl;
+ }
  return true;
 }
 
@@ -436,6 +482,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(commandVector.size() == 0) return false;
  if(expectsContent(commandVector)) return true;
  if(expectsCreate(commandVector)) return true;
+ if(expectsDownload(commandVector)) return true;
  if(expectsEcho(commandVector)) return true;
  if(expectsHelp(commandVector)) return true;
  if(expectsHistory(commandVector)) return true;
@@ -478,6 +525,9 @@ void showHelp() {
  cout << "  create      Create a wikipage. Use after \"login\"." << endl;
  cout << "              Format: create \"User:Wikiapicpp/test page\"" << endl;
  cout << "              Example: content \"Main Page\"" << endl;
+ cout << "  download    Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
+ cout << "              Format: download \"Name or id of page\" \"Path to file\"" << endl;
+ cout << "              Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
  cout << "  echo        Show parsed command line with options." << endl;
  cout << "  help        Show this help." << endl;
  cout << "              Aliases: --help, -h, h, help." << endl;

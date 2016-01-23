@@ -194,9 +194,9 @@ https://www.mediawiki.org/wiki/API:Revisions
    fullUrl+= revisions->rvtag.length()==0 ? "" : "&rvtag=" + revisions->rvtag;
    fullUrl+= revisions->rvcontinue.length()==0 ? "" : "&rvcontinue=" + revisions->rvcontinue;
    fullUrl+= formatPart;
-   cout << "\t\ttmwaapi::revisions fullUrl: " << fullUrl << endl;
+   //cout << "\t\ttmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\ttmwaapi::revisions res: " << res << endl;
+   //cout << "\t\ttmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
 
