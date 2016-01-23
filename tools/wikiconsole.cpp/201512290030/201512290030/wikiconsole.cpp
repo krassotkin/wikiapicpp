@@ -466,6 +466,52 @@ bool expectsThank(const vector<string>& commandVector){
  return true;
 }
 
+bool expectsUpload(const vector<string>& commandVector){
+ if(commandVector.size()<1 || commandVector[0].compare("upload") != 0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" before \"create\"." << endl;
+  return true;
+ }
+ if(commandVector.size() < 3) {
+  cout << "Very few arguments for upload..." << endl;
+  cout << "Upload format:" << endl;
+  cout << "\tupload \"Name of page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
+  cout << "Example:" << endl;
+  cout << "\tupload \"User:Test/Test\" \"test\" \"update data\"" << endl;
+  return true;
+ }
+ // Test file exists.
+ struct stat buffer;   
+ if (stat(commandVector[2].c_str(), &buffer) != 0) {
+  cout << "File \"" + commandVector[2] + "\" not found.";
+  return true;
+ }
+ Edit edit;
+ try {
+  long int pageid = stol(commandVector[1]);
+  edit.pageid = pageid;
+ } catch(...) {
+  edit.title = commandVector[1];
+ }
+ ifstream infile(commandVector[2]);
+ if(infile) {
+  string l = "";
+  while (getline(infile, l)) edit.text += l + "\n";
+ } else {
+  cout << "Cannot open file: " << commandVector[2] << endl;
+ }
+ // Summary
+ if(commandVector.size() < 4 && commandVector[3].length() == 0) {
+  cout << "Please enter a summary (description) of the changes: " << endl;
+  getline(cin, edit.summary);
+ } else {
+  edit.summary = commandVector[3];
+ }
+ mwaapi.edit(&loginInfo, &tokens, &edit);
+ return true;
+}
+
 bool expectsVersions(const vector<string>& commandVector) {
  if(commandVector[0].compare("--version") == 0
     || commandVector[0].compare("--versions") == 0
@@ -493,6 +539,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsSites(commandVector)) return true;
  if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
+ if(expectsUpload(commandVector)) return true;
  if(expectsVersions(commandVector)) return true;
  return false;
 }
@@ -550,8 +597,10 @@ void showHelp() {
  cout << "              Format: tokens <type>" << endl; 
  cout << "                <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
  cout << "              Example: tokens csrf" << endl;
- cout << "  thank       Send a thank-you notification to an editor."
-<< endl; 
+ cout << "  thank       Send a thank-you notification to an editor." << endl; 
+ cout << "  upload      Upload content of a file from local disc to a wikipage. Use after \"login\"." << endl;
+ cout << "              Format: upload \"Name or id of page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
+ cout << "              Example: upload \"Main Page\" \"apage\" \"update data\"" << endl;
  cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;
  cout << "              Aliases: --version, --versions, -v, version, versions." << endl;
  cout << endl;

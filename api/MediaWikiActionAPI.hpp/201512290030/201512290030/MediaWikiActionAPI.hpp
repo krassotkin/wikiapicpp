@@ -80,7 +80,7 @@ https://www.mediawiki.org/wiki/API:Edit
   if(loginInfo->site.length() == 0) return;
   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
-  //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
+  cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
   postFields += edit->section == -1 ? "" : "&section="+to_string(edit->section);
   postFields += edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle);
@@ -108,9 +108,9 @@ https://www.mediawiki.org/wiki/API:Edit
   postFields += edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid);
   postFields += "&token="+escape(tokens->csrftoken);
   postFields += "&token="+escape(tokens->csrftoken);
-  //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
+  cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-  //cout << "\t\tmwaapi::edit res: " << res << endl;
+  cout << "\t\tmwaapi::edit res: " << res << endl;
  }
 
 /*
