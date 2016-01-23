@@ -8,7 +8,7 @@
  The MediaWiki action API Help: https://en.wikipedia.org/w/api.php
  The MediaWiki action API Sandbox: https://en.wikipedia.org/wiki/Special:ApiSandbox
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin.
  since 2015-12-29
 */
 
@@ -81,7 +81,7 @@ https://www.mediawiki.org/wiki/API:Edit
   if(loginInfo->site.length() == 0) return;
   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
-  //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
+  //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
   postFields += edit->section == -1 ? "" : "&section="+to_string(edit->section);
   postFields += edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle);
@@ -108,7 +108,7 @@ https://www.mediawiki.org/wiki/API:Edit
   postFields += edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword);
   postFields += edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid);
   postFields += "&token="+escape(tokens->csrftoken);
-  //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
+  //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
   //cout << "\t\tmwaapi::edit res: " << res << endl;
   edit->fromJsonString(res);
@@ -195,50 +195,35 @@ https://www.mediawiki.org/wiki/API:Revisions
    fullUrl+= revisions->rvtag.length()==0 ? "" : "&rvtag=" + revisions->rvtag;
    fullUrl+= revisions->rvcontinue.length()==0 ? "" : "&rvcontinue=" + revisions->rvcontinue;
    fullUrl+= formatPart;
-   //cout << "\t\ttmwaapi::revisions fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\ttmwaapi::revisions res: " << res << endl;
+   //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
 
 /*
-Undo the last edit to the page.
+Roll back the last edits of the user of the page.
 
 If the last user who edited the page made multiple edits in a row, they will all be rolled back. 
 
 https://en.wikipedia.org/w/api.php?action=help&modules=rollback
 https://www.mediawiki.org/wiki/API:Rollback
 */
-
   void rollback(LoginInfo* loginInfo, Tokens* tokens, Rollback* rollback) {
    if(loginInfo->site.length() == 0) return;
    if(tokens->rollbacktoken.length() == 0) getTokens(loginInfo, tokens, "rollback");
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=rollback";
+   //cout << "\t\tmwaapi::rollback fullUrl: " << fullUrl << endl;
    string postFields = rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid);
    postFields += rollback->user.length() > 0 ? "&user="+escape(rollback->user) : "";
    postFields += rollback->summary.length() > 0 ? "&summary="+escape(rollback->summary) : "";
    postFields += rollback->markbot == -1 ? "" : "&markbot=" + rollback -> markbot;
    postFields += "&token="+escape(tokens->rollbacktoken);
    fullUrl+=formatPart;
-   cout << "\t\ttmwaapi::rollback fullUrl: " << fullUrl << endl;
-   cout << "\t\ttmwaapi::rollback postFields: " << postFields << endl;
+   //cout << "\t\tmwaapi::rollback postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
-   cout << "\t\ttmwaapi::rollback res: " << res << endl;
+   //cout << "\t\tmwaapi::rollback res: " << res << endl;
    rollback->fromJsonString(res);
-  } 
- 
-  void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
-   if(loginInfo->site.length() == 0) return;
-   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
-   //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
-   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
-   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
-   postFields += "&token="+escape(tokens->csrftoken);
-   //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
-   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-   //cout << "\t\tmwaapi::edit res: " << res << endl;
-   edit->fromJsonString(res);
   }
 
 /*
@@ -255,7 +240,7 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    string postFields = "token="+escape(tokens->csrftoken);
    //cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
-   cout << "\t\tmwaapi::thank res: " << res << endl;
+   //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
 
 };

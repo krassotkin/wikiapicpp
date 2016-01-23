@@ -6,7 +6,7 @@
 # runing:
 # make
 #
-# Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
+# Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin.
 # since 2015-12-29
 
 CC = g++

@@ -9,7 +9,7 @@
 https://en.wikipedia.org/w/api.php?action=help&modules=rollback
 https://www.mediawiki.org/wiki/API:Rollback
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), DonSimon
+ Public Domain by authors: Simon Krassotkin, Alexander Krassotkin (http://www.krassotkin.com/).
  since 2015-12-29
 */
 
@@ -44,7 +44,6 @@ class Rollback {
 
   // Response
    string response;
-   string result;
    string titleres;
    string pageidres;
    string summaryres; 
@@ -65,6 +64,8 @@ class Rollback {
   void clear() {
    errJson = "";
 
+   response = "";
+
    title = ""; 
    pageid = "";
    user = "";
@@ -78,9 +79,6 @@ class Rollback {
    revid = "";
    old_revid = "";
    last_revid = ""; 
-
-   response = "";
-   result = "";
    
   }
   
@@ -99,10 +97,6 @@ class Rollback {
    revid = rollbackJson["revid"].int_value();
    old_revid = rollbackJson["old_revid"].int_value();
    last_revid = rollbackJson["last_revid"].string_value();
-  }
-
-  bool isSuccess() {
-   return result.compare("Success") == 0;
   }
   
   string toJson() {
