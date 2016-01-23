@@ -36,6 +36,7 @@ Examples:
 #include "PageRevisions.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
+#include "Rollback.hpp"
 #include "Tokens.hpp"
 
 // abstract
@@ -161,7 +162,7 @@ bool expectsCreate(const vector<string>& commandVector) {
  // One line editor
  vector<string> contentVector;
  cout << "Please type your conten of new page \"" << revisions.titles << "\" in this one line editor." << endl;
- cout << "Use commands:" << endl;
+ cout << "Use commands from new line:" << endl;
  cout << "%EOF      To end editing and save." << endl;
  cout << "%QUIT     To quit from \"create\" wikiconsole command without save." << endl;
  while(true) {
@@ -411,6 +412,40 @@ bool expectsQuit(const vector<string>& commandVector) {
  return false;
 }
 
+bool expectsRollback(const vector<string>& commandVector) {
+ if(commandVector[0].compare("rollback") !=0) return false;
+ if (commandVector.size() < 3) {
+  cout << "Very few arguments to rallback..." << endl;
+  cout << "Rollback format:" << endl;
+  cout << "\trollback title/pageid username summary" << endl;
+  cout << "Example:" << endl;
+  cout << "\trollback \"Main Page\" DonSimon vandalism" << endl;
+  return true;
+ }
+ Rollback rollback;
+ try {
+  long int pageid = stol(commandVector[1]);
+  rollback.pageid = pageid;
+ } catch(...) {
+  rollback.title = commandVector[1];
+ }
+ rollback.user = commandVector[2];
+ if(commandVector.size() < 4 && commandVector[3].length() == 0) {
+  cout << "Please enter a summary (description) of the changes: " << endl;
+  getline(cin, rollback.summary);
+ } else {
+  rollback.summary = commandVector[3];
+ }
+ mwaapi.rollback(&loginInfo, &tokens, &rollback);
+ if(rollback.isSuccess()) {
+  cout << "Edit from page \"" << commandVector[1] << "\" (" << rollback.pageidres << ") has been successfully rollbacked" << endl;
+ } else {
+  cout << "Something went wrong..." << endl << "Read server response:" << endl;
+  cout << rollback.response << endl;
+ }
+ return true;
+}
+
 bool expectsSite(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("site")!=0) return false;
  if(loginInfo.site.length()==0) {
@@ -469,6 +504,35 @@ bool expectsThank(const vector<string>& commandVector){
   return true;
  };
  mwaapi.thank(&loginInfo, &tokens, commandVector[1]);
+ return true;
+}
+
+bool expectsUndo(const vector<string>& commandVector){
+ if(commandVector[0].compare("undo") !=0) return false;
+ if (commandVector.size() < 3) {
+  cout << "Very few arguments to rallback..." << endl;
+  cout << "Rollback format:" << endl;
+  cout << "\tundo title/pageid revision" << endl;
+  cout << "Example:" << endl;
+  cout << "\trollback \"Main Page\" 123" << endl;
+  return true;
+ }
+ Edit edit;
+ try {
+  long int pageid = stol(commandVector[1]);
+  edit.pageid = pageid;
+ } catch(...) {
+  edit.title = commandVector[1];
+ }
+ long int undo = stol(commandVector[2]);
+  edit.undo = undo;
+ mwaapi.undo(&loginInfo, &tokens, &edit);
+ if(edit.isSuccess()) {
+  cout << "Edit from page \"" << commandVector[1] << "\" (" << edit.pageidres << ") has been successfully undoded" << endl;
+ } else {
+  cout << "Something went wrong..." << endl << "Read server response:" << endl;
+  cout << edit.response << endl;
+ }
  return true;
 }
 
@@ -547,10 +611,12 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLoginAll(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
+ if(expectsRollback(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
  if(expectsSites(commandVector)) return true;
  if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
+ if(expectsUndo(commandVector)) return true;
  if(expectsUpload(commandVector)) return true;
  if(expectsVersions(commandVector)) return true;
  return false;
@@ -603,6 +669,9 @@ void showHelp() {
  cout << "  logout      Log out and clear session data." << endl;
  cout << "  quit        Exit from console." << endl;
  cout << "              Aliases: bye, q." << endl;
+ cout << "  rollback    Undo the last edit to the page." << endl;
+ cout << "              If the last user who edited the page made multiple edits in a row, they will all be rolled back. " << endl;
+ cout << " Format: title pageid user token." << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
  cout << "  sites       Print urls of all wikimedia projects." << endl;
  cout << "  tokens      Get tokens for data-modifying actions." << endl;
@@ -610,6 +679,7 @@ void showHelp() {
  cout << "                <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
  cout << "              Example: tokens csrf" << endl;
  cout << "  thank       Send a thank-you notification to an editor." << endl; 
+ cout << "  undo        Undo this revision." << endl;
  cout << "  upload      Upload content of a file from local disc to a wikipage. Use after \"login\"." << endl;
  cout << "              Format: upload \"Name or id of page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
  cout << "              Example: upload \"Main Page\" \"apage\" \"update data\"" << endl;
