@@ -180,6 +180,12 @@ bool expectsCreate(const vector<string>& commandVector) {
  cout << "Please enter a summary (description) of the changes: " << endl;
  getline(cin, edit.summary);
  mwaapi.edit(&loginInfo, &tokens, &edit);
+ if(edit.isSuccess()) {
+  cout << "Page \"" << commandVector[1] << "\" (" << edit.pageidres << ") has been successfully created." << endl;
+ } else {
+  cout << "Something went wrong..." << endl << "Read server response:" << endl;
+  cout << edit.response << endl;
+ }
  return true;
 }
 
@@ -509,6 +515,12 @@ bool expectsUpload(const vector<string>& commandVector){
   edit.summary = commandVector[3];
  }
  mwaapi.edit(&loginInfo, &tokens, &edit);
+ if(edit.isSuccess()) {
+  cout << "Page \"" << commandVector[1] << "\" (" << edit.pageidres << ") has been successfully updated with content from file \"" << commandVector[2] << "\"." << endl;
+ } else {
+  cout << "Something went wrong..." << endl << "Read server response:" << endl;
+  cout << edit.response << endl;
+ }
  return true;
 }
 

@@ -9,6 +9,9 @@
 https://en.wikipedia.org/w/api.php?action=help&modules=edit
 https://www.mediawiki.org/wiki/API:Edit
 
+ Success response example:
+{"edit":{"result":"Success","pageid":88512,"title":"\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:Test/Test","contentmodel":"wikitext","oldrevid":422740,"newrevid":422741,"newtimestamp":"2016-01-23T06:18:13Z"}
+
  Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
  since 2015-12-29
 */
@@ -34,6 +37,7 @@ class Edit {
 
   string errJson;
 
+  // Request
   string title; // Title of the page to edit. Cannot be used together with pageid. 
   long int pageid = -1; // Page ID of the page to edit. Cannot be used together with title. 
   long int section = -1; // Section number. 0 for the top section, new for a new section. 
@@ -72,6 +76,16 @@ class Edit {
                 // or at least after the text parameter. 
   string captchaword; // Answer to the CAPTCHA 
   string captchaid; // CAPTCHA ID from previous request 
+
+  // Response
+  string response;
+  string result;
+  long int pageidres = -1;
+  string titleres;
+  string contentmodelres;
+  long int oldrevidres = -1;
+  long int newrevidres = -1;
+  string newtimestampres;
 
   Edit() {}
   
@@ -113,15 +127,37 @@ class Edit {
    token = "";
    captchaword = "";
    captchaid = "";
+
+   response = "";
+   result = "";
+   pageidres = -1;
+   titleres = "";
+   contentmodelres = "";
+   oldrevidres = -1;
+   newrevidres = -1;
+   newtimestampres = "";
   }
   
   void fromJsonString(const string& jsonString) {
+   response = jsonString;
    auto json = json11::Json::parse(jsonString, errJson);
    fromJson(json);
   }
   
   void fromJson(const json11::Json& json) {
-   /* not implemented */
+   auto editJson = json["edit"].object_items();
+   result = editJson["result"].string_value();
+   //cout << "Edit::fromJson result" << result << endl;
+   pageidres = editJson["pageid"].int_value();
+   titleres = editJson["title"].string_value();
+   contentmodelres = editJson["contentmodel"].string_value();
+   oldrevidres = editJson["oldrevid"].int_value();
+   newrevidres = editJson["newrevid"].int_value();
+   newtimestampres = editJson["newtimestamp"].string_value();
+  }
+
+  bool isSuccess() {
+   return result.compare("Success") == 0;
   }
   
   string toJson() {
