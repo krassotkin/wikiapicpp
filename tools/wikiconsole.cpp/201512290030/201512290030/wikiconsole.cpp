@@ -697,6 +697,7 @@ void showHelp() {
  cout << "              Aliases: bye, q." << endl;
  cout << "  rollback    Roll back the last edits of the user of the page." << endl;
  cout << "              Format: rollback \"Title or id of page\" UserName \"Summary\"" << endl;
+ cout << "  search      Perform a full text search. " << endl;
  cout << "  site        Print url of connected site (after login or empty)." << endl;
  cout << "  sites       Print urls of all wikimedia projects." << endl;
  cout << "  tokens      Get tokens for data-modifying actions." << endl;
