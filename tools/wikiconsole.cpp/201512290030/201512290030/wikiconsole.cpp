@@ -37,6 +37,8 @@ Examples:
 #include "Revision.hpp"
 #include "Revisions.hpp"
 #include "Rollback.hpp"
+#include "Search.hpp"
+#include "SearchItem.hpp"
 #include "Tokens.hpp"
 
 // abstract
@@ -441,6 +443,33 @@ bool expectsRollback(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsSearch(const vector<string>& commandVector){
+ if(commandVector.size()<1 || commandVector[0].compare("search")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Search format:" << endl;
+  cout << "\tsearch srsearch" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsearch ruble" << endl;
+  return true;
+ }
+ Search search;  
+ search.srsearch=commandVector[1];
+ if(commandVector.size()>2) search.sroffset = stol(commandVector[2]);
+ //cout << "wikiconsole::expectsSearch search.sroffset: " << search.sroffset << endl;
+ mwaapi.search(&loginInfo, &search);
+ if(search.items.size()==0) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << search.res << endl;
+  return true;
+ } else {
+  cout<< "We've found " << search.sroffset << " pages:" << endl;
+  for(SearchItem si : search.items) cout << "• " << si.title << endl;
+  if(search.sroffset_res > 0) cout << "To continue type: search \"" << commandVector[1] << "\" " << to_string(search.sroffset_res) << endl;
+ }
+ return true;
+}
+
 bool expectsSite(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("site")!=0) return false;
  if(loginInfo.site.length()==0) {
@@ -610,6 +639,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsRollback(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
  if(expectsSites(commandVector)) return true;
+ if(expectsSearch(commandVector)) return true;
  if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
  if(expectsUndo(commandVector)) return true;

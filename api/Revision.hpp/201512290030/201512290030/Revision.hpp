@@ -29,6 +29,29 @@ https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krass
                         "*": "[[File:Premia Runeta 2012 - Aleksandr Krassotkin.jpg|right|250px]]\n{{#babel:ru|uk|en-1}}\n'''Alexander N Krassotkin'''\n\nUser of [[n:ru:User:Krassotkin|Russian Wikinews]] and [[w:ru:User:Krassotkin|Russian Wikipedia]], [[c:User:Krassotkin|Wikimedia Commons]], [[d:User:Krassotkin|Wikidata]] and [https://tools.wmflabs.org/quentinv57-tools/tools/sulinfo.php?username=Krassotkin other projects].\n\nContacts: [http://krassotkin.com/ krassotkin.com].\n\n{{-}}\n\n{{userpage|User:Krassotkin}}\n\n[[fr:Utilisateur:Krassotkin]]\n[[it:Utente:Krassotkin]]\n[[pl:Wikipedysta:Krassotkin]]\n[[pt:Usu\u00e1rio:Krassotkin]]\n[[ru:\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:Krassotkin]]\n[[uk:\u041a\u043e\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447:Krassotkin]]"
 }
 
+ Example with anon user:
+
+                    {
+                        "revid": 422851,
+                        "parentid": 194811,
+                        "user": "95.30.134.174",
+                        "anon": "",
+                        "userid": 0,
+                        "timestamp": "2016-01-24T07:23:42Z",
+                        "size": 4165,
+                        "sha1": "3f11835c11accf6f6b84cd8b1dac5b8119897357",
+                        "contentmodel": "wikitext",
+                        "comment": "-",
+                        "parsedcomment": "-",
+                        "tags": [
+                            "mobile edit",
+                            "mobile web edit"
+                        ],
+                        "parsetree": "<root><template><title>\u0434\u0430\u0442\u0430</title><part><name index=\"1\"/><value>8 \u043d\u043e\u044f\u0431\u0440\u044f 2011</value></part></template>\n<template lineStart=\"1\"><title> ... \u0ba8\u0bc0\u0ba4\u0bbf\u0bae\u0ba9\u0bcd\u0bb1\u0bae\u0bcd \u0ba4\u0bc0\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bc1]]\n[[tr:Michael Jackson'un doktoru su\u00e7lu bulundu]]</root>",
+                        "contentformat": "text/x-wiki",
+                        "*": "{{\u0434\u0430\u0442\u0430|8 \u043d\u043e\u044f\u0431\u0440\u044f 2011}}\n{{\u041a\u0430\u043b\u0438\u0444\u043e\u0440\u043d\u0438\u044f}}\n[[\u0424\u0430\u0439\u043b:Michael-jackson-vector-2.jpg|... \u0b95\u0bbe\u0bb0\u0ba3\u0bae\u0bcd, \u0ba8\u0bc0\u0ba4\u0bbf\u0bae\u0ba9\u0bcd\u0bb1\u0bae\u0bcd \u0ba4\u0bc0\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bc1]]\n[[tr:Michael Jackson'un doktoru su\u00e7lu bulundu]]"
+                    }
+
  Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
  since 2015-12-29
 */
@@ -52,22 +75,23 @@ class Revision {
   static const string versionMajor;
   static const string versionMinor;
 
+  int anon = -1;
   string comment;
   string content; // *
   string contentformat;
   string contentmodel;
   string errJson;
-  string minor = "not";
-  long int parentid;
+  int minor = -1;
+  long int parentid = -1;
   string parsedcomment;
   string parsetree;
-  long int revid;
-  long int size;
+  long int revid = -1;
+  long int size = -1;
   string sha1;
-  string timestamp; // ISO time string
   vector<string> tags;
+  string timestamp; // ISO time string
   string user;
-  long int userid;
+  long int userid = -1;
 
   Revision() {}
   
@@ -80,21 +104,22 @@ class Revision {
   }
 
   void clear() {
-   comment = "";
-   content = "";
-   contentformat = "";
-   contentmodel = "";
-   minor = "not";
-   parentid = 0;
-   parsedcomment = "";
-   parsetree = "";
-   revid = 0;
-   size = 0;
-   sha1 = "";
-   timestamp = "";
+   anon = -1;
+   comment.clear();
+   content.clear();
+   contentformat.clear();
+   contentmodel.clear();
+   minor = -1;
+   parentid.clear();
+   parsedcomment.clear();
+   parsetree.clear();
+   revid = -1;
+   size = -1;
+   sha1.clear();
    tags.clear();
-   user = "";
-   userid = 0;
+   timestamp.clear();
+   user.clear();
+   userid = -1;
   }
   
   void fromJsonString(const string& jsonString) {
@@ -119,6 +144,7 @@ class Revision {
    for(auto it : tagsJson) tags.push_back(it.string_value());
    user = json["user"].string_value();
    userid = json["userid"].int_value();
+   if(json.find(anon) != json.end()) anon = 1;
   }
   
   string toJson() {
@@ -127,7 +153,23 @@ class Revision {
     tagsJsonString+= (tagsJsonString.length()>0) ? "," : "";
     tagsJsonString+= "\""+it+"\"";
    }
-   return "{\"revid\":"+to_string(revid)+",\"parentid\":"+to_string(parentid)+(minor.compare("not")==0 ? ",\"minor\":\"\"" : "") +",\"user\":\""+user+"\",\"userid\":"+to_string(userid)+",\"timestamp\":\""+timestamp+"\",\"size\":"+to_string(size)+",\"sha1\":\""+sha1+"\",\"contentmodel\":\""+contentmodel+"\",\"comment\":\""+comment+"\",\"parsedcomment\":\""+parsedcomment+"\",to_string(\"tags\":["+tagsJsonString+"],\"parsetree\":\""+parsetree+"\",\"contentformat\":\""+contentformat+"\",\"*\":\""+content+"\"}";
+   return "{\"revid\":"+to_string(revid)
+           +",\"parentid\":"+to_string(parentid)
+           +(minor!=-1 ? ",\"minor\":\"\"" : "") 
+           + ",\"user\":\""+user
+           +(anon==1?",\"anon\"=\"\"":"")
+           +"\",\"userid\":"+to_string(userid)
+           +",\"timestamp\":\""+timestamp
+           +"\",\"size\":"+to_string(size)
+           +",\"sha1\":\""+sha1
+           +"\",\"contentmodel\":\""+contentmodel
+           +"\",\"comment\":\""+comment
+           +"\",\"parsedcomment\":\""+parsedcomment
+           +"\",to_string(\"tags\":["+tagsJsonString
+           +"],\"parsetree\":\""+parsetree
+           +"\",\"contentformat\":\""+contentformat
+           +"\",\"*\":\""+content
+           +"\"}";
   }
 
 };

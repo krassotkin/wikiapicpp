@@ -83,6 +83,7 @@ class PageRevisions {
   long int pageid;
   string title;
   vector<Revision> revisions;
+  map<long int, Revision> revisionsMap;
 
   PageRevisions() {}
   
@@ -113,7 +114,10 @@ class PageRevisions {
    auto revisionsJson = json["revisions"].array_items();
    for(auto itr : revisionsJson) {
     Revision revision(itr);
-    revisions.push_back(revision);
+    if(revisionsMap.fine(revision.revid) == revisionsMap.end()) {
+     revisions.push_back(revision);
+     revisionsMap[revision.revid] = revision;
+    }
    }
   }
   
