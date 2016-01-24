@@ -31,6 +31,8 @@ using namespace std;
 #include "Revision.hpp"
 #include "Revisions.hpp"
 #include "Rollback.hpp"
+#include "Search.hpp"
+#include "SearchItem.hpp"
 #include "Tokens.hpp"
 
 class MediaWikiActionAPI {
@@ -217,13 +219,45 @@ https://www.mediawiki.org/wiki/API:Rollback
    string postFields = rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid);
    postFields += rollback->user.length() > 0 ? "&user="+escape(rollback->user) : "";
    postFields += rollback->summary.length() > 0 ? "&summary="+escape(rollback->summary) : "";
-   postFields += rollback->markbot == -1 ? "" : "&markbot=" + rollback -> markbot;
+   postFields += rollback->markbot == -1 ? "" : "&markbot=" + rollback->markbot;
    postFields += "&token="+escape(tokens->rollbacktoken);
    fullUrl+=formatPart;
    //cout << "\t\tmwaapi::rollback postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::rollback res: " << res << endl;
    rollback->fromJsonString(res);
+  } 
+ 
+  void search(LoginInfo* loginInfo, Search* search){
+   if(loginInfo->site.length() == 0) return;
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=search";
+   fullUrl += search->srsearch.length() > 0 ? "&srsearch=" + escape(search->srsearch) : "";
+   fullUrl += search->srnamespace == -1 ? "" : "&srnamespace=" + to_string(search->srnamespace);
+   fullUrl += search->srwhat.length() > 0 ? "&srwhat=" + escape(search->srwhat) : "";
+   fullUrl += search->srinfo.length() > 0 ? "&srinfo=" + escape(search->srinfo) : "";
+   fullUrl += search->srprop.length() > 0 ? "&srprop=" + escape(search->srprop) : "";
+   fullUrl += search->sroffset == -1 ? "" : "&sroffset=" + to_string(search->sroffset);
+   //cout << "\t\tmwaapi::search fullUrl (1): " << fullUrl << endl;
+   fullUrl += search->srlimit == -1 ? "" : "&srlimit=" + to_string(search->srlimit); 
+   fullUrl += formatPart;
+   //cout << "\t\tmwaapi::search fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tmwaapi::search res:" << res << endl;
+   search->fromJsonString(res);
+  }
+
+  void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
+   if(loginInfo->site.length() == 0) return;
+   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
+   //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
+   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
+   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
+   postFields += "&token="+escape(tokens->csrftoken);
+   //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
+   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
+   //cout << "\t\tmwaapi::edit res: " << res << endl;
+   edit->fromJsonString(res);
   }
 
 /*
