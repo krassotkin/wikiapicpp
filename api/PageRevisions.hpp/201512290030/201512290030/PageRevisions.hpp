@@ -114,7 +114,8 @@ class PageRevisions {
    auto revisionsJson = json["revisions"].array_items();
    for(auto itr : revisionsJson) {
     Revision revision(itr);
-    if(revisionsMap.fine(revision.revid) == revisionsMap.end()) {
+    revision.pageid = pageid;
+    if(revisionsMap.find(revision.revid) == revisionsMap.end()) {
      revisions.push_back(revision);
      revisionsMap[revision.revid] = revision;
     }

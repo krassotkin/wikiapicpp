@@ -184,11 +184,13 @@ https://ru.wikinews.org/w/api.php?action=query&list=allrevisions&arvlimit=5&arvg
  since 2015-12-29
 */
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -197,6 +199,7 @@ using namespace std;
 
 // api
 #include "PageRevisions.hpp"
+#include "Revision.hpp"
 
 class Revisions {
 
@@ -207,7 +210,7 @@ class Revisions {
   static const string versionMajor;
   static const string versionMinor;
 
-  const long rvlimitDefault = 10;
+  const long limitDefault = 10;
 
   /* Servo */
   string errJson;
@@ -219,58 +222,61 @@ class Revisions {
    List all revisions prefix: arv.
 
    For API gnored suffix _req (request) and _res (response).
-  */
-
-  string contentformat;      /* Serialization format used for rvdifftotext and expected for output of content.  of the following values: application/json, text/x-wiki, text/javascript, text/css, text/plain. */
-  string continue_req;       /* When more results are available, use this to continue. */
-  string diffto;             /* Revision ID to diff each revision to. Use prev, next and cur for the previous, next and current revision respectively. */
-  string difftotext;         /* Text to diff each revision to. Only diffs a limited number of revisions. Overrides rvdiffto. If rvsection is set, only that section will be diffed against this text. */    
-  string dir;                /* In which direction to enumerate: "newer" -  list oldest first. Note: rvstart has to be before rvend. "older" - List newest first (default). Note: rvstart has to be later than rvend. */
-  string difftotextpst;      /* Perform a pre-save transform on the text before diffing it. Only valid when used with rvdifftotext. */
-  string end;                /* Enumerate up to this timestamp. Type: string of timestamp (allowed formats). */
-  long endid = -1;           /* Stop revision enumeration on this revision ID. List all revisions haven't alias. */
-  int expandtemplates = -1;  /*  Expand templates in revision content (requires rvprop=content). */
-  string excludeuser;        /* Exclude revisions made by user. Type: string of user name. */
-  int generatetitles;        /* When being used as a generator, generate titles rather than revision IDs. Get revision information haven't alias. */
-  long limit = -1;           /* Limit how many revisions will be returned. May only be used with a single page (mode #2). No more than 500 (5,000 for bots) allowed.Type: integer or max. */          
-  string namespace_req;      /* Only list pages in this namespace. Note: Due to miser mode, using this may result in fewer than arvlimit results returned before continuing; in extreme cases, zero results may be returned. Values (separate with |): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 100, 101, 108, 109, 118, 119, 446, 447, 710, 711, 828, 829, 2300, 2301, 2302, 2303, 2600. Get revision information  haven't alias. */ 
-  string pageids;            /* Id of pages for request. Conflict with titles. List all revisions haven't alias. */
-  int parse = -1;            /* Parse revision content (requires rvprop=content). For performance reasons, if this option is used, rvlimit is enforced to 1. */
-  string prop;               /* Which properties to get for each revision (separate with |):
-                                ids - The ID of the revision.
-                                flags - Revision flags (minor).
-                                timestamp - The timestamp of the revision.
-                                user - User that made the revision.
-                                userid - User ID of the revision creator.
-                                size - Length (bytes) of the revision.
-                                sha1 - SHA-1 (base 16) of the revision.
-                                contentmodel - Content model ID of the revision.
-                                comment - Comment by the user for the revision.
-                                parsedcomment - Parsed comment by the user for the revision.
-                                content - Text of the revision.
-                                tags - Tags for the revision.
-                                parsetree - The XML parse tree of revision content (requires content model wikitext).
-                                flagged - (no description) - has not in list all revisions.
-                             */
-  long section = -1;         /* Only retrieve the content of this section number. */
-  string start;              /* From which revision timestamp to start enumeration.Type: string of timestamp (allowed formats). List all revisions alias: arvcontentformat. */
-  long startid = -1;         /* From which revision ID to start enumeration. List all revisions haven't alias. */
-  string tag;                /* Only list revisions tagged with this tag.  List all revisions haven't alias. */
-  string titles;             /* Titles of pages for request. Conflict with pageids. List all revisions haven't alias. */
-  string user;               /* Only include revisions made by user. Type: string of user name. */
+  */                            
                                  
-                             
-  // Response     
-  string res;                /* Last parsed string response. */
-           
-  string batchcomplete;      
-  string continue_res;       /* continue->rvcontinue or continue->arvcontinue in API */
-  string continue_2_res;     /* continue->continue in API */
-  vector<PageRevisions> pages;
-  map<long, PageRevisions> pagesById;
+  string contentformat;        /* Serialization format used for rvdifftotext and expected for output of content.  of the following values: application/json, text/x-wiki, text/javascript, text/css, text/plain. */
+  string continue_req;         /* When more results are available, use this to continue. */
+  string diffto;               /* Revision ID to diff each revision to. Use prev, next and cur for the previous, next and current revision respectively. */
+  string difftotext;           /* Text to diff each revision to. Only diffs a limited number of revisions. Overrides rvdiffto. If rvsection is set, only that section will be diffed against this text. */    
+  string dir;                  /* In which direction to enumerate: "newer" -  list oldest first. Note: start has to be before end. "older" - List newest first (default). Note: start has to be later than end. */
+  string difftotextpst;        /* Perform a pre-save transform on the text before diffing it. Only valid when used with rvdifftotext. */                   
+  string end;                  /* Enumerate up to this timestamp. Type: string of timestamp (allowed formats). */
+  long endid = -1;             /* Stop revision enumeration on this revision ID. List all revisions haven't alias. */
+  int expandtemplates = -1;    /*  Expand templates in revision content (requires rvprop=content). */
+  string excludeuser;          /* Exclude revisions made by user. Type: string of user name. */
+  int generatetitles = -1;     /* When being used as a generator, generate titles rather than revision IDs. Get revision information haven't alias. */
+  long limit = -1;             /* Limit how many revisions will be returned. May only be used with a single page (mode #2). No more than 500 (5,000 for bots) allowed.Type: integer or max. */          
+  string namespace_req;        /* Only list pages in this namespace. Note: Due to miser mode, using this may result in fewer than arvlimit results returned before continuing; in extreme cases, zero results may be returned. Values (separate with |): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 100, 101, 108, 109, 118, 119, 446, 447, 710, 711, 828, 829, 2300, 2301, 2302, 2303, 2600. Get revision information  haven't alias. */ 
+  string pageids;              /* Id of pages for request. Conflict with titles. List all revisions haven't alias. */
+  int parse = -1;              /* Parse revision content (requires rvprop=content). For performance reasons, if this option is used, rvlimit is enforced to 1. */
+  string prop;                 /* Which properties to get for each revision (separate with |):
+                                  ids - The ID of the revision.
+                                  flags - Revision flags (minor).
+                                  timestamp - The timestamp of the revision.
+                                  user - User that made the revision.
+                                  userid - User ID of the revision creator.
+                                  size - Length (bytes) of the revision.
+                                  sha1 - SHA-1 (base 16) of the revision.
+                                  contentmodel - Content model ID of the revision.
+                                  comment - Comment by the user for the revision.
+                                  parsedcomment - Parsed comment by the user for the revision.
+                                  content - Text of the revision.
+                                  tags - Tags for the revision.
+                                  parsetree - The XML parse tree of revision content (requires content model wikitext).
+                                  flagged - (no description) - has not in list all revisions.
+                               */
+  long section = -1;           /* Only retrieve the content of this section number. */
+  string start;                /* From which revision timestamp to start enumeration.Type: string of timestamp (allowed formats). List all revisions alias: arvcontentformat. */
+  long startid = -1;           /* From which revision ID to start enumeration. List all revisions haven't alias. */
+  string tag;                  /* Only list revisions tagged with this tag.  List all revisions haven't alias. */
+  string titles;               /* Titles of pages for request. Conflict with pageids. List all revisions haven't alias. */
+  string user;                 /* Only include revisions made by user. Type: string of user name. */
+                                  
+                                
+  // Response                   
+  string res;                  /* Last parsed string response. */
+                               
+  string batchcomplete;        
+  string continue_res;         /* continue->rvcontinue or continue->arvcontinue in API */
+  string continue_2_res;       /* continue->continue in API */
+  vector<PageRevisions> pages; /* vector of all pages */
+
+
+  // Interfaces
+  map<long int, PageRevisions> pagesById;
   map<string, string> pagesNormalizedTitles;
   map<string, PageRevisions> pagesByTitle;
-  vecotor<Revision> revisions;
+  vector<Revision> revisions;
 
   Revisions() {}
   
@@ -298,11 +304,11 @@ class Revisions {
    end.clear();
    endid = -1;
    expandtemplates = -1;
-   excludeuser;.clear();
-   generatetitles;.clear();
+   excludeuser.clear();
+   generatetitles = -1;
    limit = -1;          
    namespace_req.clear();
-   pageids.clear();
+   pageids = -1;
    parse = -1; 
    prop.clear();
    section = -1;
@@ -332,13 +338,14 @@ class Revisions {
   
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
-   if(json.find("continue") != json.end()) {
+   if(json.object_items().find("continue") != json.object_items().end()) {
     auto continueJson = json["continue"].object_items();
     if(continueJson.find("rvcontinue") != continueJson.end()) continue_res = continueJson["rvcontinue"].string_value();
     else if(continueJson.find("arvcontinue") != continueJson.end()) continue_res = continueJson["arvcontinue"].string_value();
     continue_2_res = continueJson["continue"].string_value();
    }
-   auto queryJson = json["query"].object_items();();
+   //cout << "[[Revisions::fromJson]] continue_res: " << continue_res << endl;
+   auto queryJson = json["query"].object_items();
    if(queryJson.find("normalized") != queryJson.end()) {
     auto normalizedJson = queryJson["normalized"].array_items();
     for(auto inor : normalizedJson) {
@@ -348,19 +355,41 @@ class Revisions {
      pagesNormalizedTitles[from] = to;
     }
    }
-   map<string, json11::Json> pagesJson;
-   if(queryJson.find("pages") != queryJson.end()) pagesJson = queryJson["pages"].object_items();
-   else if(queryJson.find("allrevisions") != queryJson.end()) pagesJson = queryJson["allrevisions"].object_items();
-   for(auto ipr : pagesJson) {
-    if(pagesById.find(ipr.first) == pagesById.end()) {
-     PageRevisions pageRevisions(ipr.second);
+   map<string, json11::Json> pagesJsonObjects = queryJson["pages"].object_items();
+   vector<json11::Json> pagesJsonArray = queryJson["allrevisions"].array_items();
+   //if(queryJson.find("pages") != queryJson.end()) pagesJson = queryJson["pages"].object_items();
+   //else if(queryJson.find("allrevisions") != queryJson.end()) pagesJson = queryJson["allrevisions"].array_items();
+   //cout << "[[Revisions::fromJson]] pagesJsonObjects.size(): " << pagesJsonObjects.size() << endl;
+   //cout << "[[Revisions::fromJson]] pagesJsonArray.size(): " << pagesJsonArray.size() << endl;
+   for(auto ipro : pagesJsonObjects) {
+    if(pagesById.find(stol(ipro.first)) == pagesById.end()) {
+     PageRevisions pageRevisions(ipro.second);
      pages.push_back(pageRevisions);
      pagesById[pageRevisions.pageid] = pageRevisions;
      pagesByTitle[pageRevisions.title] = pageRevisions;
     } else {
-     pagesById[ipr.first].fromJson(ipr.second);
+     pagesById[stol(ipro.first)].fromJson(ipro.second);
     }
    }
+   for(auto ipra : pagesJsonArray) {
+    PageRevisions pageRevisions(ipra);
+    if(pagesById.find(pageRevisions.pageid) == pagesById.end()) {
+     pages.push_back(pageRevisions);
+     pagesById[pageRevisions.pageid] = pageRevisions;
+     pagesByTitle[pageRevisions.title] = pageRevisions;
+    } else {
+     pagesById[pageRevisions.pageid].fromJson(ipra);
+    }
+   }
+   //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
+   for(PageRevisions prs : pages) {
+    for(Revision r : prs.revisions) {
+     revisions.push_back(r);
+    }
+   }
+   //cout << "[[Revisions::fromJson]] revisions.size(): " << revisions.size() << endl;
+   if(dir.compare("older") == 0) sort(revisions.begin( ), revisions.end( ), [] (const Revision& lhs, const Revision& rhs) {return lhs.revid < rhs.revid;});
+   else sort(revisions.begin( ), revisions.end( ), [] (const Revision& lhs, const Revision& rhs) {return lhs.revid > rhs.revid;});   
   }
   
   string toJson() {

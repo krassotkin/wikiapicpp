@@ -83,6 +83,7 @@ class Revision {
   string errJson;
   int minor = -1;
   long int parentid = -1;
+  long int pageid=-1;
   string parsedcomment;
   string parsetree;
   long int revid = -1;
@@ -110,7 +111,8 @@ class Revision {
    contentformat.clear();
    contentmodel.clear();
    minor = -1;
-   parentid.clear();
+   pageid=-1;
+   parentid = -1;
    parsedcomment.clear();
    parsetree.clear();
    revid = -1;
@@ -132,7 +134,7 @@ class Revision {
    content = json["*"].string_value();
    contentformat = json["contentformat"].string_value();
    contentmodel = json["contentmodel"].string_value();
-   minor = json["minor"].string_value();
+   if(json.object_items().find("minor") != json.object_items().end()) minor = 1;
    parentid = json["parentid"].int_value();
    parsedcomment = json["parsedcomment"].string_value();
    parsetree = json["parsetree"].string_value();
@@ -144,7 +146,7 @@ class Revision {
    for(auto it : tagsJson) tags.push_back(it.string_value());
    user = json["user"].string_value();
    userid = json["userid"].int_value();
-   if(json.find(anon) != json.end()) anon = 1;
+   if(json.object_items().find("anon") != json.object_items().end()) anon = 1;
   }
   
   string toJson() {

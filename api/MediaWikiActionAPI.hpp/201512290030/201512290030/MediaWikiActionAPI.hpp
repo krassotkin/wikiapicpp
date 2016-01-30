@@ -73,6 +73,43 @@ class MediaWikiActionAPI {
 ***************************************************************************/
 
 /*
+List all revisions
+
+ Processed by MediaWikiActionAPI.hpp allrevisions(...) method.
+
+ Help:
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Ballrevisions
+https://www.mediawiki.org/wiki/API:Allrevisions
+*/
+void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
+   string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&list=allrevisions";
+   fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
+   fullUrl+= revisions->prop.length()==0 ? "" : "&arvprop=" + revisions->prop;
+   fullUrl+= revisions->limit == -1 ? "" : "&arvlimit=" + to_string(revisions->limit);
+   fullUrl+= revisions->expandtemplates == -1 ? "" : "&arvexpandtemplates=" + to_string(revisions->expandtemplates);
+   fullUrl+= revisions->parse == -1 ? "" : "&arvparse=" + to_string(revisions->parse);
+   fullUrl+= revisions->section == -1 ? "" : "&arvsection=" + to_string(revisions->section);
+   fullUrl+= revisions->diffto.length()==0 ? "" : "&arvdiffto=" + revisions->diffto;
+   fullUrl+= revisions->difftotext.length()==0 ? "" : "&arvdifftotext=" + revisions->difftotext;
+   fullUrl+= revisions->difftotextpst.length()==0 ? "" : "&arvdifftotextpst=" + revisions->difftotextpst;
+   fullUrl+= revisions->contentformat.length()==0 ? "" : "&arvcontentformat=" + revisions->contentformat;
+   fullUrl+= revisions->startid == -1 ? "" : "&arvstartid=" + to_string(revisions->startid);
+   fullUrl+= revisions->endid == -1 ? "" : "&arvendid=" + to_string(revisions->endid);
+   fullUrl+= revisions->start.length()==0 ? "" : "&arvstart=" + revisions->start;
+   fullUrl+= revisions->end.length()==0 ? "" : "&arvend=" + revisions->end;
+   fullUrl+= revisions->dir.length()==0 ? "" : "&arvdir=" + revisions->dir;
+   fullUrl+= revisions->user.length()==0 ? "" : "&arvuser=" + revisions->user;
+   fullUrl+= revisions->excludeuser.length()==0 ? "" : "&arvexcludeuser=" + revisions->excludeuser;
+   fullUrl+= revisions->tag.length()==0 ? "" : "&arvtag=" + revisions->tag;
+   fullUrl+= revisions->continue_req.length()==0 ? "" : "&arvcontinue=" + revisions->continue_req;
+   fullUrl+= formatPart;
+   //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tmwaapi::revisions res: " << res << endl;
+   revisions->fromJsonString(res);
+  } 
+
+/*
  Edit:
 https://en.wikipedia.org/w/api.php?action=help&modules=edit
 https://www.mediawiki.org/wiki/API:Edit
@@ -175,27 +212,27 @@ https://www.mediawiki.org/wiki/API:Logout
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Brevisions
 https://www.mediawiki.org/wiki/API:Revisions
 */
-  void revisions(LoginInfo* loginInfo, Revisions* revisions) {
+void revisions(LoginInfo* loginInfo, Revisions* revisions) {
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&prop=revisions";
    fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
-   fullUrl+= revisions->rvprop.length()==0 ? "" : "&rvprop=" + revisions->rvprop;
-   fullUrl+= revisions->rvlimit == -1 ? "" : "&rvlimit=" + to_string(revisions->rvlimit);
-   fullUrl+= revisions->rvexpandtemplates == -1 ? "" : "&rvexpandtemplates=" + to_string(revisions->rvexpandtemplates);
-   fullUrl+= revisions->rvparse == -1 ? "" : "&rvparse=" + to_string(revisions->rvparse);
-   fullUrl+= revisions->rvsection == -1 ? "" : "&rvsection=" + to_string(revisions->rvsection);
-   fullUrl+= revisions->rvdiffto == -1 ? "" : "&rvdiffto=" + to_string(revisions->rvdiffto);
-   fullUrl+= revisions->rvdifftotext == -1 ? "" : "&rvdifftotext=" + to_string(revisions->rvdifftotext);
-   fullUrl+= revisions->rvdifftotextpst == -1 ? "" : "&rvdifftotextpst=" + to_string(revisions->rvdifftotextpst);
-   fullUrl+= revisions->rvcontentformat.length()==0 ? "" : "&rvcontentformat=" + revisions->rvcontentformat;
-   fullUrl+= revisions->rvstartid == -1 ? "" : "&rvstartid=" + to_string(revisions->rvstartid);
-   fullUrl+= revisions->rvendid == -1 ? "" : "&rvendid=" + to_string(revisions->rvendid);
-   fullUrl+= revisions->rvstart.length()==0 ? "" : "&rvstart=" + revisions->rvstart;
-   fullUrl+= revisions->rvend.length()==0 ? "" : "&rvend=" + revisions->rvend;
-   fullUrl+= revisions->rvdir.length()==0 ? "" : "&rvdir=" + revisions->rvdir;
-   fullUrl+= revisions->rvuser.length()==0 ? "" : "&rvuser=" + revisions->rvuser;
-   fullUrl+= revisions->rvexcludeuser.length()==0 ? "" : "&rvexcludeuser=" + revisions->rvexcludeuser;
-   fullUrl+= revisions->rvtag.length()==0 ? "" : "&rvtag=" + revisions->rvtag;
-   fullUrl+= revisions->rvcontinue.length()==0 ? "" : "&rvcontinue=" + revisions->rvcontinue;
+   fullUrl+= revisions->prop.length()==0 ? "" : "&rvprop=" + revisions->prop;
+   fullUrl+= revisions->limit == -1 ? "" : "&rvlimit=" + to_string(revisions->limit);
+   fullUrl+= revisions->expandtemplates == -1 ? "" : "&rvexpandtemplates=" + to_string(revisions->expandtemplates);
+   fullUrl+= revisions->parse == -1 ? "" : "&rvparse=" + to_string(revisions->parse);
+   fullUrl+= revisions->section == -1 ? "" : "&rvsection=" + to_string(revisions->section);
+   fullUrl+= revisions->diffto.length()==0 ? "" : "&rvdiffto=" + revisions->diffto;
+   fullUrl+= revisions->difftotext.length()==0 ? "" : "&rvdifftotext=" + revisions->difftotext;
+   fullUrl+= revisions->difftotextpst.length()==0 ? "" : "&rvdifftotextpst=" + revisions->difftotextpst;
+   fullUrl+= revisions->contentformat.length()==0 ? "" : "&rvcontentformat=" + revisions->contentformat;
+   fullUrl+= revisions->startid == -1 ? "" : "&rvstartid=" + to_string(revisions->startid);
+   fullUrl+= revisions->endid == -1 ? "" : "&rvendid=" + to_string(revisions->endid);
+   fullUrl+= revisions->start.length()==0 ? "" : "&rvstart=" + revisions->start;
+   fullUrl+= revisions->end.length()==0 ? "" : "&rvend=" + revisions->end;
+   fullUrl+= revisions->dir.length()==0 ? "" : "&rvdir=" + revisions->dir;
+   fullUrl+= revisions->user.length()==0 ? "" : "&rvuser=" + revisions->user;
+   fullUrl+= revisions->excludeuser.length()==0 ? "" : "&rvexcludeuser=" + revisions->excludeuser;
+   fullUrl+= revisions->tag.length()==0 ? "" : "&rvtag=" + revisions->tag;
+   fullUrl+= revisions->continue_req.length()==0 ? "" : "&rvcontinue=" + revisions->continue_req;
    fullUrl+= formatPart;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
@@ -246,20 +283,6 @@ https://www.mediawiki.org/wiki/API:Rollback
    search->fromJsonString(res);
   }
 
-  void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
-   if(loginInfo->site.length() == 0) return;
-   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
-   //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
-   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
-   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
-   postFields += "&token="+escape(tokens->csrftoken);
-   //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
-   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-   //cout << "\t\tmwaapi::edit res: " << res << endl;
-   edit->fromJsonString(res);
-  }
-
 /*
   Thank:
 https://www.mediawiki.org/wiki/Extension:Thanks#API_Documentation
@@ -275,6 +298,20 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    //cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::thank res: " << res << endl;
+  }
+
+  void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
+   if(loginInfo->site.length() == 0) return;
+   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
+   //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
+   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
+   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
+   postFields += "&token="+escape(tokens->csrftoken);
+   //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
+   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
+   //cout << "\t\tmwaapi::edit res: " << res << endl;
+   edit->fromJsonString(res);
   }
 
 };

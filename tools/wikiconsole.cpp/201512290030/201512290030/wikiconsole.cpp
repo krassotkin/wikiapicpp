@@ -119,7 +119,7 @@ bool expectsContent(const vector<string>& commandVector) {
   revisions.titles = commandVector[1];
  }
  //cout << "wikiconsole::expectsContent revisions.titles: " << revisions.titles << endl;
- revisions.rvprop="content";
+ revisions.prop="content";
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
   cout << "Page not found..." << endl;
@@ -152,7 +152,7 @@ bool expectsCreate(const vector<string>& commandVector) {
  // Test page exists.
  Revisions revisions;
  revisions.titles = commandVector[1];
- revisions.rvprop="ids|timestamp";
+ revisions.prop="ids|timestamp";
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()>0 && revisions.pages[0].revisions.size() > 0) {
   cout << "Page \"" << revisions.titles << "\" already exists." << endl;
@@ -216,7 +216,7 @@ bool expectsDownload(const vector<string>& commandVector) {
   revisions.titles = commandVector[1];
  }
  //cout << "wikiconsole::expectsDownload revisions.titles: " << revisions.titles << endl;
- revisions.rvprop="content";
+ revisions.prop="content";
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
   cout << "Page not found..." << endl;
@@ -284,11 +284,11 @@ bool expectsHistory(const vector<string>& commandVector) {
   revisions.titles = commandVector[1];
  }
  if(commandVector.size() < 3 || commandVector[2].compare("-")==0) {
-  revisions.rvlimit = revisions.rvlimitDefault;
+  revisions.limit = revisions.limitDefault;
  } else {
   try {
-   long rvlimit = stol(commandVector[2]);
-   revisions.rvlimit = rvlimit;
+   long limit = stol(commandVector[2]);
+   revisions.limit = limit;
   } catch(...) {
    cout << "Can not parsed number of revisions (rvlimit)..." << endl;
    cout << "Must be number or \"-\"." << endl;
@@ -297,21 +297,21 @@ bool expectsHistory(const vector<string>& commandVector) {
  }
  if(commandVector.size() > 3) {
   try {
-   long rvstartid = stol(commandVector[3]);
-   revisions.rvstartid = rvstartid;
+   long startid = stol(commandVector[3]);
+   revisions.startid = startid;
   } catch(...) {
-   revisions.rvstart = commandVector[3];
+   revisions.start = commandVector[3];
   }
  }
  if(commandVector.size() > 4) {
   try {
-   long rvendid = stol(commandVector[4]);
-   revisions.rvendid = rvendid;
+   long endid = stol(commandVector[4]);
+   revisions.endid = endid;
   } catch(...) {
-   revisions.rvend = commandVector[4];
+   revisions.end = commandVector[4];
   }
  }
- revisions.rvprop="ids|flags|timestamp|user|userid|size|sha1|comment|tags|flagged";
+ revisions.prop="ids|flags|timestamp|user|userid|size|sha1|comment|tags|flagged";
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
   cout << "Page not found..." << endl;
@@ -327,7 +327,7 @@ bool expectsHistory(const vector<string>& commandVector) {
   cout << r.timestamp << "  ";
   cout << r.user;
   for(unsigned int i=r.user.length(); i<20; i++) cout << ' ';
-  if(r.minor.compare("not")==0) cout << "m .. "; 
+  if(r.minor>0) cout << "m .. "; 
   else cout << "  .. "; 
   cout << "(" << to_string(r.size) << " bytes)  ";
   cout << "(" << r.comment << ")";
@@ -412,6 +412,61 @@ bool expectsQuit(const vector<string>& commandVector) {
     || commandVector[0].compare("q") == 0)
   return true;
  return false;
+}
+
+bool expectsRecentChanges(const vector<string>& commandVector) {
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("recentchanges")!=0 && commandVector[0].compare("recent")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"recentchanges\"." << endl;
+  return true;
+ }
+ if(commandVector.size() < 2) {
+  cout << "Very few arguments for recentchanges..." << endl;
+  cout << "RecentChanges format:" << endl;
+  cout << "\trecentchanges <number of revisions> <from date> <to date>" << endl;
+  cout << "Example:" << endl;
+  cout << "\trecentchanges 10" << endl;
+  cout << "\trecentchanges 20 2015-12-29T00:30" << endl;
+  cout << "\trecentchanges - 2015-12-29T00:30 2014-12-29T00:30" << endl;
+  return true;
+ }
+ Revisions revisions;
+ if(commandVector.size() < 2 || commandVector[1].compare("-")==0) {
+  revisions.limit = revisions.limitDefault;
+ } else {
+  try {
+   long limit = stol(commandVector[1]);
+   revisions.limit = limit;
+  } catch(...) {
+   cout << "Can not parsed number of revisions (arvlimit)..." << endl;
+   cout << "Must be number or \"-\"." << endl;
+   return true;
+  }
+ }
+ //cout << "[[wikiconsole::expectsRecentChanges]] revisions.limit: " << revisions.limit << endl;
+ if(commandVector.size() > 2) revisions.start = commandVector[2];
+ if(commandVector.size() > 3) revisions.end = commandVector[3];
+ revisions.prop="ids|flags|timestamp|user|userid|size|sha1|comment|tags|flagged";
+ mwaapi.allrevisions(&loginInfo, &revisions);
+ if(revisions.revisions.size()==0) {
+  cout << "Recent changes not found." << endl;
+  return true;
+ }
+ // cout << "Revision history of \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ")" << endl;
+ for(Revision r : revisions.revisions) {
+  cout << "(" << to_string(r.revid) << "|" << to_string(r.parentid) << ")  ";
+  cout << r.timestamp << "  ";
+  cout << r.user;
+  for(unsigned int i=r.user.length(); i<20; i++) cout << ' ';
+  if(r.minor>0) cout << "m .. "; 
+  else cout << "  .. "; 
+  cout << "(" << to_string(r.size) << " bytes)  ";
+  cout << "(" << r.comment << ")";
+  cout << endl;
+ } 
+ return true;
 }
 
 bool expectsRollback(const vector<string>& commandVector) {
@@ -636,6 +691,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLoginAll(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
+ if(expectsRecentChanges(commandVector)) return true;
  if(expectsRollback(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
  if(expectsSites(commandVector)) return true;
@@ -670,48 +726,51 @@ void showHelp() {
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
- cout << "  content     Return content of a wikipage. Use after \"login\"." << endl;
- cout << "              Format: content \"Name or id of page\"" << endl;
- cout << "              Example: content \"Main Page\"" << endl;
- cout << "  create      Create a wikipage. Use after \"login\"." << endl;
- cout << "              Format: create \"User:Wikiapicpp/test page\"" << endl;
- cout << "              Example: content \"Main Page\"" << endl;
- cout << "  download    Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
- cout << "              Format: download \"Name or id of page\" \"Path to file\"" << endl;
- cout << "              Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
- cout << "  echo        Show parsed command line with options." << endl;
- cout << "  help        Show this help." << endl;
- cout << "              Aliases: --help, -h, h, help." << endl;
- cout << "  history     Show standard history of page. Use after \"login\"." << endl;
- cout << "              Format: history \"Name or id of page\" <number of revisions> <from id or date> <to id or date>" << endl;
- cout << "              Example: history \"Main Page\"" << endl;
- cout << "              Type \"history\" without quotes and options for more information." << endl;
- cout << "  login       Login to a media wiki server." << endl;
- cout << "              Format: login site username userpassword" << endl;
- cout << "              Example: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
- cout << "  loginall    Login to all media wiki projects." << endl;
- cout << "              Format: loginall username userpassword" << endl;
- cout << "              Example: loginall bob bobsecretpass" << endl;
- cout << "  logout      Log out and clear session data." << endl;
- cout << "  quit        Exit from console." << endl;
- cout << "              Aliases: bye, q." << endl;
- cout << "  rollback    Roll back the last edits of the user of the page." << endl;
- cout << "              Format: rollback \"Title or id of page\" UserName \"Summary\"" << endl;
- cout << "  search      Perform a full text search. " << endl;
- cout << "  site        Print url of connected site (after login or empty)." << endl;
- cout << "  sites       Print urls of all wikimedia projects." << endl;
- cout << "  tokens      Get tokens for data-modifying actions." << endl;
- cout << "              Format: tokens <type>" << endl; 
- cout << "                <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
- cout << "              Example: tokens csrf" << endl;
- cout << "  thank       Send a thank-you notification to an editor." << endl; 
- cout << "  undo        Undo a revision." << endl;
- cout << "              Format: undo \"Name or id of page\" \"Id of revision\"" << endl;
- cout << "  upload      Upload content of a file from local disc to a wikipage. Use after \"login\"." << endl;
- cout << "              Format: upload \"Name or id of page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
- cout << "              Example: upload \"Main Page\" \"apage\" \"update data\"" << endl;
- cout << "  versions    Show versions of wikiconsole and components (major.minor)." << endl;
- cout << "              Aliases: --version, --versions, -v, version, versions." << endl;
+ cout << "  content        Return content of a wikipage. Use after \"login\"." << endl;
+ cout << "                 Format: content \"Name or id of page\"" << endl;
+ cout << "                 Example: content \"Main Page\"" << endl;
+ cout << "  create         Create a wikipage. Use after \"login\"." << endl;
+ cout << "                 Format: create \"User:Wikiapicpp/test page\"" << endl;
+ cout << "                 Example: content \"Main Page\"" << endl;
+ cout << "  download       Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
+ cout << "                 Format: download \"Name or id of page\" \"Path to file\"" << endl;
+ cout << "                 Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
+ cout << "  echo           Show parsed command line with options." << endl;
+ cout << "  help           Show this help." << endl;
+ cout << "                 Aliases: --help, -h, h, help." << endl;
+ cout << "  history        Show standard history of page. Use after \"login\"." << endl;
+ cout << "                 Format: history \"Name or id of page\" <number of revisions> <from id or date> <to id or date>" << endl;
+ cout << "                 Example: history \"Main Page\"" << endl;
+ cout << "                 Type \"history\" without quotes and options for more information." << endl;
+ cout << "  login          Login to a media wiki server." << endl;
+ cout << "                 Format: login site username userpassword" << endl;
+ cout << "                 Example: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
+ cout << "  loginall       Login to all media wiki projects." << endl;
+ cout << "                 Format: loginall username userpassword" << endl;
+ cout << "                 Example: loginall bob bobsecretpass" << endl;
+ cout << "  logout         Log out and clear session data." << endl;
+ cout << "  quit           Exit from console." << endl;
+ cout << "                 Aliases: bye, q." << endl;
+ cout << "  recentchanges  Return recent changes of seledted wiki." << endl;
+ cout << "                 Format: recentchanges <number of revisions> <from date> <to date>" << endl;
+ cout << "                 Aliases: recent." << endl;
+ cout << "  rollback       Roll back the last edits of the user of the page." << endl;
+ cout << "                 Format: rollback \"Title or id of page\" UserName \"Summary\"" << endl;
+ cout << "  search         Perform a full text search." << endl;
+ cout << "  site           Print url of connected site (after login or empty)." << endl;
+ cout << "  sites          Print urls of all wikimedia projects." << endl;
+ cout << "  tokens         Get tokens for data-modifying actions." << endl;
+ cout << "                 Format: tokens <type>" << endl; 
+ cout << "                   <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
+ cout << "                 Example: tokens csrf" << endl;
+ cout << "  thank          Send a thank-you notification to an editor." << endl; 
+ cout << "  undo           Undo a revision." << endl;
+ cout << "                 Format: undo \"Name or id of page\" \"Id of revision\"" << endl;
+ cout << "  upload         Upload content of a file from local disc to a wikipage. Use after \"login\"." << endl;
+ cout << "                 Format: upload \"Name or id of page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
+ cout << "                 Example: upload \"Main Page\" \"apage\" \"update data\"" << endl;
+ cout << "  versions       Show versions of wikiconsole and components (major.minor)." << endl;
+ cout << "                 Aliases: --version, --versions, -v, version, versions." << endl;
  cout << endl;
 }
 
