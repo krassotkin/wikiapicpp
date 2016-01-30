@@ -34,6 +34,7 @@ Examples:
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
 #include "PageRevisions.hpp"
+#include "Purge.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
 #include "Rollback.hpp"
@@ -406,6 +407,29 @@ bool expectsLogout(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsPurge(const vector<string>& commandVector){
+ if(commandVector.size()<1 || commandVector[0].compare("purge")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Purge format:" << endl;
+  cout << "\tpurge title/id" << endl;
+  cout << "Example:" << endl;
+  cout << "\tpurge Main Page" << endl;
+  return true;
+ }
+ Purge purge;  
+ purge.titles=commandVector[1];
+ mwaapi.purge(&loginInfo, &purge);
+ if(purge.purgeRes != "") {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << purge.res << endl;
+  return true;
+ } else {
+  cout<< "Success" << endl;
+ }
+ return true;
+}
+
 bool expectsQuit(const vector<string>& commandVector) {
  if(commandVector[0].compare("bye") == 0
     || commandVector[0].compare("quit") == 0
@@ -691,6 +715,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLoginAll(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
+ if(expectsPurge(commandVector)) return true;
  if(expectsRecentChanges(commandVector)) return true;
  if(expectsRollback(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
@@ -749,6 +774,7 @@ void showHelp() {
  cout << "                 Format: loginall username userpassword" << endl;
  cout << "                 Example: loginall bob bobsecretpass" << endl;
  cout << "  logout         Log out and clear session data." << endl;
+ cout << "  purge          Purge the cache for the given titles." << endl;
  cout << "  quit           Exit from console." << endl;
  cout << "                 Aliases: bye, q." << endl;
  cout << "  recentchanges  Return recent changes of seledted wiki." << endl;
