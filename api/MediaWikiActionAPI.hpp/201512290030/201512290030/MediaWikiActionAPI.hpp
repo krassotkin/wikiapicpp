@@ -155,30 +155,6 @@ https://www.mediawiki.org/wiki/API:Edit
  }
 
 /*
-  Purge:
-
-  https://en.wikipedia.org/w/api.php?action=help&modules=purge
-  https://www.mediawiki.org/wiki/API:Purge
-*/
-
-  void purge(LoginInfo* loginInfo, Purge* purge) {
-   if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=purge";
-   fullUrl += purge->forcelinkupdate == 0 ? "" : "&forcelinkupdate=" + to_string(purge->forcelinkupdate);
-   fullUrl += purge->forcerecursivelinkupdate == 0 ? "" : "&forcerecursivelinkupdate=" + to_string(purge->forcerecursivelinkupdate);
-   fullUrl += purge->continueP.length() > 0 ? "&continueP=" + escape(purge->continueP) : "";
-   fullUrl += purge->titles.length() > 0 ? "&titles=" + escape(purge->titles) : "";
-   fullUrl += purge->pageids == -1 ? "" : "&pageids=" + to_string(purge->pageids);
-   fullUrl += purge->revids == -1 ? "" : "&revids=" + to_string(purge->revids);
-   fullUrl += purge->generator.length() > 0 ? "&generator=" + escape(purge->generator) : "";  
-   fullUrl += formatPart;
-   cout << "\t\tmwaapi::purge fullUrl: " << fullUrl << endl;
-   string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::purge res:" << res << endl;
-   purge->fromJsonString(res);
-  }
-
-/*
   Tokens:
 https://en.wikipedia.org/w/api.php?action=help&modules=tokens
 https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
@@ -224,6 +200,30 @@ https://www.mediawiki.org/wiki/API:Logout
     string res=curlWrapper.getFirstPagePost(fullUrl);
     loginInfo->clear();
    }
+
+/*
+  Purge:
+
+  https://en.wikipedia.org/w/api.php?action=help&modules=purge
+  https://www.mediawiki.org/wiki/API:Purge
+*/
+
+  void purge(LoginInfo* loginInfo, Purge* purge) {
+   if(loginInfo->site.length() == 0) return;
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=purge";
+   fullUrl += purge->forcelinkupdate == 0 ? "" : "&forcelinkupdate=" + to_string(purge->forcelinkupdate);
+   fullUrl += purge->forcerecursivelinkupdate == 0 ? "" : "&forcerecursivelinkupdate=" + to_string(purge->forcerecursivelinkupdate);
+   fullUrl += purge->continueP.length() > 0 ? "&continueP=" + escape(purge->continueP) : "";
+   fullUrl += purge->titles.length() > 0 ? "&titles=" + escape(purge->titles) : "";
+   fullUrl += purge->pageids == -1 ? "" : "&pageids=" + to_string(purge->pageids);
+   fullUrl += purge->revids == -1 ? "" : "&revids=" + to_string(purge->revids);
+   fullUrl += purge->generator.length() > 0 ? "&generator=" + escape(purge->generator) : "";  
+   fullUrl += formatPart;
+   //cout << "\t\tmwaapi::purge fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tmwaapi::purge res:" << res << endl;
+   purge->fromJsonString(res);
+  }
 
 /*
  Get revision information.

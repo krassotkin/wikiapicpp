@@ -409,12 +409,17 @@ bool expectsLogout(const vector<string>& commandVector) {
 
 bool expectsPurge(const vector<string>& commandVector){
  if(commandVector.size()<1 || commandVector[0].compare("purge")!=0) return false;
- if (commandVector.size() < 1) {
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"history\"." << endl;
+  return true;
+ }
+ if (commandVector.size() < 2) {
   cout << "Very few arguments for searching..." << endl;
   cout << "Purge format:" << endl;
   cout << "\tpurge title/id" << endl;
   cout << "Example:" << endl;
-  cout << "\tpurge Main Page" << endl;
+  cout << "\tpurge \"Main Page\"" << endl;
   return true;
  }
  Purge purge;  
@@ -425,7 +430,7 @@ bool expectsPurge(const vector<string>& commandVector){
   cout << purge.res << endl;
   return true;
  } else {
-  cout<< "Success" << endl;
+  cout<< "Success purge for \""+commandVector[1]+"\"" << endl;
  }
  return true;
 }
@@ -775,6 +780,7 @@ void showHelp() {
  cout << "                 Example: loginall bob bobsecretpass" << endl;
  cout << "  logout         Log out and clear session data." << endl;
  cout << "  purge          Purge the cache for the given titles." << endl;
+ cout << "                 Example: purge \"Main Page\"" << endl;
  cout << "  quit           Exit from console." << endl;
  cout << "                 Aliases: bye, q." << endl;
  cout << "  recentchanges  Return recent changes of seledted wiki." << endl;
@@ -808,6 +814,7 @@ void showVersions() {
  cout << "\tLoginInfo " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
  cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
  cout << "\tPageRevisions " << PageRevisions::versionMajor << "." << PageRevisions::versionMinor << endl;
+ cout << "\tPurge " << Purge::versionMajor << "." << Purge::versionMinor << endl;
  cout << "\tRevision " << Revision::versionMajor << "." << Revision::versionMinor << endl;
  cout << "\tRevisions " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;
  cout << "\tTokens " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;

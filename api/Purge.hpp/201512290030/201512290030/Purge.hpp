@@ -1,5 +1,5 @@
-#ifndef Purge_HPP
-#define Purge_HPP
+#ifndef PURGE_HPP
+#define PURGE_HPP
 /*
  Purge.hpp represent a Purge information of The MediaWiki action API.
 
@@ -115,5 +115,5 @@ class Purge {
 const string Purge::versionMajor = "201512290030";
 const string Purge::versionMinor = "201512290030";
 
-#endif // #ifndef Purge_HPP
+#endif // #ifndef PURGE_HPP
  
