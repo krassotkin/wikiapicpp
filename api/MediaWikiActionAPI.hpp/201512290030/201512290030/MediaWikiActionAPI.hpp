@@ -26,6 +26,8 @@ using namespace std;
 // api
 #include "Categories.hpp"
 #include "Category.hpp"
+#include "CategoryMembers.hpp"
+#include "CategoryMember.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
@@ -137,6 +139,25 @@ void categories(LoginInfo* loginInfo, Categories* categories) {
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categories res:" << res << endl;
    categories->fromJsonString(res);
+}
+
+void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
+ if(loginInfo->site.length() == 0) return;
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=categorymembers";
+   fullUrl += categoryMembers->cmtitle.length() > 0 ? "&cmtitle=" + escape(categoryMembers->cmtitle) : "";
+   fullUrl += categoryMembers->cmpageid == -1 ? "" : "&cmpageid=" + to_string(categoryMembers->cmpageid); 
+   fullUrl += categoryMembers->cmprop.length() > 0 ? "&cmprop=" + escape(categoryMembers->cmprop) : "";
+   fullUrl += categoryMembers->cmnamespace == -1 ? "" : "&cmnamespace=" + to_string(categoryMembers->cmnamespace);
+   fullUrl += categoryMembers->cmtype.length() > 0 ? "&cmtype=" + escape(categoryMembers->cmtype) : "";
+   fullUrl += categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "";
+   //cout << "\t\tmwaapi::categories fullUrl (1): " << fullUrl << endl;
+   fullUrl += categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : ""; 
+   fullUrl += "&cmsort=timestamp&cmdir=desc";
+   fullUrl += formatPart;
+   //cout << "\t\tmwaapi::categoryMembers fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tmwaapi::categoryMembers res:" << res << endl;
+   categoryMembers->fromJsonString(res);
 }
 
 /*
