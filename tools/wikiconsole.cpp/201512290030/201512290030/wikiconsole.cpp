@@ -32,6 +32,8 @@ Examples:
 // api
 #include "Categories.hpp"
 #include "Category.hpp"
+#include "CategoryMember.hpp"
+#include "CategoryMembers.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
@@ -122,6 +124,40 @@ bool expectsCategories(const vector<string>& commandVector) {
    categories.clcontinue=categories.clcontinue_res;
    mwaapi.categories(&loginInfo, &categories);
    for(Category si : categories.items) cout << "• " << si.title << endl;
+  }
+ }
+ return true;
+}
+
+bool expectsCategoryMembers(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("categorymembers")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Search format:" << endl;
+  cout << "\tcategorymembers title" << endl;
+  cout << "Example:" << endl;
+  cout << "\tcategorymembers Кино" << endl;
+  return true;
+ }
+ CategoryMembers categoryMembers;  
+ try {
+  long cmpageid = stol(commandVector[1]);
+  categoryMembers.cmpageid = cmpageid;
+ } catch(...) {
+  categoryMembers.cmtitle = commandVector[1];
+ }
+ mwaapi.categoryMembers(&loginInfo, &categoryMembers); 
+ if(categoryMembers.items.size()==0) {
+   cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+   cout << categoryMembers.res << endl;
+   return true;
+  }
+  else {
+  cout<< "We've found " << categoryMembers.items.size() << " pages:" << endl;  
+  while(categoryMembers.cmcontinue_res.length()>0) {
+   categoryMembers.cmcontinue=categoryMembers.cmcontinue_res;
+   mwaapi.categoryMembers(&loginInfo, &categoryMembers);
+   for(CategoryMember si : categoryMembers.items) cout << "• " << si.title << endl;
   }
  }
  return true;
@@ -743,6 +779,7 @@ bool expectsVersions(const vector<string>& commandVector) {
 bool parseCommandLine(const vector<string>& commandVector) {
  if(commandVector.size() == 0) return false;
  if(expectsCategories(commandVector)) return true;
+ if(expectsCategoryMembers(commandVector)) return true;
  if(expectsContent(commandVector)) return true;
  if(expectsCreate(commandVector)) return true;
  if(expectsDownload(commandVector)) return true;
@@ -789,6 +826,7 @@ void showHelp() {
  cout << "\t<command> <options>" << endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
  cout << "  categories     List all categories the pages belong to." << endl;
+ cout << "  categorymembers List all pages in a given category." << endl;
  cout << "  content        Return content of a wikipage. Use after \"login\"." << endl;
  cout << "                 Format: content \"Name or id of page\"" << endl;
  cout << "                 Example: content \"Main Page\"" << endl;
