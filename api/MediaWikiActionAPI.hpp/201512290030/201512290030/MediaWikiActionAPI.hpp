@@ -24,6 +24,8 @@ using namespace std;
 #include "json11.hpp"
 
 // api
+#include "Categories.hpp"
+#include "Category.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
@@ -109,6 +111,33 @@ void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
+
+/*
+ Categories
+
+https://www.mediawiki.org/wiki/API:Categories
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategories
+
+List all categories the pages belong to. 
+*/
+
+void categories(LoginInfo* loginInfo, Categories* categories) {
+ if(loginInfo->site.length() == 0) return;
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&prop=categories";
+   fullUrl += categories->title.length() > 0 ? "&titles=" + escape(categories->title) : "";
+   fullUrl += categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "";
+   fullUrl += categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "";
+   fullUrl += categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "";
+   fullUrl += categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "";
+   fullUrl += categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "";
+   //cout << "\t\tmwaapi::categories fullUrl (1): " << fullUrl << endl;
+   fullUrl += categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : ""; 
+   fullUrl += formatPart;
+   //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   //cout << "\t\tmwaapi::categories res:" << res << endl;
+   categories->fromJsonString(res);
+}
 
 /*
  Edit:

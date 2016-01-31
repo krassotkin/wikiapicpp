@@ -30,6 +30,8 @@ Examples:
 #include "json11.hpp"
 
 // api
+#include "Categories.hpp"
+#include "Category.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
@@ -94,6 +96,35 @@ vector<string> getCommandVector() {
  cout << endl;
  */
  return commandVector;
+}
+
+bool expectsCategories(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("categories")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Search format:" << endl;
+  cout << "\tcategories title" << endl;
+  cout << "Example:" << endl;
+  cout << "\tcategories Кино" << endl;
+  return true;
+ }
+ Categories categories;  
+ categories.title=commandVector[1];
+ mwaapi.categories(&loginInfo, &categories); 
+ if(categories.items.size()==0) {
+   cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+   cout << categories.res << endl;
+   return true;
+  }
+  else {
+  cout<< "We've found " << categories.items.size() << " categories:" << endl;  
+  while(categories.clcontinue_res.length()>0) {
+   categories.clcontinue=categories.clcontinue_res;
+   mwaapi.categories(&loginInfo, &categories);
+   for(Category si : categories.items) cout << "• " << si.title << endl;
+  }
+ }
+ return true;
 }
 
 bool expectsContent(const vector<string>& commandVector) {
@@ -711,6 +742,7 @@ bool expectsVersions(const vector<string>& commandVector) {
 
 bool parseCommandLine(const vector<string>& commandVector) {
  if(commandVector.size() == 0) return false;
+ if(expectsCategories(commandVector)) return true;
  if(expectsContent(commandVector)) return true;
  if(expectsCreate(commandVector)) return true;
  if(expectsDownload(commandVector)) return true;
@@ -756,6 +788,7 @@ void showHelp() {
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
+ cout << "  categories     List all categories the pages belong to." << endl;
  cout << "  content        Return content of a wikipage. Use after \"login\"." << endl;
  cout << "                 Format: content \"Name or id of page\"" << endl;
  cout << "                 Example: content \"Main Page\"" << endl;
