@@ -122,7 +122,6 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategories
 
 List all categories the pages belong to. 
 */
-
 void categories(LoginInfo* loginInfo, Categories* categories) {
  if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&prop=categories";
@@ -132,7 +131,6 @@ void categories(LoginInfo* loginInfo, Categories* categories) {
    fullUrl += categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "";
    fullUrl += categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "";
    fullUrl += categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "";
-   //cout << "\t\tmwaapi::categories fullUrl (1): " << fullUrl << endl;
    fullUrl += categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : ""; 
    fullUrl += formatPart;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
@@ -141,6 +139,12 @@ void categories(LoginInfo* loginInfo, Categories* categories) {
    categories->fromJsonString(res);
 }
 
+/*
+ CategoryMembers
+
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategorymembers
+https://www.mediawiki.org/wiki/API:Categorymembers
+*/
 void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
  if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=categorymembers";

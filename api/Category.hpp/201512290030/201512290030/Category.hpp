@@ -62,6 +62,15 @@ class Category {
    ns = json["ns"].int_value();
    title = json["title"].string_value();
   }
+
+  string getTitleClear() {
+   string res;
+   bool f = false;
+   for(char c : title)
+    if(!f && c==':') f=true;
+    else if(f) res+=c;
+   return res;
+  }
   
   string toJson() {
    return "{\"ns\":"+to_string(ns)+ ",\"title\":"+title+"\"}";
