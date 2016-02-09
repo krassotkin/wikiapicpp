@@ -343,7 +343,9 @@ https://www.mediawiki.org/wiki/API:Rollback
    //cout << "\t\tmwaapi::rollback res: " << res << endl;
    rollback->fromJsonString(res);
   } 
-  
+   
+/* 
+*/ 
   void search(LoginInfo* loginInfo, Search* search){
    if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=search";

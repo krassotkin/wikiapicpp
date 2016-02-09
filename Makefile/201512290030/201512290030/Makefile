@@ -14,7 +14,7 @@ CFLAGS = -c -Wall -std=c++11
 LDLIBS = -lcurl
 
 
-PROJECT_HOME_DIR = ../../../../
+PROJECT_HOME_DIR = ../../../
 
 ABSTRACT_DIR = $(PROJECT_HOME_DIR)abstract/
 API_DIR = $(PROJECT_HOME_DIR)api/
