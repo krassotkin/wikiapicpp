@@ -41,42 +41,42 @@ using namespace std;
 #include "Tokens.hpp"
 
 class MediaWikiActionAPI {
-
+  
  private:
-
+  
   CurlWrapper curlWrapper;
 
  public:
 
   static const string versionMajor;
   static const string versionMinor;
-
+  
   const string endpointPart = "w/api.php";
   const string formatPart = "&format=json";
-
+  
   MediaWikiActionAPI() {}
-
-
+  
+  
 /***************************************************************************
 *                             Servo                                        *
 ***************************************************************************/
-
- string escape(const string& s) {
-  string res;
-  /*
-  for(char c : s) {
-   if(c == ' ') res+='_';
-   else res += c;
+  
+  string escape(const string& s) {
+   string res;
+   /*
+   for(char c : s) {
+    if(c == ' ') res+='_';
+    else res += c;
+   }
+   return curlWrapper.escape(res);
+   */
+   return curlWrapper.escape(s);
   }
-  return curlWrapper.escape(res);
-  */
-  return curlWrapper.escape(s);
- }
-
+  
 /***************************************************************************
 *                              API                                         *
 ***************************************************************************/
-
+  
 /*
 List all revisions
 
@@ -86,7 +86,7 @@ List all revisions
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Ballrevisions
 https://www.mediawiki.org/wiki/API:Allrevisions
 */
-void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
+  void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&list=allrevisions";
    fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
    fullUrl+= revisions->prop.length()==0 ? "" : "&arvprop=" + revisions->prop;
@@ -113,7 +113,7 @@ void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
-
+  
 /*
  Categories
 
@@ -122,8 +122,8 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategories
 
 List all categories the pages belong to. 
 */
-void categories(LoginInfo* loginInfo, Categories* categories) {
- if(loginInfo->site.length() == 0) return;
+  void categories(LoginInfo* loginInfo, Categories* categories) {
+   if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&prop=categories";
    fullUrl += categories->title.length() > 0 ? "&titles=" + escape(categories->title) : "";
    fullUrl += categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "";
@@ -137,16 +137,16 @@ void categories(LoginInfo* loginInfo, Categories* categories) {
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categories res:" << res << endl;
    categories->fromJsonString(res);
-}
-
+  } 
+  
 /*
  CategoryMembers
-
+  
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategorymembers
 https://www.mediawiki.org/wiki/API:Categorymembers
 */
-void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
- if(loginInfo->site.length() == 0) return;
+  void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
+   if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=categorymembers";
    fullUrl += categoryMembers->cmtitle.length() > 0 ? "&cmtitle=" + escape(categoryMembers->cmtitle) : "";
    fullUrl += categoryMembers->cmpageid == -1 ? "" : "&cmpageid=" + to_string(categoryMembers->cmpageid); 
@@ -162,57 +162,57 @@ void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categoryMembers res:" << res << endl;
    categoryMembers->fromJsonString(res);
-}
-
+  }
+  
 /*
  Edit:
 https://en.wikipedia.org/w/api.php?action=help&modules=edit
 https://www.mediawiki.org/wiki/API:Edit
-
+  
  See Edit.hpp for details.
 */
- void edit(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
-  if(loginInfo->site.length() == 0) return;
-  if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
-  string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
-  //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
-  string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
-  postFields += edit->section == -1 ? "" : "&section="+to_string(edit->section);
-  postFields += edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle);
-  postFields += edit->text.length() == 0 ? "" : "&text="+escape(edit->text);
-  postFields += edit->summary.length() == 0 ? "" : "&summary="+escape(edit->summary);
-  postFields += edit->tags.length() == 0 ? "" : "&tags="+escape(edit->tags);
-  postFields += edit->minor == -1 ? "" : "&minor="+to_string(edit->minor);
-  postFields += edit->notminor == -1 ? "" : "&notminor="+to_string(edit->notminor);
-  postFields += edit->bot == -1 ? "" : "&bot="+to_string(edit->bot);
-  postFields += edit->basetimestamp.length() == 0 ? "" : "&basetimestamp="+escape(edit->basetimestamp);
-  postFields += edit->starttimestamp.length() == 0 ? "" : "&starttimestamp="+escape(edit->starttimestamp);
-  postFields += edit->recreate == -1 ? "" : "&recreate="+to_string(edit->recreate);
-  postFields += edit->createonly == -1 ? "" : "&createonly="+to_string(edit->createonly);
-  postFields += edit->nocreate == -1 ? "" : "&nocreate="+to_string(edit->nocreate);
-  postFields += edit->watchlist.length() == 0 ? "" : "&watchlist="+escape(edit->watchlist);
-  postFields += edit->md5.length() == 0 ? "" : "&md5="+escape(edit->md5);
-  postFields += edit->prependtext.length() == 0 ? "" : "&prependtext="+escape(edit->prependtext);
-  postFields += edit->appendtext.length() == 0 ? "" : "&appendtext="+escape(edit->appendtext);
-  postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
-  postFields += edit->undoafter == -1 ? "" : "&undoafter="+to_string(edit->undoafter);
-  postFields += edit->redirect == -1 ? "" : "&redirect="+to_string(edit->redirect);
-  postFields += edit->contentformat.length() == 0 ? "" : "&contentformat="+escape(edit->contentformat);
-  postFields += edit->contentmodel.length() == 0 ? "" : "&contentmodel="+escape(edit->contentmodel);
-  postFields += edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword);
-  postFields += edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid);
-  postFields += "&token="+escape(tokens->csrftoken);
-  //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
-  string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-  //cout << "\t\tmwaapi::edit res: " << res << endl;
-  edit->fromJsonString(res);
- }
+  void edit(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
+   if(loginInfo->site.length() == 0) return;
+   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
+   //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
+   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
+   postFields += edit->section == -1 ? "" : "&section="+to_string(edit->section);
+   postFields += edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle);
+   postFields += edit->text.length() == 0 ? "" : "&text="+escape(edit->text);
+   postFields += edit->summary.length() == 0 ? "" : "&summary="+escape(edit->summary);
+   postFields += edit->tags.length() == 0 ? "" : "&tags="+escape(edit->tags);
+   postFields += edit->minor == -1 ? "" : "&minor="+to_string(edit->minor);
+   postFields += edit->notminor == -1 ? "" : "&notminor="+to_string(edit->notminor);
+   postFields += edit->bot == -1 ? "" : "&bot="+to_string(edit->bot);
+   postFields += edit->basetimestamp.length() == 0 ? "" : "&basetimestamp="+escape(edit->basetimestamp);
+   postFields += edit->starttimestamp.length() == 0 ? "" : "&starttimestamp="+escape(edit->starttimestamp);
+   postFields += edit->recreate == -1 ? "" : "&recreate="+to_string(edit->recreate);
+   postFields += edit->createonly == -1 ? "" : "&createonly="+to_string(edit->createonly);
+   postFields += edit->nocreate == -1 ? "" : "&nocreate="+to_string(edit->nocreate);
+   postFields += edit->watchlist.length() == 0 ? "" : "&watchlist="+escape(edit->watchlist);
+   postFields += edit->md5.length() == 0 ? "" : "&md5="+escape(edit->md5);
+   postFields += edit->prependtext.length() == 0 ? "" : "&prependtext="+escape(edit->prependtext);
+   postFields += edit->appendtext.length() == 0 ? "" : "&appendtext="+escape(edit->appendtext);
+   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
+   postFields += edit->undoafter == -1 ? "" : "&undoafter="+to_string(edit->undoafter);
+   postFields += edit->redirect == -1 ? "" : "&redirect="+to_string(edit->redirect);
+   postFields += edit->contentformat.length() == 0 ? "" : "&contentformat="+escape(edit->contentformat);
+   postFields += edit->contentmodel.length() == 0 ? "" : "&contentmodel="+escape(edit->contentmodel);
+   postFields += edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword);
+   postFields += edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid);
+   postFields += "&token="+escape(tokens->csrftoken);
+   //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
+   string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
+   //cout << "\t\tmwaapi::edit res: " << res << endl;
+   edit->fromJsonString(res);
+  }
 
 /*
   Tokens:
 https://en.wikipedia.org/w/api.php?action=help&modules=tokens
 https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
-
+  
   type
     Values (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch
 */
@@ -223,7 +223,7 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
    //cout << "\t\tmwaapi::getTokens res: " << res << endl;
    tokens->fromJsonString(res);
   }
-
+  
 /*
  Login: 
 https://en.wikipedia.org/w/api.php?action=help&modules=login
@@ -243,25 +243,25 @@ https://www.mediawiki.org/wiki/API:Login
    if(firstPass && loginInfo->result.compare("NeedToken")==0) this->login(loginInfo);
    //cout << "\t\tmwaapi::login loginInfo->token: " << loginInfo->token << endl;
   }
-
+  
 /*
  Logout:
 https://en.wikipedia.org/w/api.php?action=help&modules=logout
 https://www.mediawiki.org/wiki/API:Logout
 */
-   void logout(LoginInfo* loginInfo) {
-    string fullUrl = loginInfo->site+endpointPart+"?"+"action=logout";
-    string res=curlWrapper.getFirstPagePost(fullUrl);
-    loginInfo->clear();
-   }
-
+  void logout(LoginInfo* loginInfo) {
+   string fullUrl = loginInfo->site+endpointPart+"?"+"action=logout";
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   loginInfo->clear();
+  }
+  
 /*
   Purge:
-
+  
   https://en.wikipedia.org/w/api.php?action=help&modules=purge
   https://www.mediawiki.org/wiki/API:Purge
 */
-
+  
   void purge(LoginInfo* loginInfo, Purge* purge) {
    if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=purge";
@@ -278,20 +278,20 @@ https://www.mediawiki.org/wiki/API:Logout
    //cout << "\t\tmwaapi::purge res:" << res << endl;
    purge->fromJsonString(res);
   }
-
+  
 /*
  Get revision information.
-
+  
  May be used in several ways:
-
+  
  1. Get data about a set of pages (last revision), by setting titles or pageids.
  2. Get revisions for one given page, by using titles or pageids with start, end, or limit.
  3. Get data about a set of revisions by setting their IDs with revids.
-
+  
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Brevisions
 https://www.mediawiki.org/wiki/API:Revisions
 */
-void revisions(LoginInfo* loginInfo, Revisions* revisions) {
+  void revisions(LoginInfo* loginInfo, Revisions* revisions) {
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&prop=revisions";
    fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
    fullUrl+= revisions->prop.length()==0 ? "" : "&rvprop=" + revisions->prop;
@@ -318,12 +318,12 @@ void revisions(LoginInfo* loginInfo, Revisions* revisions) {
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
-
+  
 /*
 Roll back the last edits of the user of the page.
-
+  
 If the last user who edited the page made multiple edits in a row, they will all be rolled back. 
-
+  
 https://en.wikipedia.org/w/api.php?action=help&modules=rollback
 https://www.mediawiki.org/wiki/API:Rollback
 */
@@ -343,7 +343,7 @@ https://www.mediawiki.org/wiki/API:Rollback
    //cout << "\t\tmwaapi::rollback res: " << res << endl;
    rollback->fromJsonString(res);
   } 
- 
+  
   void search(LoginInfo* loginInfo, Search* search){
    if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=search";
@@ -361,12 +361,12 @@ https://www.mediawiki.org/wiki/API:Rollback
    //cout << "\t\tmwaapi::search res:" << res << endl;
    search->fromJsonString(res);
   }
-
+  
 /*
   Thank:
 https://www.mediawiki.org/wiki/Extension:Thanks#API_Documentation
 https://en.wikipedia.org/w/api.php?action=help&modules=thank
-
+  
   Must get csrf token before.
 */
   void thank(LoginInfo* loginInfo, Tokens* tokens, const string& revidString) {
@@ -378,7 +378,7 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
-
+  
   void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
    if(loginInfo->site.length() == 0) return;
    if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
@@ -392,11 +392,11 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    //cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }
-
-};
-
+  
+}; 
+  
 const string MediaWikiActionAPI::versionMajor = "201512290030";
 const string MediaWikiActionAPI::versionMinor = "201512290030";
 
 #endif // #ifndef MEDIAWIKIACTIONAPI_HPP
- 
+
