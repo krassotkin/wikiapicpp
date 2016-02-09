@@ -136,12 +136,17 @@ bool expectsCategories(const vector<string>& commandVector) {
 
 bool expectsCategoryMembers(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("categorymembers")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"content\"." << endl;
+  return true;
+ }
  if (commandVector.size() < 1) {
   cout << "Very few arguments for searching..." << endl;
   cout << "Search format:" << endl;
   cout << "\tcategorymembers title" << endl;
   cout << "Example:" << endl;
-  cout << "\tcategorymembers Кино" << endl;
+  cout << "\tcategorymembers Category:Google" << endl;
   return true;
  }
  CategoryMembers categoryMembers;  
@@ -153,17 +158,16 @@ bool expectsCategoryMembers(const vector<string>& commandVector) {
  }
  mwaapi.categoryMembers(&loginInfo, &categoryMembers); 
  if(categoryMembers.items.size()==0) {
-   cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
-   cout << categoryMembers.res << endl;
-   return true;
-  }
-  else {
-  cout<< "We've found " << categoryMembers.items.size() << " pages:" << endl;  
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << categoryMembers.res << endl;
+  return true;
+ } else { 
   while(categoryMembers.cmcontinue_res.length()>0) {
    categoryMembers.cmcontinue=categoryMembers.cmcontinue_res;
    mwaapi.categoryMembers(&loginInfo, &categoryMembers);
-   for(CategoryMember si : categoryMembers.items) cout << "• " << si.title << endl;
   }
+  cout<< "We've found " << categoryMembers.items.size() << " pages:" << endl; 
+  for(CategoryMember si : categoryMembers.items) cout << "• " << si.title << endl;
  }
  return true;
 }
@@ -836,7 +840,7 @@ void showHelp() {
  cout << "                  Example: categories \"Category:Google\"" << endl;
  cout << "  categorymembers List all pages in a given category." << endl;
  cout << "                  Format: categorymembers \"Name or id of a page\"" << endl;
- cout << "                  Example: categorymembers \"Main Page\"" << endl;
+ cout << "                  Example: categorymembers \"Category:Google\"" << endl;
  cout << "  content         Return content of a wikipage. Use after \"login\"." << endl;
  cout << "                  Format: content \"Name or id of a page\"" << endl;
  cout << "                  Example: content \"Main Page\"" << endl;
