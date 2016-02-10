@@ -198,7 +198,7 @@ using namespace std;
 #include "json11.hpp"
 
 // api
-#include "PageRevisions.hpp"
+#include "Pages.hpp"
 #include "Revision.hpp"
 
 class Revisions {
@@ -269,13 +269,13 @@ class Revisions {
   string batchcomplete;        
   string continue_res;         /* continue->rvcontinue or continue->arvcontinue in API */
   string continue_2_res;       /* continue->continue in API */
-  vector<PageRevisions> pages; /* vector of all pages */
+  vector<Pages> pages; /* vector of all pages */
 
 
   // Interfaces
-  map<long int, PageRevisions> pagesById;
+  map<long int, Pages> pagesById;
   map<string, string> pagesNormalizedTitles;
-  map<string, PageRevisions> pagesByTitle;
+  map<string, Pages> pagesByTitle;
   vector<Revision> revisions;
 
   Revisions() {}
@@ -363,7 +363,7 @@ class Revisions {
    //cout << "[[Revisions::fromJson]] pagesJsonArray.size(): " << pagesJsonArray.size() << endl;
    for(auto ipro : pagesJsonObjects) {
     if(pagesById.find(stol(ipro.first)) == pagesById.end()) {
-     PageRevisions pageRevisions(ipro.second);
+     Pages pageRevisions(ipro.second);
      pages.push_back(pageRevisions);
      pagesById[pageRevisions.pageid] = pageRevisions;
      pagesByTitle[pageRevisions.title] = pageRevisions;
@@ -372,7 +372,7 @@ class Revisions {
     }
    }
    for(auto ipra : pagesJsonArray) {
-    PageRevisions pageRevisions(ipra);
+    Pages pageRevisions(ipra);
     if(pagesById.find(pageRevisions.pageid) == pagesById.end()) {
      pages.push_back(pageRevisions);
      pagesById[pageRevisions.pageid] = pageRevisions;
@@ -382,7 +382,7 @@ class Revisions {
     }
    }
    //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
-   for(PageRevisions prs : pages) {
+   for(Pages prs : pages) {
     for(Revision r : prs.revisions) {
      revisions.push_back(r);
     }

@@ -37,7 +37,7 @@ Examples:
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
-#include "PageRevisions.hpp"
+#include "Pages.hpp"
 #include "Purge.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
@@ -907,7 +907,7 @@ void showVersions() {
  cout << "\tEdit " << Edit::versionMajor << "." << Edit::versionMinor << endl;
  cout << "\tLoginInfo " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
  cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
- cout << "\tPageRevisions " << PageRevisions::versionMajor << "." << PageRevisions::versionMinor << endl;
+ cout << "\tPages " << Pages::versionMajor << "." << Pages::versionMinor << endl;
  cout << "\tPurge " << Purge::versionMajor << "." << Purge::versionMinor << endl;
  cout << "\tRevision " << Revision::versionMajor << "." << Revision::versionMinor << endl;
  cout << "\tRevisions " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;
