@@ -116,21 +116,27 @@ bool expectsCategories(const vector<string>& commandVector) {
   return true;
  }
  Categories categories;  
- categories.title=commandVector[1];
- mwaapi.categories(&loginInfo, &categories); 
- if(categories.items.size()==0) {
-   cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
-   cout << categories.res << endl;
-   return true;
-  }
-  else {
-  while(categories.clcontinue_res.length()>0) {
-   categories.clcontinue=categories.clcontinue_res;
-   mwaapi.categories(&loginInfo, &categories);
-  }
-  cout<< "We've found " << categories.items.size() << " categories with titles:" << endl;  
-  for(Category si : categories.items) cout << "• " << si.getTitleClear() << endl;
+ try {
+  long pageids = stol(commandVector[1]);
+  categories.pageids = to_string(pageids);
+ } catch(...) {
+  categories.titles = commandVector[1];
  }
+ mwaapi.categories(&loginInfo, &categories); 
+ if(categories.pages.size()==0) {
+  cout << "Pages with the title not found." <<  endl << "Read server response:" <<  endl << categories.res << endl;
+  return true;
+ }
+ if(categories.pages[0].categories.size()==0) {
+  cout << "Categories not found..." << endl << "Read server response:" <<  endl << categories.res << endl;
+  return true;
+ }
+ while(categories.clcontinue_res.length()>0) {
+  categories.clcontinue=categories.clcontinue_res;
+  mwaapi.categories(&loginInfo, &categories);
+ }
+ cout<< "We've found " << categories.pages[0].categories.size() << " categories with titles:" << endl;  
+ for(Category ci : categories.pages[0].categories) cout << "• " << ci.getTitleClear() << endl;
  return true;
 }
 

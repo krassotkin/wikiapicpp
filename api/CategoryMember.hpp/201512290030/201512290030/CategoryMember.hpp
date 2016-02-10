@@ -1,6 +1,12 @@
 #ifndef CategoryMember_HPP
 #define CategoryMember_HPP
 /*
+ CategoryMembers.hpp represent a item of CategoryMemers.itmems.
+
+ Help:
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategorymembers
+https://www.mediawiki.org/wiki/API:Categorymembers
+
  Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
  since 2015-12-29
 */
@@ -29,6 +35,7 @@ class CategoryMember {
   
   long int pageid = -1;
   long int ns = -1;
+  string timestamp;
   string title;
 
   CategoryMember() {}
@@ -44,6 +51,7 @@ class CategoryMember {
   void clear() {
    pageid = -1;
    ns=-1;
+   timestamp="";
    title="";
   }
   
@@ -55,6 +63,7 @@ class CategoryMember {
   void fromJson(const json11::Json& json) {
    pageid = json["pageid"].int_value();
    ns = json["ns"].int_value();
+   timestamp = json["timestamp"].string_value();
    title = json["title"].string_value();
   }
   

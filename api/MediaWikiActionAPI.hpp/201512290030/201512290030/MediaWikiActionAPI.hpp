@@ -117,15 +117,16 @@ https://www.mediawiki.org/wiki/API:Allrevisions
 /*
  Categories
 
-https://www.mediawiki.org/wiki/API:Categories
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategories
+https://www.mediawiki.org/wiki/API:Categories
+
 
 List all categories the pages belong to. 
 */
   void categories(LoginInfo* loginInfo, Categories* categories) {
    if(loginInfo->site.length() == 0) return;
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&prop=categories";
-   fullUrl += categories->title.length() > 0 ? "&titles=" + escape(categories->title) : "";
+   fullUrl += categories->titles.length() > 0 ? "&titles=" + escape(categories->titles) : "";
    fullUrl += categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "";
    fullUrl += categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "";
    fullUrl += categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "";
@@ -153,10 +154,10 @@ https://www.mediawiki.org/wiki/API:Categorymembers
    fullUrl += categoryMembers->cmprop.length() > 0 ? "&cmprop=" + escape(categoryMembers->cmprop) : "";
    fullUrl += categoryMembers->cmnamespace == -1 ? "" : "&cmnamespace=" + to_string(categoryMembers->cmnamespace);
    fullUrl += categoryMembers->cmtype.length() > 0 ? "&cmtype=" + escape(categoryMembers->cmtype) : "";
+   fullUrl += categoryMembers->cmlimit == -1 ? "" : "&cmlimit=" + to_string(categoryMembers->cmlimit);
    fullUrl += categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "";
-   //cout << "\t\tmwaapi::categories fullUrl (1): " << fullUrl << endl;
    fullUrl += categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : ""; 
-   fullUrl += "&cmsort=timestamp&cmdir=desc";
+   fullUrl += categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : ""; 
    fullUrl += formatPart;
    //cout << "\t\tmwaapi::categoryMembers fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);

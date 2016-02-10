@@ -79,9 +79,11 @@ class PageRevisions {
   string errJson;
 
   // Response
-  int ns;
-  long int pageid;
+  int ns=-1;
+  long int pageid=-1;
   string title;
+  vector<Category> categories;
+  map<string, Category> categoriesMap;
   vector<Revision> revisions;
   map<long int, Revision> revisionsMap;
 
@@ -96,10 +98,14 @@ class PageRevisions {
   }
 
   void clear() {
-   ns = 0;
-   pageid = 0;
-   title = "";
+   categories.clear();
+   categoriesMap.clear();
+   errJson.clear();
+   ns = -1;
+   pageid = -1;
    revisions.clear();
+   revisionsMap.clear();
+   title.clear();
   }
   
   void fromJsonString(const string& jsonString) {
@@ -118,6 +124,14 @@ class PageRevisions {
     if(revisionsMap.find(revision.revid) == revisionsMap.end()) {
      revisions.push_back(revision);
      revisionsMap[revision.revid] = revision;
+    }
+   }
+   auto categoriesJson = json["categories"].array_items();
+   for(auto ipr : categoriesJson) {
+    Category category(ipr);
+    if(categoriesMap.find(category.title) == categoriesMap.end()) {
+     categories.push_back(category);
+     categoriesMap[category.title] = category;
     }
    }
   }
