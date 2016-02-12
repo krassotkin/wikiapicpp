@@ -31,7 +31,7 @@ using namespace std;
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
-#include "Pages.hpp"
+#include "Page.hpp"
 #include "Purge.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"

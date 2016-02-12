@@ -37,7 +37,7 @@ Examples:
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
-#include "Pages.hpp"
+#include "Page.hpp"
 #include "Purge.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
@@ -124,7 +124,7 @@ bool expectsCategories(const vector<string>& commandVector) {
  }
  mwaapi.categories(&loginInfo, &categories); 
  if(categories.pages.size()==0) {
-  cout << "Pages with the title not found." <<  endl << "Read server response:" <<  endl << categories.res << endl;
+  cout << "Page with the title not found." <<  endl << "Read server response:" <<  endl << categories.res << endl;
   return true;
  }
  if(categories.pages[0].categories.size()==0) {
@@ -910,7 +910,7 @@ void showVersions() {
  cout << "\tEdit " << Edit::versionMajor << "." << Edit::versionMinor << endl;
  cout << "\tLoginInfo " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
  cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
- cout << "\tPages " << Pages::versionMajor << "." << Pages::versionMinor << endl;
+ cout << "\tPage " << Page::versionMajor << "." << Page::versionMinor << endl;
  cout << "\tPurge " << Purge::versionMajor << "." << Purge::versionMinor << endl;
  cout << "\tRevision " << Revision::versionMajor << "." << Revision::versionMinor << endl;
  cout << "\tRevisions " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;

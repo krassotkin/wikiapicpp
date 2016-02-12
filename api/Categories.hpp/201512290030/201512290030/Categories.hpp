@@ -59,7 +59,7 @@ using namespace std;
 
 // api
 #include "Category.hpp"
-#include "Pages.hpp"
+#include "Page.hpp"
 
 class Categories {
 
@@ -92,7 +92,7 @@ class Categories {
  
   // Response
   string batchcomplete;
-  vector <Pages> pages;
+  vector <Page> pages;
   string res;
   string clcontinue_res;
   string continue_res;
@@ -140,7 +140,7 @@ class Categories {
    auto queryJson = json["query"].object_items();
    auto pagesJson = queryJson["pages"].object_items();
    for(auto ipro : pagesJson) {
-    Pages pageRevisions(ipro.second);
+    Page pageRevisions(ipro.second);
     pages.push_back(pageRevisions);
 /*
     auto resJson = page.second; 

@@ -25,6 +25,7 @@ using namespace std;
 #include "CategoryMembers.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
+#include "Page.hpp"
 #include "Revisions.hpp"
 
 struct ProjectsNewsFeedsTask {
@@ -102,7 +103,7 @@ class ProjectsNewsFeeds {
   }
 
   void processTask(ProjectsNewsFeedsTask* task) {
-   vector<Pages> goodNews;
+   vector<Page> goodNews;
    if(task->categories.size()==0) return;
 
    // Select last news from first category in task
@@ -132,7 +133,7 @@ class ProjectsNewsFeeds {
    // Sort articles by id desc
    sort(goodNews.begin(), 
         goodNews.end(), 
-        [](const Pages& a, const Pages& b) -> bool {return a.pageid > b.pageid;});
+        [](const Page& a, const Page& b) -> bool {return a.pageid > b.pageid;});
  
    // Post last news to goal
    LoginInfo loginInfoForEdit;
@@ -158,7 +159,7 @@ class ProjectsNewsFeeds {
   void runForCategories(map<string,bool>* categoriesMap) {
   }
 
-  void selectGoodNews(ProjectsNewsFeedsTask* task, CategoryMembers* categoryMembers, vector<Pages>* goodNews) {
+  void selectGoodNews(ProjectsNewsFeedsTask* task, CategoryMembers* categoryMembers, vector<Page>* goodNews) {
    const string CATEGORY_PREFIX = "Category:";
    Categories categories;
    for(CategoryMember cm : categoryMembers->items) categories.pageids += (categories.pageids.length()==0?"":"|")+to_string(cm.pageid);
@@ -170,7 +171,7 @@ class ProjectsNewsFeeds {
     categories.clcontinue=categories.clcontinue_res;
     mwaapi->categories(loginInfo, &categories);
    }
-   for(Pages p : categories.pages) {
+   for(Page p : categories.pages) {
     if(p.categories.size() == task->categories.size()) goodNews->push_back(p);
    }
   }

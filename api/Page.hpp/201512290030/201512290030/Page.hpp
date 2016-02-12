@@ -1,7 +1,7 @@
-#ifndef PAGES_HPP
-#define PAGES_HPP
+#ifndef PAGE_HPP
+#define PAGE_HPP
 /*
- Pages.hpp represent response of The MediaWiki action API for get revisions information request for one page.
+ Page.hpp represent response of The MediaWiki action API for get revisions information request for one page.
 
  Get revision information.
 
@@ -15,7 +15,7 @@
 
  Help:
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Brevisions
-https://www.mediawiki.org/wiki/API:Pages
+https://www.mediawiki.org/wiki/API:Page
 
  Example:
 https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krassotkin&rvlimit=20&rvprop=ids|flags|timestamp|user|userid|size|sha1|contentmodel|comment|parsedcomment|content|tags|parsetree|flagged
@@ -66,7 +66,7 @@ using namespace std;
 // api
 #include "Revision.hpp"
 
-class Pages {
+class Page {
 
  private:
 
@@ -87,13 +87,13 @@ class Pages {
   vector<Revision> revisions;
   map<long int, Revision> revisionsMap;
 
-  Pages() {}
+  Page() {}
   
-  Pages(const string& jsonString) {
+  Page(const string& jsonString) {
    fromJsonString(jsonString);
   }
   
-  Pages(const json11::Json& json) {
+  Page(const json11::Json& json) {
    fromJson(json);
   }
 
@@ -143,8 +143,8 @@ class Pages {
 
 };
 
-const string Pages::versionMajor = "201512290030";
-const string Pages::versionMinor = "201512290030";
+const string Page::versionMajor = "201512290030";
+const string Page::versionMinor = "201512290030";
 
-#endif // #ifndef PAGES_HPP
+#endif // #ifndef PAGE_HPP
  
