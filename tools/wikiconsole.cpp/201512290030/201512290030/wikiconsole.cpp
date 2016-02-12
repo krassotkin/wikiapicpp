@@ -167,14 +167,13 @@ bool expectsCategoryMembers(const vector<string>& commandVector) {
   cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
   cout << categoryMembers.res << endl;
   return true;
- } else { 
-  while(categoryMembers.cmcontinue_res.length()>0) {
-   categoryMembers.cmcontinue=categoryMembers.cmcontinue_res;
-   mwaapi.categoryMembers(&loginInfo, &categoryMembers);
-  }
-  cout<< "We've found " << categoryMembers.items.size() << " pages:" << endl; 
-  for(CategoryMember si : categoryMembers.items) cout << "• " << si.title << endl;
+ } 
+ while(categoryMembers.cmcontinue_res.length()>0) {
+  categoryMembers.cmcontinue=categoryMembers.cmcontinue_res;
+  mwaapi.categoryMembers(&loginInfo, &categoryMembers);
  }
+ cout<< "We've found " << categoryMembers.items.size() << " pages:" << endl; 
+ for(CategoryMember si : categoryMembers.items) cout << "• " << si.title << endl;
  return true;
 }
 

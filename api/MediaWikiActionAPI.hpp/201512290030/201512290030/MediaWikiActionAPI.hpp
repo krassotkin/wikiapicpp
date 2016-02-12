@@ -128,17 +128,19 @@ List all categories the pages belong to.
    if(loginInfo->site.length() == 0) return;
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=query&prop=categories"
-                    + (categories->titles.length() > 0 ? "&titles=" + escape(categories->titles) : "")
-                    + (categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "")
-                    + (categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "")
-                    + (categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "")
-                    + (categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "")
-                    + (categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "")
-                    + (categories->cldir.length() > 0 ? "&cldir=" + categories->cldir : "")
                     + formatPart;
-   cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
-   string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::categories res:" << res << endl;
+   //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
+   string postFields = (categories->titles.length() == 0 ? "" : "titles=" + categories->titles)
+                       + (categories->pageids.length() == 0 ? "" : "pageids=" + categories->pageids)
+                       + (categories->clprop.length() == 0 ? "" : "&clprop=" + categories->clprop)
+                       + (categories->clshow.length() == 0 ? "" : "&clshow=" + categories->clshow)
+                       + (categories->cllimit == -1 ? "" : "&cllimit=" + to_string(categories->cllimit))
+                       + (categories->clcontinue.length() == 0  ? "" : "&clcontinue=" + categories->clcontinue)
+                       + (categories->clcategories.length() == 0 ? "" : "&clcategories=" + categories->clcategories)
+                       + (categories->cldir.length() == 0 ? "" : "&cldir=" + categories->cldir);
+   //cout << "\t\tmwaapi::categories postFields: " << postFields << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   //cout << "\t\tmwaapi::categories res:" << res << endl;
    categories->fromJsonString(res);
   } 
   
@@ -208,9 +210,9 @@ https://www.mediawiki.org/wiki/API:Edit
                        + (edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword))
                        + (edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid))
                        + ("&token="+escape(tokens->csrftoken));
-   //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
+   // cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-   //cout << "\t\tmwaapi::edit res: " << res << endl;
+   // cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }
 

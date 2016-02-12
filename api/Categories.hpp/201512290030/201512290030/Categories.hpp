@@ -78,7 +78,7 @@ class Categories {
   // Request 
   string clprop;       /*    Which additional properties to get for each category: sortkey       Adds the sortkey (hexadecimal string) and sortkey prefix (human-readable part) for the category. timestamp Adds timestamp of when the category was added. hidden Tags categories that are hidden with __HIDDENCAT__. Values (separate with |): sortkey, timestamp, hidden*/
   string clshow;       /* Which kind of categories to show. Values (separate with |): hidden, !hidden*/
-  string cllimit;      /* How many categories to return. No more than 500 (5,000 for bots) allowed. Type: integer or max Default: 10*/
+  int cllimit = -1;      /* How many categories to return. No more than 500 (5,000 for bots) allowed. Type: integer or max Default: 10*/
   string clcontinue;   /* When more results are available, use this to continue.*/ 
   string clcategories; /* Only list these categories. Useful for checking whether a certain page is in a certain category. Separate values with |. Maximum number of values is 50 (500 for bots).*/
   string cldir;        /* The direction in which to list. One of the following values: ascending, descending Default: ascending */ 
@@ -112,7 +112,7 @@ class Categories {
 
    clprop = "";
    clshow = "";
-   cllimit = "";
+   cllimit = -1;
    clcontinue = "";
    clcategories = "";
    cldir = "";
