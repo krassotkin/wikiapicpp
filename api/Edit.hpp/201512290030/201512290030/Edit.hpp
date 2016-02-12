@@ -38,44 +38,33 @@ class Edit {
   string errJson;
 
   // Request
-  string title; // Title of the page to edit. Cannot be used together with pageid. 
-  long int pageid = -1; // Page ID of the page to edit. Cannot be used together with title. 
-  long int section = -1; // Section number. 0 for the top section, new for a new section. 
-  string sectiontitle; // The title for a new section. 
-  string text; // Page content. 
-  string summary; // Edit summary. Also section title when section=new and sectiontitle is not set. 
-  string tags; // Change tags to apply to the revision. Values (separate with |): WPCleaner, huggle
-  int minor = -1; // Minor edit. 
-  int notminor = -1; // Non-minor edit. 
-  int bot = -1; // Mark this edit as bot. 
-  string basetimestamp; // Timestamp of the base revision, used to detect edit conflicts.
-  string starttimestamp; // Timestamp when the editing process began, used to detect edit conflicts. 
-                         // An appropriate value may be obtained using curtimestamp when beginning 
-                         // the edit process (e.g. when loading the page content to edit). 
-  int recreate = -1; // Override any errors about the page having been deleted in the meantime. 
-  int createonly = -1; // Don't edit the page if it exists already. 
-  int nocreate = -1; // Throw an error if the page doesn't exist. 
-  string watchlist; // One of the following values: watch, unwatch, preferences, nochange
-  string md5; // The MD5 hash of the text parameter, or the prependtext and appendtext parameters 
-              // concatenated. If set, the edit won't be done unless the hash is correct. 
-  string prependtext; // Add this text to the beginning of the page. Overrides text. 
-  string appendtext; // Add this text to the end of the page. Overrides text.
-                     // Use section=new to append a new section, rather than this parameter. 
-  long int undo = -1; // Undo this revision. Overrides text, prependtext and appendtext. 
-  long int undoafter = -1; // Undo all revisions from undo to this one. If not set, just undo one revision. 
-  int redirect = -1; // Automatically resolve redirects. 
-  string contentformat; // Content serialization format used for the input text. 
-                        // One of the following values: 
-                        // application/json, text/x-wiki, text/javascript, text/css, text/plain
-  string contentmodel; // Content model of the new content. 
-                       // One of the following values: 
-                       // GadgetDefinition, MassMessageListContent, wikitext, 
-                       // javascript, json, css, text, SecurePoll, flow-board, Scribunto, JsonSchema
-  string token; // A "csrf" token retrieved from action=query&meta=tokens
-                // The token should always be sent as the last parameter, 
-                // or at least after the text parameter. 
-  string captchaword; // Answer to the CAPTCHA 
-  string captchaid; // CAPTCHA ID from previous request 
+  string title;            /* Title of the page to edit. Cannot be used together with pageid. */
+  long int pageid = -1;    /* Page ID of the page to edit. Cannot be used together with title. */
+  long int section = -1;   /* Section number. 0 for the top section, new for a new section. */
+  string sectiontitle;     /* The title for a new section. */
+  string text;             /* Page content. */
+  string summary;          /* Edit summary. Also section title when section=new and sectiontitle is not set. */
+  string tags;             /* Change tags to apply to the revision. Values (separate with |): WPCleaner, huggle. */
+  int minor = -1;          /* Minor edit. */
+  int notminor = -1;       /* Non-minor edit. */
+  int bot = -1;            /* Mark this edit as bot. */
+  string basetimestamp;    /* Timestamp of the base revision, used to detect edit conflicts.*/
+  string starttimestamp;   /* Timestamp when the editing process began, used to detect edit conflicts.  An appropriate value may be obtained using curtimestamp when beginning the edit process (e.g. when loading the page content to edit). */
+  int recreate = -1;       /* Override any errors about the page having been deleted in the meantime. */
+  int createonly = -1;     /* Don't edit the page if it exists already. */
+  int nocreate = -1;       /* Throw an error if the page doesn't exist. */
+  string watchlist;        /* One of the following values: watch, unwatch, preferences, nochange */ 
+  string md5;              /* The MD5 hash of the text parameter, or the prependtext and appendtext parameters  concatenated. If set, the edit won't be done unless the hash is correct. */ 
+  string prependtext;      /* Add this text to the beginning of the page. Overrides text. */ 
+  string appendtext;       /* Add this text to the end of the page. Overrides text. Use section=new to append a new section, rather than this parameter. */
+  long int undo = -1;      /* Undo this revision. Overrides text, prependtext and appendtext. */
+  long int undoafter = -1; /* Undo all revisions from undo to this one. If not set, just undo one revision. */
+  int redirect = -1;       /* Automatically resolve redirects. */
+  string contentformat;    /* Content serialization format used for the input text. One of the following values: application/json, text/x-wiki, text/javascript, text/css, text/plain */
+  string contentmodel;     /* Content model of the new content. One of the following values: GadgetDefinition, MassMessageListContent, wikitext, javascript, json, css, text, SecurePoll, flow-board, Scribunto, JsonSchema */
+  string token;            /* A "csrf" token retrieved from action=query&meta=tokens The token should always be sent as the last parameter, or at least after the text parameter. */
+  string captchaid;        /* CAPTCHA ID from previous request */
+  string captchaword;      /* Answer to the CAPTCHA */
 
   // Response
   string response;
@@ -147,7 +136,6 @@ class Edit {
   void fromJson(const json11::Json& json) {
    auto editJson = json["edit"].object_items();
    result = editJson["result"].string_value();
-   //cout << "Edit::fromJson result" << result << endl;
    pageidres = editJson["pageid"].int_value();
    titleres = editJson["title"].string_value();
    contentmodelres = editJson["contentmodel"].string_value();

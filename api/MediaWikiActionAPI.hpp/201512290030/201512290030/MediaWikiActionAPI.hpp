@@ -87,27 +87,28 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Ballrevisions
 https://www.mediawiki.org/wiki/API:Allrevisions
 */
   void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&list=allrevisions";
-   fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
-   fullUrl+= revisions->prop.length()==0 ? "" : "&arvprop=" + revisions->prop;
-   fullUrl+= revisions->limit == -1 ? "" : "&arvlimit=" + to_string(revisions->limit);
-   fullUrl+= revisions->expandtemplates == -1 ? "" : "&arvexpandtemplates=" + to_string(revisions->expandtemplates);
-   fullUrl+= revisions->parse == -1 ? "" : "&arvparse=" + to_string(revisions->parse);
-   fullUrl+= revisions->section == -1 ? "" : "&arvsection=" + to_string(revisions->section);
-   fullUrl+= revisions->diffto.length()==0 ? "" : "&arvdiffto=" + revisions->diffto;
-   fullUrl+= revisions->difftotext.length()==0 ? "" : "&arvdifftotext=" + revisions->difftotext;
-   fullUrl+= revisions->difftotextpst.length()==0 ? "" : "&arvdifftotextpst=" + revisions->difftotextpst;
-   fullUrl+= revisions->contentformat.length()==0 ? "" : "&arvcontentformat=" + revisions->contentformat;
-   fullUrl+= revisions->startid == -1 ? "" : "&arvstartid=" + to_string(revisions->startid);
-   fullUrl+= revisions->endid == -1 ? "" : "&arvendid=" + to_string(revisions->endid);
-   fullUrl+= revisions->start.length()==0 ? "" : "&arvstart=" + revisions->start;
-   fullUrl+= revisions->end.length()==0 ? "" : "&arvend=" + revisions->end;
-   fullUrl+= revisions->dir.length()==0 ? "" : "&arvdir=" + revisions->dir;
-   fullUrl+= revisions->user.length()==0 ? "" : "&arvuser=" + revisions->user;
-   fullUrl+= revisions->excludeuser.length()==0 ? "" : "&arvexcludeuser=" + revisions->excludeuser;
-   fullUrl+= revisions->tag.length()==0 ? "" : "&arvtag=" + revisions->tag;
-   fullUrl+= revisions->continue_req.length()==0 ? "" : "&arvcontinue=" + revisions->continue_req;
-   fullUrl+= formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query&list=allrevisions"
+                    + (revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids)
+                    + (revisions->prop.length()==0 ? "" : "&arvprop=" + revisions->prop)
+                    + (revisions->limit == -1 ? "" : "&arvlimit=" + to_string(revisions->limit))
+                    + (revisions->expandtemplates == -1 ? "" : "&arvexpandtemplates=" + to_string(revisions->expandtemplates))
+                    + (revisions->parse == -1 ? "" : "&arvparse=" + to_string(revisions->parse))
+                    + (revisions->section == -1 ? "" : "&arvsection=" + to_string(revisions->section))
+                    + (revisions->diffto.length()==0 ? "" : "&arvdiffto=" + revisions->diffto)
+                    + (revisions->difftotext.length()==0 ? "" : "&arvdifftotext=" + revisions->difftotext)
+                    + (revisions->difftotextpst.length()==0 ? "" : "&arvdifftotextpst=" + revisions->difftotextpst)
+                    + (revisions->contentformat.length()==0 ? "" : "&arvcontentformat=" + revisions->contentformat)
+                    + (revisions->startid == -1 ? "" : "&arvstartid=" + to_string(revisions->startid))
+                    + (revisions->endid == -1 ? "" : "&arvendid=" + to_string(revisions->endid))
+                    + (revisions->start.length()==0 ? "" : "&arvstart=" + revisions->start)
+                    + (revisions->end.length()==0 ? "" : "&arvend=" + revisions->end)
+                    + (revisions->dir.length()==0 ? "" : "&arvdir=" + revisions->dir)
+                    + (revisions->user.length()==0 ? "" : "&arvuser=" + revisions->user)
+                    + (revisions->excludeuser.length()==0 ? "" : "&arvexcludeuser=" + revisions->excludeuser)
+                    + (revisions->tag.length()==0 ? "" : "&arvtag=" + revisions->tag)
+                    + (revisions->continue_req.length()==0 ? "" : "&arvcontinue=" + revisions->continue_req)
+                    + formatPart;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
@@ -125,15 +126,16 @@ List all categories the pages belong to.
 */
   void categories(LoginInfo* loginInfo, Categories* categories) {
    if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&prop=categories";
-   fullUrl += categories->titles.length() > 0 ? "&titles=" + escape(categories->titles) : "";
-   fullUrl += categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "";
-   fullUrl += categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "";
-   fullUrl += categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "";
-   fullUrl += categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "";
-   fullUrl += categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "";
-   fullUrl += categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : ""; 
-   fullUrl += formatPart;
+   string fullUrl=loginInfo->site+endpointPart+"?"
+                  + "action=query&prop=categories"
+                  + (categories->titles.length() > 0 ? "&titles=" + escape(categories->titles) : "")
+                  + (categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "")
+                  + (categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "")
+                  + (categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "")
+                  + (categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "")
+                  + (categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "")
+                  + (categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : "")
+                  + formatPart;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categories res:" << res << endl;
@@ -148,17 +150,18 @@ https://www.mediawiki.org/wiki/API:Categorymembers
 */
   void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
    if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=categorymembers";
-   fullUrl += categoryMembers->cmtitle.length() > 0 ? "&cmtitle=" + escape(categoryMembers->cmtitle) : "";
-   fullUrl += categoryMembers->cmpageid == -1 ? "" : "&cmpageid=" + to_string(categoryMembers->cmpageid); 
-   fullUrl += categoryMembers->cmprop.length() > 0 ? "&cmprop=" + escape(categoryMembers->cmprop) : "";
-   fullUrl += categoryMembers->cmnamespace == -1 ? "" : "&cmnamespace=" + to_string(categoryMembers->cmnamespace);
-   fullUrl += categoryMembers->cmtype.length() > 0 ? "&cmtype=" + escape(categoryMembers->cmtype) : "";
-   fullUrl += categoryMembers->cmlimit == -1 ? "" : "&cmlimit=" + to_string(categoryMembers->cmlimit);
-   fullUrl += categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "";
-   fullUrl += categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : ""; 
-   fullUrl += categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : ""; 
-   fullUrl += formatPart;
+   string fullUrl=loginInfo->site+endpointPart+"?"
+                  + "action=query&list=categorymembers"
+                  + (categoryMembers->cmtitle.length() > 0 ? "&cmtitle=" + escape(categoryMembers->cmtitle) : "")
+                  + (categoryMembers->cmpageid == -1 ? "" : "&cmpageid=" + to_string(categoryMembers->cmpageid))
+                  + (categoryMembers->cmprop.length() > 0 ? "&cmprop=" + escape(categoryMembers->cmprop) : "")
+                  + (categoryMembers->cmnamespace == -1 ? "" : "&cmnamespace=" + to_string(categoryMembers->cmnamespace))
+                  + (categoryMembers->cmtype.length() > 0 ? "&cmtype=" + escape(categoryMembers->cmtype) : "")
+                  + (categoryMembers->cmlimit == -1 ? "" : "&cmlimit=" + to_string(categoryMembers->cmlimit))
+                  + (categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "")
+                  + (categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : "")
+                  + (categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : "")
+                  + formatPart;
    //cout << "\t\tmwaapi::categoryMembers fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categoryMembers res:" << res << endl;
@@ -175,34 +178,36 @@ https://www.mediawiki.org/wiki/API:Edit
   void edit(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
    if(loginInfo->site.length() == 0) return;
    if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    +"action=edit"
+                    +formatPart;
    //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
-   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
-   postFields += edit->section == -1 ? "" : "&section="+to_string(edit->section);
-   postFields += edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle);
-   postFields += edit->text.length() == 0 ? "" : "&text="+escape(edit->text);
-   postFields += edit->summary.length() == 0 ? "" : "&summary="+escape(edit->summary);
-   postFields += edit->tags.length() == 0 ? "" : "&tags="+escape(edit->tags);
-   postFields += edit->minor == -1 ? "" : "&minor="+to_string(edit->minor);
-   postFields += edit->notminor == -1 ? "" : "&notminor="+to_string(edit->notminor);
-   postFields += edit->bot == -1 ? "" : "&bot="+to_string(edit->bot);
-   postFields += edit->basetimestamp.length() == 0 ? "" : "&basetimestamp="+escape(edit->basetimestamp);
-   postFields += edit->starttimestamp.length() == 0 ? "" : "&starttimestamp="+escape(edit->starttimestamp);
-   postFields += edit->recreate == -1 ? "" : "&recreate="+to_string(edit->recreate);
-   postFields += edit->createonly == -1 ? "" : "&createonly="+to_string(edit->createonly);
-   postFields += edit->nocreate == -1 ? "" : "&nocreate="+to_string(edit->nocreate);
-   postFields += edit->watchlist.length() == 0 ? "" : "&watchlist="+escape(edit->watchlist);
-   postFields += edit->md5.length() == 0 ? "" : "&md5="+escape(edit->md5);
-   postFields += edit->prependtext.length() == 0 ? "" : "&prependtext="+escape(edit->prependtext);
-   postFields += edit->appendtext.length() == 0 ? "" : "&appendtext="+escape(edit->appendtext);
-   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
-   postFields += edit->undoafter == -1 ? "" : "&undoafter="+to_string(edit->undoafter);
-   postFields += edit->redirect == -1 ? "" : "&redirect="+to_string(edit->redirect);
-   postFields += edit->contentformat.length() == 0 ? "" : "&contentformat="+escape(edit->contentformat);
-   postFields += edit->contentmodel.length() == 0 ? "" : "&contentmodel="+escape(edit->contentmodel);
-   postFields += edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword);
-   postFields += edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid);
-   postFields += "&token="+escape(tokens->csrftoken);
+   string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))
+                       + (edit->section == -1 ? "" : "&section="+to_string(edit->section))
+                       + (edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle))
+                       + (edit->text.length() == 0 ? "" : "&text="+escape(edit->text))
+                       + (edit->summary.length() == 0 ? "" : "&summary="+escape(edit->summary))
+                       + (edit->tags.length() == 0 ? "" : "&tags="+escape(edit->tags))
+                       + (edit->minor == -1 ? "" : "&minor="+to_string(edit->minor))
+                       + (edit->notminor == -1 ? "" : "&notminor="+to_string(edit->notminor))
+                       + (edit->bot == -1 ? "" : "&bot="+to_string(edit->bot))
+                       + (edit->basetimestamp.length() == 0 ? "" : "&basetimestamp="+escape(edit->basetimestamp))
+                       + (edit->starttimestamp.length() == 0 ? "" : "&starttimestamp="+escape(edit->starttimestamp))
+                       + (edit->recreate == -1 ? "" : "&recreate="+to_string(edit->recreate))
+                       + (edit->createonly == -1 ? "" : "&createonly="+to_string(edit->createonly))
+                       + (edit->nocreate == -1 ? "" : "&nocreate="+to_string(edit->nocreate))
+                       + (edit->watchlist.length() == 0 ? "" : "&watchlist="+escape(edit->watchlist))
+                       + (edit->md5.length() == 0 ? "" : "&md5="+escape(edit->md5))
+                       + (edit->prependtext.length() == 0 ? "" : "&prependtext="+escape(edit->prependtext))
+                       + (edit->appendtext.length() == 0 ? "" : "&appendtext="+escape(edit->appendtext))
+                       + (edit->undo == -1 ? "" : "&undo="+to_string(edit->undo))
+                       + (edit->undoafter == -1 ? "" : "&undoafter="+to_string(edit->undoafter))
+                       + (edit->redirect == -1 ? "" : "&redirect="+to_string(edit->redirect))
+                       + (edit->contentformat.length() == 0 ? "" : "&contentformat="+escape(edit->contentformat))
+                       + (edit->contentmodel.length() == 0 ? "" : "&contentmodel="+escape(edit->contentmodel))
+                       + (edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword))
+                       + (edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid))
+                       + ("&token="+escape(tokens->csrftoken));
    //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::edit res: " << res << endl;
@@ -215,7 +220,11 @@ https://en.wikipedia.org/w/api.php?action=help&modules=tokens
 https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
 */
   void getTokens(LoginInfo* loginInfo, Tokens* tokens) {
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&meta=tokens&type="+tokens->type+formatPart;
+   string fullUrl=loginInfo->site+endpointPart+"?"
+                  + "action=query"
+                  + "&meta=tokens"
+                  + "&type="+tokens->type
+                  + formatPart;
    //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::getTokens res: " << res << endl;
@@ -235,10 +244,10 @@ https://www.mediawiki.org/wiki/API:Login
   void login(LoginInfo* loginInfo, Tokens* tokens) {
    if(tokens->logintoken.length() == 0) getTokens(loginInfo, tokens, "login");
    string fullUrl = loginInfo->site+endpointPart+"?"
-                    +"action=login"
-                    +"&lgname="+loginInfo->lgusername
-                    +"&lgpassword="+loginInfo->lgpassword
-                    +"&lgtoken="+escape(tokens->logintoken)
+                    + "action=login"
+                    + "&lgname="+loginInfo->lgusername
+                    + "&lgpassword="+loginInfo->lgpassword
+                    + "&lgtoken="+escape(tokens->logintoken)
                     + formatPart;
    //cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
@@ -253,7 +262,7 @@ https://www.mediawiki.org/wiki/API:Logout
 */
   void logout(LoginInfo* loginInfo) {
    string fullUrl = loginInfo->site+endpointPart+"?"
-                    +"action=logout"
+                    + "action=logout"
                     + formatPart;
    cout << "\t\tmwaapi::logout fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
@@ -269,15 +278,16 @@ https://www.mediawiki.org/wiki/API:Purge
   
   void purge(LoginInfo* loginInfo, Purge* purge) {
    if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=purge";
-   fullUrl += purge->forcelinkupdate == 0 ? "" : "&forcelinkupdate=" + to_string(purge->forcelinkupdate);
-   fullUrl += purge->forcerecursivelinkupdate == 0 ? "" : "&forcerecursivelinkupdate=" + to_string(purge->forcerecursivelinkupdate);
-   fullUrl += purge->continueP.length() > 0 ? "&continueP=" + escape(purge->continueP) : "";
-   fullUrl += purge->titles.length() > 0 ? "&titles=" + escape(purge->titles) : "";
-   fullUrl += purge->pageids == -1 ? "" : "&pageids=" + to_string(purge->pageids);
-   fullUrl += purge->revids == -1 ? "" : "&revids=" + to_string(purge->revids);
-   fullUrl += purge->generator.length() > 0 ? "&generator=" + escape(purge->generator) : "";  
-   fullUrl += formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=purge"
+                    + (purge->forcelinkupdate == 0 ? "" : "&forcelinkupdate=" + to_string(purge->forcelinkupdate))
+                    + (purge->forcerecursivelinkupdate == 0 ? "" : "&forcerecursivelinkupdate=" + to_string(purge->forcerecursivelinkupdate))
+                    + (purge->continueP.length() > 0 ? "&continueP=" + escape(purge->continueP) : "")
+                    + (purge->titles.length() > 0 ? "&titles=" + escape(purge->titles) : "")
+                    + (purge->pageids == -1 ? "" : "&pageids=" + to_string(purge->pageids))
+                    + (purge->revids == -1 ? "" : "&revids=" + to_string(purge->revids))
+                    + (purge->generator.length() > 0 ? "&generator=" + escape(purge->generator) : "")  
+                    + formatPart;
    //cout << "\t\tmwaapi::purge fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::purge res:" << res << endl;
@@ -297,27 +307,29 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Brevisions
 https://www.mediawiki.org/wiki/API:Revisions
 */
   void revisions(LoginInfo* loginInfo, Revisions* revisions) {
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=query&prop=revisions";
-   fullUrl+= revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids;
-   fullUrl+= revisions->prop.length()==0 ? "" : "&rvprop=" + revisions->prop;
-   fullUrl+= revisions->limit == -1 ? "" : "&rvlimit=" + to_string(revisions->limit);
-   fullUrl+= revisions->expandtemplates == -1 ? "" : "&rvexpandtemplates=" + to_string(revisions->expandtemplates);
-   fullUrl+= revisions->parse == -1 ? "" : "&rvparse=" + to_string(revisions->parse);
-   fullUrl+= revisions->section == -1 ? "" : "&rvsection=" + to_string(revisions->section);
-   fullUrl+= revisions->diffto.length()==0 ? "" : "&rvdiffto=" + revisions->diffto;
-   fullUrl+= revisions->difftotext.length()==0 ? "" : "&rvdifftotext=" + revisions->difftotext;
-   fullUrl+= revisions->difftotextpst.length()==0 ? "" : "&rvdifftotextpst=" + revisions->difftotextpst;
-   fullUrl+= revisions->contentformat.length()==0 ? "" : "&rvcontentformat=" + revisions->contentformat;
-   fullUrl+= revisions->startid == -1 ? "" : "&rvstartid=" + to_string(revisions->startid);
-   fullUrl+= revisions->endid == -1 ? "" : "&rvendid=" + to_string(revisions->endid);
-   fullUrl+= revisions->start.length()==0 ? "" : "&rvstart=" + revisions->start;
-   fullUrl+= revisions->end.length()==0 ? "" : "&rvend=" + revisions->end;
-   fullUrl+= revisions->dir.length()==0 ? "" : "&rvdir=" + revisions->dir;
-   fullUrl+= revisions->user.length()==0 ? "" : "&rvuser=" + revisions->user;
-   fullUrl+= revisions->excludeuser.length()==0 ? "" : "&rvexcludeuser=" + revisions->excludeuser;
-   fullUrl+= revisions->tag.length()==0 ? "" : "&rvtag=" + revisions->tag;
-   fullUrl+= revisions->continue_req.length()==0 ? "" : "&rvcontinue=" + revisions->continue_req;
-   fullUrl+= formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query"
+                    + "&prop=revisions"
+                    + (revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids)
+                    + (revisions->prop.length()==0 ? "" : "&rvprop=" + revisions->prop)
+                    + (revisions->limit == -1 ? "" : "&rvlimit=" + to_string(revisions->limit))
+                    + (revisions->expandtemplates == -1 ? "" : "&rvexpandtemplates=" + to_string(revisions->expandtemplates))
+                    + (revisions->parse == -1 ? "" : "&rvparse=" + to_string(revisions->parse))
+                    + (revisions->section == -1 ? "" : "&rvsection=" + to_string(revisions->section))
+                    + (revisions->diffto.length()==0 ? "" : "&rvdiffto=" + revisions->diffto)
+                    + (revisions->difftotext.length()==0 ? "" : "&rvdifftotext=" + revisions->difftotext)
+                    + (revisions->difftotextpst.length()==0 ? "" : "&rvdifftotextpst=" + revisions->difftotextpst)
+                    + (revisions->contentformat.length()==0 ? "" : "&rvcontentformat=" + revisions->contentformat)
+                    + (revisions->startid == -1 ? "" : "&rvstartid=" + to_string(revisions->startid))
+                    + (revisions->endid == -1 ? "" : "&rvendid=" + to_string(revisions->endid))
+                    + (revisions->start.length()==0 ? "" : "&rvstart=" + revisions->start)
+                    + (revisions->end.length()==0 ? "" : "&rvend=" + revisions->end)
+                    + (revisions->dir.length()==0 ? "" : "&rvdir=" + revisions->dir)
+                    + (revisions->user.length()==0 ? "" : "&rvuser=" + revisions->user)
+                    + (revisions->excludeuser.length()==0 ? "" : "&rvexcludeuser=" + revisions->excludeuser)
+                    + (revisions->tag.length()==0 ? "" : "&rvtag=" + revisions->tag)
+                    + (revisions->continue_req.length()==0 ? "" : "&rvcontinue=" + revisions->continue_req)
+                    + formatPart;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
@@ -338,14 +350,15 @@ https://www.mediawiki.org/wiki/API:Rollback
     tokens->type = "rollback";
     getTokens(loginInfo, tokens);
    }
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=rollback";
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    +"action=rollback";
    //cout << "\t\tmwaapi::rollback fullUrl: " << fullUrl << endl;
-   string postFields = rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid);
-   postFields += rollback->user.length() > 0 ? "&user="+escape(rollback->user) : "";
-   postFields += rollback->summary.length() > 0 ? "&summary="+escape(rollback->summary) : "";
-   postFields += rollback->markbot == -1 ? "" : "&markbot=" + rollback->markbot;
-   postFields += "&token="+escape(tokens->rollbacktoken);
-   fullUrl+=formatPart;
+   string postFields = (rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid))
+                       + (rollback->user.length() > 0 ? "&user="+escape(rollback->user) : "")
+                       + (rollback->summary.length() > 0 ? "&summary="+escape(rollback->summary) : "")
+                       + (rollback->markbot == -1 ? "" : "&markbot=" + rollback->markbot)
+                       + ("&token="+escape(tokens->rollbacktoken))
+                       + formatPart;
    //cout << "\t\tmwaapi::rollback postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::rollback res: " << res << endl;
@@ -356,16 +369,17 @@ https://www.mediawiki.org/wiki/API:Rollback
 */ 
   void search(LoginInfo* loginInfo, Search* search){
    if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&list=search";
-   fullUrl += search->srsearch.length() > 0 ? "&srsearch=" + escape(search->srsearch) : "";
-   fullUrl += search->srnamespace == -1 ? "" : "&srnamespace=" + to_string(search->srnamespace);
-   fullUrl += search->srwhat.length() > 0 ? "&srwhat=" + escape(search->srwhat) : "";
-   fullUrl += search->srinfo.length() > 0 ? "&srinfo=" + escape(search->srinfo) : "";
-   fullUrl += search->srprop.length() > 0 ? "&srprop=" + escape(search->srprop) : "";
-   fullUrl += search->sroffset == -1 ? "" : "&sroffset=" + to_string(search->sroffset);
-   //cout << "\t\tmwaapi::search fullUrl (1): " << fullUrl << endl;
-   fullUrl += search->srlimit == -1 ? "" : "&srlimit=" + to_string(search->srlimit); 
-   fullUrl += formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    +"action=query"
+                    + "&list=search"
+                    + (search->srsearch.length() > 0 ? "&srsearch=" + escape(search->srsearch) : "")
+                    + (search->srnamespace == -1 ? "" : "&srnamespace=" + to_string(search->srnamespace))
+                    + (search->srwhat.length() > 0 ? "&srwhat=" + escape(search->srwhat) : "")
+                    + (search->srinfo.length() > 0 ? "&srinfo=" + escape(search->srinfo) : "")
+                    + (search->srprop.length() > 0 ? "&srprop=" + escape(search->srprop) : "")
+                    + (search->sroffset == -1 ? "" : "&sroffset=" + to_string(search->sroffset))
+                    + (search->srlimit == -1 ? "" : "&srlimit=" + to_string(search->srlimit)) 
+                    + formatPart;
    //cout << "\t\tmwaapi::search fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::search res:" << res << endl;
@@ -384,7 +398,10 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
     tokens->type = "csrf";
     getTokens(loginInfo, tokens);
    }
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=thank&rev="+revidString+formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=thank"
+                    + "&rev="+revidString
+                    + formatPart;
    //cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
    string postFields = "token="+escape(tokens->csrftoken);
    //cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
@@ -392,17 +409,21 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
   
+/*
+*/ 
   void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
    if(loginInfo->site.length() == 0) return;
    if(tokens->csrftoken.length() == 0) {
     tokens->type = "csrf";
     getTokens(loginInfo, tokens);
    }
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=edit"
+                    + formatPart;
    //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
-   string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);
-   postFields += edit->undo == -1 ? "" : "&undo="+to_string(edit->undo);
-   postFields += "&token="+escape(tokens->csrftoken);
+   string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))
+                       + (edit->undo == -1 ? "" : "&undo="+to_string(edit->undo))
+                       + ("&token="+escape(tokens->csrftoken));
    //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
    //cout << "\t\tmwaapi::edit res: " << res << endl;
