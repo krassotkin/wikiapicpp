@@ -126,16 +126,16 @@ List all categories the pages belong to.
 */
   void categories(LoginInfo* loginInfo, Categories* categories) {
    if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"
-                  + "action=query&prop=categories"
-                  + (categories->titles.length() > 0 ? "&titles=" + escape(categories->titles) : "")
-                  + (categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "")
-                  + (categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "")
-                  + (categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "")
-                  + (categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "")
-                  + (categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "")
-                  + (categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : "")
-                  + formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query&prop=categories"
+                    + (categories->titles.length() > 0 ? "&titles=" + escape(categories->titles) : "")
+                    + (categories->clprop.length() > 0 ? "&clprop=" + escape(categories->clprop) : "")
+                    + (categories->clshow.length() > 0 ? "&clshow=" + escape(categories->clshow) : "")
+                    + (categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "")
+                    + (categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "")
+                    + (categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "")
+                    + (categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : "")
+                    + formatPart;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categories res:" << res << endl;
@@ -150,18 +150,18 @@ https://www.mediawiki.org/wiki/API:Categorymembers
 */
   void categoryMembers(LoginInfo* loginInfo, CategoryMembers* categoryMembers) {
    if(loginInfo->site.length() == 0) return;
-   string fullUrl=loginInfo->site+endpointPart+"?"
-                  + "action=query&list=categorymembers"
-                  + (categoryMembers->cmtitle.length() > 0 ? "&cmtitle=" + escape(categoryMembers->cmtitle) : "")
-                  + (categoryMembers->cmpageid == -1 ? "" : "&cmpageid=" + to_string(categoryMembers->cmpageid))
-                  + (categoryMembers->cmprop.length() > 0 ? "&cmprop=" + escape(categoryMembers->cmprop) : "")
-                  + (categoryMembers->cmnamespace == -1 ? "" : "&cmnamespace=" + to_string(categoryMembers->cmnamespace))
-                  + (categoryMembers->cmtype.length() > 0 ? "&cmtype=" + escape(categoryMembers->cmtype) : "")
-                  + (categoryMembers->cmlimit == -1 ? "" : "&cmlimit=" + to_string(categoryMembers->cmlimit))
-                  + (categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "")
-                  + (categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : "")
-                  + (categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : "")
-                  + formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query&list=categorymembers"
+                    + (categoryMembers->cmtitle.length() > 0 ? "&cmtitle=" + escape(categoryMembers->cmtitle) : "")
+                    + (categoryMembers->cmpageid == -1 ? "" : "&cmpageid=" + to_string(categoryMembers->cmpageid))
+                    + (categoryMembers->cmprop.length() > 0 ? "&cmprop=" + escape(categoryMembers->cmprop) : "")
+                    + (categoryMembers->cmnamespace == -1 ? "" : "&cmnamespace=" + to_string(categoryMembers->cmnamespace))
+                    + (categoryMembers->cmtype.length() > 0 ? "&cmtype=" + escape(categoryMembers->cmtype) : "")
+                    + (categoryMembers->cmlimit == -1 ? "" : "&cmlimit=" + to_string(categoryMembers->cmlimit))
+                    + (categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "")
+                    + (categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : "")
+                    + (categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : "")
+                    + formatPart;
    //cout << "\t\tmwaapi::categoryMembers fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::categoryMembers res:" << res << endl;
@@ -220,11 +220,11 @@ https://en.wikipedia.org/w/api.php?action=help&modules=tokens
 https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
 */
   void getTokens(LoginInfo* loginInfo, Tokens* tokens) {
-   string fullUrl=loginInfo->site+endpointPart+"?"
-                  + "action=query"
-                  + "&meta=tokens"
-                  + "&type="+tokens->type
-                  + formatPart;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query"
+                    + "&meta=tokens"
+                    + "&type="+tokens->type
+                    + formatPart;
    //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::getTokens res: " << res << endl;
@@ -370,7 +370,7 @@ https://www.mediawiki.org/wiki/API:Rollback
   void search(LoginInfo* loginInfo, Search* search){
    if(loginInfo->site.length() == 0) return;
    string fullUrl = loginInfo->site+endpointPart+"?"
-                    +"action=query"
+                    + "action=query"
                     + "&list=search"
                     + (search->srsearch.length() > 0 ? "&srsearch=" + escape(search->srsearch) : "")
                     + (search->srnamespace == -1 ? "" : "&srnamespace=" + to_string(search->srnamespace))
