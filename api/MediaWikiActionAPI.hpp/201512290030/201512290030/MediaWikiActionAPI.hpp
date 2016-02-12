@@ -213,16 +213,18 @@ https://www.mediawiki.org/wiki/API:Edit
   Tokens:
 https://en.wikipedia.org/w/api.php?action=help&modules=tokens
 https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
-  
-  type
-    Values (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch
 */
-  void getTokens(LoginInfo* loginInfo, Tokens* tokens, const string& type) {
-   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&meta=tokens&type="+type+formatPart;
+  void getTokens(LoginInfo* loginInfo, Tokens* tokens) {
+   string fullUrl=loginInfo->site+endpointPart+"?"+"action=query&meta=tokens&type="+tokens->type+formatPart;
    //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::getTokens res: " << res << endl;
    tokens->fromJsonString(res);
+  }
+
+  void getTokens(LoginInfo* loginInfo, Tokens* tokens, const string& type) {
+   tokens->type = type;
+   getTokens(loginInfo, tokens);
   }
   
 /*
@@ -230,19 +232,18 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
 https://en.wikipedia.org/w/api.php?action=help&modules=login
 https://www.mediawiki.org/wiki/API:Login 
 */
-  void login(LoginInfo* loginInfo) {
-   bool firstPass = true;
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=login&lgname="+loginInfo->lgusername+"&lgpassword="+loginInfo->lgpassword;
-   if(loginInfo->result.compare("NeedToken")==0) {
-    firstPass = false;
-    fullUrl+="&lgtoken="+loginInfo->token;
-   }
-   fullUrl+= formatPart;
+  void login(LoginInfo* loginInfo, Tokens* tokens) {
+   if(tokens->logintoken.length() == 0) getTokens(loginInfo, tokens, "login");
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    +"action=login"
+                    +"&lgname="+loginInfo->lgusername
+                    +"&lgpassword="+loginInfo->lgpassword
+                    +"&lgtoken="+escape(tokens->logintoken)
+                    + formatPart;
+   //cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::login res: " << res << endl;
    loginInfo->fromJsonString(res);
-   if(firstPass && loginInfo->result.compare("NeedToken")==0) this->login(loginInfo);
-   //cout << "\t\tmwaapi::login loginInfo->token: " << loginInfo->token << endl;
   }
   
 /*
@@ -251,16 +252,19 @@ https://en.wikipedia.org/w/api.php?action=help&modules=logout
 https://www.mediawiki.org/wiki/API:Logout
 */
   void logout(LoginInfo* loginInfo) {
-   string fullUrl = loginInfo->site+endpointPart+"?"+"action=logout";
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    +"action=logout"
+                    + formatPart;
+   cout << "\t\tmwaapi::logout fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   cout << "\t\tmwaapi::logout res: " << res << endl;
    loginInfo->clear();
   }
   
 /*
-  Purge:
-  
-  https://en.wikipedia.org/w/api.php?action=help&modules=purge
-  https://www.mediawiki.org/wiki/API:Purge
+  Purge:  
+https://en.wikipedia.org/w/api.php?action=help&modules=purge
+https://www.mediawiki.org/wiki/API:Purge
 */
   
   void purge(LoginInfo* loginInfo, Purge* purge) {
@@ -330,7 +334,10 @@ https://www.mediawiki.org/wiki/API:Rollback
 */
   void rollback(LoginInfo* loginInfo, Tokens* tokens, Rollback* rollback) {
    if(loginInfo->site.length() == 0) return;
-   if(tokens->rollbacktoken.length() == 0) getTokens(loginInfo, tokens, "rollback");
+   if(tokens->rollbacktoken.length() == 0) {
+    tokens->type = "rollback";
+    getTokens(loginInfo, tokens);
+   }
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=rollback";
    //cout << "\t\tmwaapi::rollback fullUrl: " << fullUrl << endl;
    string postFields = rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid);
@@ -373,7 +380,10 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
   Must get csrf token before.
 */
   void thank(LoginInfo* loginInfo, Tokens* tokens, const string& revidString) {
-   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+   if(tokens->csrftoken.length() == 0) {
+    tokens->type = "csrf";
+    getTokens(loginInfo, tokens);
+   }
    string fullUrl=loginInfo->site+endpointPart+"?"+"action=thank&rev="+revidString+formatPart;
    //cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
    string postFields = "token="+escape(tokens->csrftoken);
@@ -384,7 +394,10 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
   
   void undo(LoginInfo* loginInfo, Tokens* tokens, Edit* edit) {
    if(loginInfo->site.length() == 0) return;
-   if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
+   if(tokens->csrftoken.length() == 0) {
+    tokens->type = "csrf";
+    getTokens(loginInfo, tokens);
+   }
    string fullUrl = loginInfo->site+endpointPart+"?"+"action=edit"+formatPart;
    //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
    string postFields = edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid);

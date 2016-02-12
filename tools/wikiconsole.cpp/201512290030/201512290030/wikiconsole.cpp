@@ -432,7 +432,7 @@ bool expectsLogin(const vector<string>& commandVector) {
  loginInfo.site = commandVector[1];
  loginInfo.lgusername = commandVector[2];
  loginInfo.lgpassword = commandVector[3];
- mwaapi.login(&loginInfo);
+ mwaapi.login(&loginInfo, &tokens);
  if(loginInfo.result.compare("Success") != 0) {
   cout << "Login failed..." << endl;
   cout << "Response:" << endl;
@@ -461,7 +461,7 @@ bool expectsLoginAll(const vector<string>& commandVector) {
   loginInfo.lgusername = commandVector[1];
   loginInfo.lgpassword = commandVector[2];
   cout << "Login to: " << loginInfo.site << " ... ";
-  mwaapi.login(&loginInfo);
+  mwaapi.login(&loginInfo, &tokens);
   if(loginInfo.result.compare("Success") != 0) {
    cout << "failed!" << endl;
    cout << "\tResponse:" << endl;
@@ -521,7 +521,8 @@ bool expectsQuit(const vector<string>& commandVector) {
  if(commandVector[0].compare("bye") == 0
     || commandVector[0].compare("exit") == 0
     || commandVector[0].compare("quit") == 0
-    || commandVector[0].compare("q") == 0)
+    || commandVector[0].compare("q") == 0
+    || commandVector[0].compare("й") == 0)
   return true;
  return false;
 }
@@ -660,14 +661,17 @@ bool expectsTokens(const vector<string>& commandVector){
   cout << "You are not logined..." << endl;
   return true;
  };
- string type = (commandVector.size()>1) ? commandVector[1] : tokens.allTokens;
- mwaapi.getTokens(&loginInfo, &tokens, type);
+ tokens.type = (commandVector.size()>1) ? commandVector[1] : tokens.allTokens;
+ mwaapi.getTokens(&loginInfo, &tokens);
+ if(tokens.centralauthtoken.length() != 0) cout << "centralauthtoken: " << tokens.centralauthtoken << endl;
+ if(tokens.createaccounttoken.length() != 0) cout << "createaccounttoken: " << tokens.createaccounttoken << endl;
  if(tokens.csrftoken.length() != 0) cout << "csrftoken: " << tokens.csrftoken << endl;
  if(tokens.deletetoken.length() != 0) cout << "deletetoken: " << tokens.deletetoken << endl;
  if(tokens.deleteglobalaccounttoken.length() != 0) cout << "deleteglobalaccounttoken: " << tokens.deleteglobalaccounttoken << endl;
  if(tokens.edittoken.length() != 0) cout << "edittoken: " << tokens.edittoken << endl;
  if(tokens.emailtoken.length() != 0) cout << "emailtoken: " << tokens.emailtoken << endl;
  if(tokens.importtoken.length() != 0) cout << "importtoken: " << tokens.importtoken << endl;
+ if(tokens.logintoken.length() != 0) cout << "logintoken: " << tokens.logintoken << endl;
  if(tokens.movetoken.length() != 0) cout << "movetoken: " << tokens.movetoken << endl;
  if(tokens.optionstoken.length() != 0) cout << "optionstoken: " << tokens.optionstoken << endl;
  if(tokens.patroltoken.length() != 0) cout << "patroltoken: " << tokens.patroltoken << endl;

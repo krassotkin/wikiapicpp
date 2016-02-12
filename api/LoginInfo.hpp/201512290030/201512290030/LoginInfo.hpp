@@ -53,17 +53,22 @@ class LoginInfo {
   static const string versionMajor;
   static const string versionMinor;
 
-  string cookieprefix;
+  // Servo
   string errJson;
+
+  // Request
   string lgname;
   string lgpassword;
-  string lgtoken;
-  long int lguserid;
+  string site;
+
+  // Response
+  string res;                  /* Last parsed string response. */
+
+  string cookieprefix;
+  long int lguserid=-1;
   string lgusername;
   string result;
   string sessionid;
-  string site;
-  string token;
 
   LoginInfo() {}
   
@@ -76,17 +81,18 @@ class LoginInfo {
   }
 
   void clear() {
-   cookieprefix="";
-   errJson="";
-   lgname="";
-   lgpassword="";
-   lgtoken="";
-   lguserid=0;
-   lgusername="";
-   result="";
-   sessionid="";
-   site="";
-   token="";
+   errJson.clear();
+
+   lgname.clear();
+   lgpassword.clear();
+   site.clear();
+
+   res.clear();
+   cookieprefix.clear();
+   lguserid=-1;
+   lgusername.clear();
+   result.clear();
+   sessionid.clear();
   }
 
   bool isLogin() {
@@ -98,40 +104,26 @@ class LoginInfo {
   }
   
   void fromJsonString(const string& jsonString) {
+   res = jsonString;
    auto json = json11::Json::parse(jsonString, errJson);
    fromJson(json);
   }
   
   void fromJson(const json11::Json& json) {
    json11::Json::object login = json["login"].object_items();
-
    string tmpCooprefix = login["cookieprefix"].string_value();
    cookieprefix = (tmpCooprefix.length()>0) ? tmpCooprefix : cookieprefix;
-
-   string tmpLgtoken = login["lgtoken"].string_value();
-   lgtoken = (tmpLgtoken.length()>0) ? tmpLgtoken : lgtoken;
-
    long tpmLguserid = login["lguserid"].int_value();
    lguserid = (tpmLguserid>0) ? tpmLguserid : lguserid;
-
    string tmpLgusername = login["lgusername"].string_value();
    lgusername = (tmpLgusername.length()>0) ? tmpLgusername : lgusername;
-
    result = login["result"].string_value();
-
    string tpmSessionid = login["sessionid"].string_value();
    sessionid = (tpmSessionid.length()>0) ? tpmSessionid : sessionid;
-
-   string tmpToken = login["token"].string_value();
-   token = (tmpToken.length()>0) ? tmpToken : token;
   }
   
   string toJson() {
-   if(result.compare("NeedToken")==0) {
-    return "{\"login\":{\"result\":\""+result+"\","+"\"token\":\""+token+"\","+"\"cookieprefix\":\""+cookieprefix+"\","+"\"sessionid\":\""+sessionid+"\"}}";
-   } else {
-    return "{\"login\":{\"result\":\""+result+"\","+"\"lguserid\":"+to_string(lguserid)+","+"\"lgusername\":\""+lgusername+"\","+"\"lgtoken\":\""+lgtoken+"\","+"\"cookieprefix\":\""+cookieprefix+"\","+"\"sessionid\":\""+sessionid+"\"}}";
-   }
+    return "{\"login\":{\"result\":\""+result+"\","+"\"lguserid\":"+to_string(lguserid)+","+"\"lgusername\":\""+lgusername+"\","+"\"cookieprefix\":\""+cookieprefix+"\","+"\"sessionid\":\""+sessionid+"\"}}";
   }
 
 };
