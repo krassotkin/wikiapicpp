@@ -134,11 +134,11 @@ List all categories the pages belong to.
                     + (categories->cllimit.length() > 0 ? "&cllimit=" + escape(categories->cllimit) : "")
                     + (categories->clcontinue.length() > 0 ? "&clcontinue=" + escape(categories->clcontinue) : "")
                     + (categories->clcategories.length() > 0 ? "&clcategories=" + escape(categories->clcategories) : "")
-                    + (categories->cldir.length() > 0 ? "&cldir=" + escape(categories->cldir) : "")
+                    + (categories->cldir.length() > 0 ? "&cldir=" + categories->cldir : "")
                     + formatPart;
-   //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
+   cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\tmwaapi::categories res:" << res << endl;
+   cout << "\t\tmwaapi::categories res:" << res << endl;
    categories->fromJsonString(res);
   } 
   
