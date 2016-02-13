@@ -287,9 +287,9 @@ bool expectsCreateAccount(const vector<string>& commandVector) {
  } 
  tokens.clear();
  loginInfo.clear();
- loginIngo.site = commandVector[1];
- loginIngo.lgname = commandVector[2];
- loginIngo.lgpassword = commandVector[3];
+ loginInfo.site = commandVector[1];
+ loginInfo.lgname = commandVector[2];
+ loginInfo.lgpassword = commandVector[3];
  CreateAccount createaccount;
  createaccount.site = commandVector[1];
  createaccount.name = commandVector[2];
@@ -297,25 +297,22 @@ bool expectsCreateAccount(const vector<string>& commandVector) {
  createaccount.email = commandVector[4];
  createaccount.reason = commandVector[5];
  mwaapi.createaccount(&loginInfo, &tokens, &createaccount);
- if(createaccount.result=="NeedCaptcha") {
-  if(createaccount.captchaType=="Simple") {
-   cout << "Put answer " << createaccount.captchaQuestion << " here." << endl;
-
-?????
-
-   createaccount.captchaword = commandVector[0];
-  } 
-  createaccount.captchaid = (createaccount.captchaID); 
+ while(createaccount.result.compare("NeedCaptcha") == 0){
+  cout << "Put answer " << createaccount.captchaUrl << " here." << endl;
+  createaccount.captchaid = createaccount.captchaId;
+  //cout << createaccount.captchaId << endl;
+  //cout << createaccount.captchaid<<endl;
+  string answer;
+  cin>>answer;
+  createaccount.captchaword = answer; 
   mwaapi.createaccount(&loginInfo, &tokens, &createaccount);
- }
- if(createaccount.result.compare("Success") != 0){
-  cout << "Something went wrong..." << endl << "Read server response:" << endl;
-  cout << createaccount.response << endl;
-  return true;
  }
  cout << "Account successfuly created." << endl; 
  cout << "Logining..." << endl; 
- login(&loginInfo, &tokens);
+ loginInfo.site = createaccount.site;
+ loginInfo.lgusername = createaccount.name;
+ loginInfo.lgpassword = createaccount.password;
+ mwaapi.login(&loginInfo, &tokens);
  if(loginInfo.result.compare("Success") != 0) {
   cout << "Login failed..." << endl;
   cout << "Response:" << endl;
@@ -913,7 +910,7 @@ void showHelp() {
  cout << "                  Example: content \"Main Page\"" << endl;
  cout << "  createaccount   Create a new user account. ." << endl;
  cout << "                  Format: createaccount \"Username password email reason" << endl;
- cout << "                  Example: createaccount ExampleBot 00203$# wikiemail@yandex.ru work" << endl;
+ cout << "                  Example: createaccount https://meta.wikimedia.org ExampleBot rte1EsB2 example.bot@gmail.ru \"For fun\"" << endl;
  cout << "  download        Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
  cout << "                  Format: download \"Name or id of a page\" \"Path to file\"" << endl;
  cout << "                  Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;

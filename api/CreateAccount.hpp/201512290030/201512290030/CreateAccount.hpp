@@ -39,29 +39,30 @@ class CreateAccount {
 
   // Request
   string site;
-  string name;                                // Username. This parameter is required. Type: user name.
-  string password;                           // Password (ignored if mailpassword is set).
-  string domain;                            // Domain for external authentication (optional). 
-  string token;                            // A "createaccount" token retrieved from action=query&meta=tokens 
-  string email;                           // Email address of user (optional). 
-  string realname;                       // Real name of user (optional). 
-  long int mailpassword=-1;             // If set to any value, a random password will be emailed to the user. Type: boolean (details).
-  string reason;                       // Optional reason for creating the account to be put in the logs. 
-  string language;                    // Language code to set as default for the user (optional, defaults to content language). 
-  long int ignoreantispoof=-1;       // Ignore spoofing checks (requires the override-antispoof right). Type: boolean (details)
-  long int ignoretitleblacklist=-1; // Ignore spoofing checks (requires one of the following rights: tboverride, tboverride-account)  Type: boolean (details)
-  string captchaword;             // Answer to the CAPTCHA 
-  long int captchaid=-1;         // CAPTCHA ID from previous request 
+  string name;                     /* Username. This parameter is required. Type: user name. */
+  string password;                 /* Password (ignored if mailpassword is set). */
+  string domain;                   /* Domain for external authentication (optional). */
+  string token;                    /* A "createaccount" token retrieved from action=query&meta=tokens */
+  string email;                    /* Email address of user (optional). */
+  string realname;                 /* Real name of user (optional). */
+  long int mailpassword=-1;        /* If set to any value, a random password will be emailed to the user. Type: boolean (details).*/
+  string reason;                   /* Optional reason for creating the account to be put in the logs. */
+  string language;                 /* Language code to set as default for the user (optional, defaults to content language). */
+  long int ignoreantispoof=-1;     /* Ignore spoofing checks (requires the override-antispoof right). Type: boolean (details)*/
+  long int ignoretitleblacklist=-1;/* Ignore spoofing checks (requires one of the following rights: tboverride, tboverride-account)  Type: boolean (details) */
+  string captchaword;              /* Answer to the CAPTCHA */
+  string captchaid;           /* CAPTCHA ID from previous request */
 
   // Response
   string response;
   string result;
   string resToken;
   string resName;
-  long int resID=-1;
+  string resId;
   string captchaType;
   string captchaQuestion;
-  long int captchaID=-1;
+  string captchaUrl;
+  string captchaId;
 
   CreateAccount() {}
   
@@ -88,16 +89,17 @@ class CreateAccount {
    ignoreantispoof = -1;
    ignoretitleblacklist = -1;
    captchaword = "";
-   captchaid = -1;
+   captchaid = "";
 
    response = "";
    result = "";
    resToken = "";
    resName = "";
-   resID = -1;
+   resId = "";
    captchaType = "";
    captchaQuestion = "";
-   captchaID = -1;
+   captchaUrl = "";
+   captchaId = "";
   }
   
   void fromJsonString(const string& jsonString) {
@@ -107,20 +109,15 @@ class CreateAccount {
   }
   
   void fromJson(const json11::Json& json) {
-   auto CreateAccountJson = json["CreateAccount"].object_items();
-   result = CreateAccountJson["result"].string_value();
-   if (result == "NeedToken") resToken = CreateAccountJson["token"].string_value();
-   if (result == "Success") {
-    resToken = CreateAccountJson["token"].string_value();
-    resID = CreateAccountJson["userid"].int_value();
-    resName = CreateAccountJson["username"].string_value();
-   }
-   if (result == "NeedCaptcha") {
-    auto captchaJson = CreateAccountJson["captcha"].object_items();
-    captchaType = captchaJson["type"].string_value();
-    if(captchaType == "simple") captchaQuestion = captchaJson["question"].string_value();
-    captchaID = captchaJson["id"].int_value();
-   } 
+   auto createAccountJson = json["createaccount"].object_items();
+   result = createAccountJson["result"].string_value();
+   auto captcha = createAccountJson["captcha"].object_items();
+   captchaId = captcha["id"].string_value();
+   captchaUrl = captcha["url"].string_value();
+   //cout<<"CreateAccount:: captchaId : " << captchaId << endl;
+   //cout<<"CreateAccount:: captchaUrl : " << captchaUrl << endl;
+   resId = createAccountJson["userid"].int_value();
+   resName = createAccountJson["username"].string_value();
   }
 
   string toJson() {
