@@ -909,7 +909,7 @@ void showHelp() {
  cout << "                  Format: create \"User:Wikiapicpp/test page\"" << endl;
  cout << "                  Example: content \"Main Page\"" << endl;
  cout << "  createaccount   Create a new user account. ." << endl;
- cout << "                  Format: createaccount \"Username password email reason" << endl;
+ cout << "                  Format: createaccount username password email reason" << endl;
  cout << "                  Example: createaccount https://meta.wikimedia.org ExampleBot rte1EsB2 example.bot@gmail.ru \"For fun\"" << endl;
  cout << "  download        Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
  cout << "                  Format: download \"Name or id of a page\" \"Path to file\"" << endl;
