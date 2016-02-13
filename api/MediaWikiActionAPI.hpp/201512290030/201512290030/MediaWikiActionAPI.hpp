@@ -147,16 +147,13 @@ List all categories the pages belong to.
 
 /*
  CreateAccount
+ Create a new user account.
 
 https://en.wikipedia.org/w/api.php?action=help&modules=createaccount
 https://www.mediawiki.org/wiki/API:Account_creation
-
-Create a new user account.  
 */
   void createaccount(LoginInfo* loginInfo, Tokens* tokens, CreateAccount* createAccount) {
-   if(tokens->createaccounttoken.length() == 0) {
-    getTokens(loginInfo, tokens, "createaccount");
-   }
+   if(tokens->createaccounttoken.length() == 0) getTokens(loginInfo, tokens, "createaccount");
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=createaccount"
                     + formatPart;

@@ -277,34 +277,53 @@ bool expectsCreate(const vector<string>& commandVector) {
 
 bool expectsCreateAccount(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("createaccount")!=0) return false;
- if(commandVector.size() < 5) {
+ if(commandVector.size() < 6) {
   cout << "Very few arguments for content..." << endl;
   cout << "CreateAccount format:" << endl;
-  cout << "CreateAccount 'Name' 'Password of a accoubt' 'email' 'reason'" << endl;
+  cout << "createaccount \"Wikimedia site\" \"Username\" \"Password\" \"email\" \"reason\"" << endl;
   cout << "Example:" << endl;
-  cout << "CreateAccount 'ExampleBot' '1EB2' 'example.bot@mail.ru' 'For fun'" << endl;
+  cout << "createaccount https://meta.wikimedia.org ExampleBot rte1EsB2 example.bot@gmail.ru \"For fun\"" << endl;
   return true;
  } 
+ tokens.clear();
+ loginInfo.clear();
+ loginIngo.site = commandVector[1];
+ loginIngo.lgname = commandVector[2];
+ loginIngo.lgpassword = commandVector[3];
  CreateAccount createaccount;
- createaccount.name = commandVector[1];
- createaccount.password = commandVector[2];
- createaccount.email = commandVector[3];
- createaccount.reason = commandVector[4];
+ createaccount.site = commandVector[1];
+ createaccount.name = commandVector[2];
+ createaccount.password = commandVector[3];
+ createaccount.email = commandVector[4];
+ createaccount.reason = commandVector[5];
  mwaapi.createaccount(&loginInfo, &tokens, &createaccount);
  if(createaccount.result=="NeedCaptcha") {
   if(createaccount.captchaType=="Simple") {
    cout << "Put answer " << createaccount.captchaQuestion << " here." << endl;
+
+?????
+
    createaccount.captchaword = commandVector[0];
   } 
   createaccount.captchaid = (createaccount.captchaID); 
   mwaapi.createaccount(&loginInfo, &tokens, &createaccount);
  }
- else if(createaccount.result=="Success"){
-  cout << "Success. Your login: " << (createaccount.resName) << " id: " << (createaccount.resID) << " token: " << (createaccount.resToken) << endl; 
- } 
- else {
+ if(createaccount.result.compare("Success") != 0){
   cout << "Something went wrong..." << endl << "Read server response:" << endl;
   cout << createaccount.response << endl;
+  return true;
+ }
+ cout << "Account successfuly created." << endl; 
+ cout << "Logining..." << endl; 
+ login(&loginInfo, &tokens);
+ if(loginInfo.result.compare("Success") != 0) {
+  cout << "Login failed..." << endl;
+  cout << "Response:" << endl;
+  cout << loginInfo.toJson() << endl;
+  consolePrefix = consolePrefixDefault;
+ } else {
+  cout << "Success logined..." << endl;
+  consolePrefix = "["+loginInfo.lgusername+"@"+loginInfo.cookieprefix+"]> ";
  }
  return true;
 }

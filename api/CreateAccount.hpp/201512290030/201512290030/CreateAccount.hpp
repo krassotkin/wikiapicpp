@@ -38,6 +38,7 @@ class CreateAccount {
   string errJson;
 
   // Request
+  string site;
   string name;                                // Username. This parameter is required. Type: user name.
   string password;                           // Password (ignored if mailpassword is set).
   string domain;                            // Domain for external authentication (optional). 
