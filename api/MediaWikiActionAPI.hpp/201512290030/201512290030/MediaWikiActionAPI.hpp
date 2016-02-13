@@ -157,7 +157,7 @@ https://www.mediawiki.org/wiki/API:Account_creation
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=createaccount"
                     + formatPart;
-   cout << "\t\tmwaapi::createaccount fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::createaccount fullUrl: " << fullUrl << endl;
    string postFields = "name=" + createAccount->name
                        + "&password=" + createAccount->password
                        + (createAccount->domain.length() == 0 ? "" : "&domain=" + createAccount->domain)
@@ -169,11 +169,11 @@ https://www.mediawiki.org/wiki/API:Account_creation
                        + (createAccount->ignoreantispoof == -1 ? "" : "&ignoreantispoof=" + to_string(createAccount->ignoreantispoof))
                        + (createAccount->ignoretitleblacklist == -1 ? "" : "&ignoretitleblacklist=" + to_string(createAccount->ignoretitleblacklist))
                        + (createAccount->captchaword.length() == 0 ? "" : "&captchaword=" + createAccount->captchaword)
-                       + (createAccount->captchaid == -1 ? "" : "&captchaid=" + to_string(createAccount->captchaid))
+                       + (createAccount->captchaid.length() == 0 ? "" : "&captchaid=" + createAccount->captchaid)
                        + (createAccount->language.length() == 0 ? "" : "&language=" + createAccount->language);
-   cout << "\t\tmwaapi::createaccount postFields: " << postFields << endl;
+   //cout << "\t\tmwaapi::createaccount postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
-   cout << "\t\tmwaapi::createaccount res:" << res << endl;
+   //cout << "\t\tmwaapi::createaccount res:" << res << endl;
    createAccount->fromJsonString(res);
   }
   
@@ -284,9 +284,9 @@ https://www.mediawiki.org/wiki/API:Login
                     + "&lgpassword="+loginInfo->lgpassword
                     + "&lgtoken="+escape(tokens->logintoken)
                     + formatPart;
-   //cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
+   cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\tmwaapi::login res: " << res << endl;
+   cout << "\t\tmwaapi::login res: " << res << endl;
    loginInfo->fromJsonString(res);
   }
   
