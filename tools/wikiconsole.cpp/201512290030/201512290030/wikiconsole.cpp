@@ -34,6 +34,7 @@ Examples:
 #include "Category.hpp"
 #include "CategoryMember.hpp"
 #include "CategoryMembers.hpp"
+#include "CreateAccount.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
@@ -270,6 +271,40 @@ bool expectsCreate(const vector<string>& commandVector) {
  } else {
   cout << "Something went wrong..." << endl << "Read server response:" << endl;
   cout << edit.response << endl;
+ }
+ return true;
+}
+
+bool expectsCreateAccount(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("createaccount")!=0) return false;
+ if(commandVector.size() < 5) {
+  cout << "Very few arguments for content..." << endl;
+  cout << "CreateAccount format:" << endl;
+  cout << "CreateAccount 'Name' 'Password of a accoubt' 'email' 'reason'" << endl;
+  cout << "Example:" << endl;
+  cout << "CreateAccount 'ExampleBot' '1EB2' 'example.bot@mail.ru' 'For fun'" << endl;
+  return true;
+ } 
+ CreateAccount createaccount;
+ createaccount.name = commandVector[1];
+ createaccount.password = commandVector[2];
+ createaccount.email = commandVector[3];
+ createaccount.reason = commandVector[4];
+ mwaapi.createaccount(&loginInfo, &tokens, &createaccount);
+ if(createaccount.result=="NeedCaptcha") {
+  if(createaccount.captchaType=="Simple") {
+   cout << "Put answer " << createaccount.captchaQuestion << " here." << endl;
+   createaccount.captchaword = commandVector[0];
+  } 
+  createaccount.captchaid = (createaccount.captchaID); 
+  mwaapi.createaccount(&loginInfo, &tokens, &createaccount);
+ }
+ else if(createaccount.result=="Success"){
+  cout << "Success. Your login: " << (createaccount.resName) << " id: " << (createaccount.resID) << " token: " << (createaccount.resToken) << endl; 
+ } 
+ else {
+  cout << "Something went wrong..." << endl << "Read server response:" << endl;
+  cout << createaccount.response << endl;
  }
  return true;
 }
@@ -801,6 +836,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsCategoryMembers(commandVector)) return true;
  if(expectsContent(commandVector)) return true;
  if(expectsCreate(commandVector)) return true;
+ if(expectsCreateAccount(commandVector)) return true;
  if(expectsDownload(commandVector)) return true;
  if(expectsEcho(commandVector)) return true;
  if(expectsHelp(commandVector)) return true;
@@ -856,6 +892,9 @@ void showHelp() {
  cout << "  create          Create a wikipage. Use after \"login\"." << endl;
  cout << "                  Format: create \"User:Wikiapicpp/test page\"" << endl;
  cout << "                  Example: content \"Main Page\"" << endl;
+ cout << "  createaccount   Create a new user account. ." << endl;
+ cout << "                  Format: createaccount \"Username password email reason" << endl;
+ cout << "                  Example: createaccount ExampleBot 00203$# wikiemail@yandex.ru work" << endl;
  cout << "  download        Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
  cout << "                  Format: download \"Name or id of a page\" \"Path to file\"" << endl;
  cout << "                  Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
