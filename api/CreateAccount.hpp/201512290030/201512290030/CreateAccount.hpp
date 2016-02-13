@@ -51,7 +51,7 @@ class CreateAccount {
   long int ignoreantispoof=-1;     /* Ignore spoofing checks (requires the override-antispoof right). Type: boolean (details)*/
   long int ignoretitleblacklist=-1;/* Ignore spoofing checks (requires one of the following rights: tboverride, tboverride-account)  Type: boolean (details) */
   string captchaword;              /* Answer to the CAPTCHA */
-  string captchaid;           /* CAPTCHA ID from previous request */
+  string captchaid;                /* CAPTCHA ID from previous request */
 
   // Response
   string response;

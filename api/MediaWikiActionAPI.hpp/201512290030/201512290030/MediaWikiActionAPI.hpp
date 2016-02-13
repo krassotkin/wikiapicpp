@@ -260,9 +260,9 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
                     + "&meta=tokens"
                     + "&type="+tokens->type
                     + formatPart;
-   cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::getTokens res: " << res << endl;
+   //cout << "\t\tmwaapi::getTokens res: " << res << endl;
    tokens->fromJsonString(res);
   }
 
@@ -284,9 +284,9 @@ https://www.mediawiki.org/wiki/API:Login
                     + "&lgpassword="+loginInfo->lgpassword
                     + "&lgtoken="+escape(tokens->logintoken)
                     + formatPart;
-   cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::login res: " << res << endl;
+   //cout << "\t\tmwaapi::login res: " << res << endl;
    loginInfo->fromJsonString(res);
   }
   
