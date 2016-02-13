@@ -28,6 +28,7 @@ using namespace std;
 #include "Category.hpp"
 #include "CategoryMembers.hpp"
 #include "CategoryMember.hpp"
+#include "CreateAccount.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
@@ -143,6 +144,41 @@ List all categories the pages belong to.
    //cout << "\t\tmwaapi::categories res:" << res << endl;
    categories->fromJsonString(res);
   } 
+
+/*
+ CreateAccount
+
+https://en.wikipedia.org/w/api.php?action=help&modules=createaccount
+https://www.mediawiki.org/wiki/API:Account_creation
+
+Create a new user account.  
+*/
+  void createaccount(LoginInfo* loginInfo, Tokens* tokens, CreateAccount* createAccount) {
+   if(tokens->createaccounttoken.length() == 0) {
+    getTokens(loginInfo, tokens, "createaccount");
+   }
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=createaccount"
+                    + formatPart;
+   cout << "\t\tmwaapi::createaccount fullUrl: " << fullUrl << endl;
+   string postFields = "name=" + createAccount->name
+                       + "&password=" + createAccount->password
+                       + (createAccount->domain.length() == 0 ? "" : "&domain=" + createAccount->domain)
+                       + (tokens->createaccounttoken.length() == 0 ? "" : "&token=" + escape(tokens->createaccounttoken))
+                       + (createAccount->email.length() == 0 ? "" : "&email=" + createAccount->email)
+                       + (createAccount->realname.length() == 0  ? "" : "&realname=" + createAccount->realname)
+                       + (createAccount->mailpassword == -1 ? "" : "&mailpassword=" + to_string(createAccount->mailpassword))
+                       + (createAccount->reason.length() == 0 ? "" : "&reason=" + createAccount->reason)
+                       + (createAccount->ignoreantispoof == -1 ? "" : "&ignoreantispoof=" + to_string(createAccount->ignoreantispoof))
+                       + (createAccount->ignoretitleblacklist == -1 ? "" : "&ignoretitleblacklist=" + to_string(createAccount->ignoretitleblacklist))
+                       + (createAccount->captchaword.length() == 0 ? "" : "&captchaword=" + createAccount->captchaword)
+                       + (createAccount->captchaid == -1 ? "" : "&captchaid=" + to_string(createAccount->captchaid))
+                       + (createAccount->language.length() == 0 ? "" : "&language=" + createAccount->language);
+   cout << "\t\tmwaapi::createaccount postFields: " << postFields << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   cout << "\t\tmwaapi::createaccount res:" << res << endl;
+   createAccount->fromJsonString(res);
+  }
   
 /*
  CategoryMembers
@@ -227,9 +263,9 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
                     + "&meta=tokens"
                     + "&type="+tokens->type
                     + formatPart;
-   //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
+   cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\tmwaapi::getTokens res: " << res << endl;
+   cout << "\t\tmwaapi::getTokens res: " << res << endl;
    tokens->fromJsonString(res);
   }
 

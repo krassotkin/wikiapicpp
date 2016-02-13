@@ -50,6 +50,8 @@ class Tokens {
   string type;
   
   // Response
+  string res;
+
   string batchcomplete;
   string blocktoken;
   string centralauthtoken;  
@@ -105,6 +107,8 @@ class Tokens {
   }
   
   void fromJsonString(const string& jsonString) {
+   res = jsonString;
+   cout << "\t\tTokens::fromJsonString res" << res << endl;
    auto json = json11::Json::parse(jsonString, errJson);
    fromJson(json);
   }
@@ -115,6 +119,7 @@ class Tokens {
    auto tokens = queryJson["tokens"].object_items();
    string csrftokenTmp = tokens["csrftoken"].string_value();
    string createaccounttokenTmp = tokens["createaccounttoken"].string_value();
+   cout << "\t\tTokens::fromJson createaccounttokenTmp:" << createaccounttokenTmp << endl;
    string deletetokenTmp = tokens["deletetoken"].string_value();
    string deleteglobalaccounttokenTmp = tokens["deleteglobalaccounttoken"].string_value();
    string edittokenTmp = tokens["edittoken"].string_value();
@@ -132,6 +137,7 @@ class Tokens {
    string watchtokenTmp = tokens["watchtoken"].string_value();
    csrftoken = (csrftokenTmp.length()>0) ? csrftokenTmp : csrftoken;
    createaccounttoken = (createaccounttokenTmp.length()>0) ? createaccounttokenTmp : createaccounttoken;
+   cout << "\t\tTokens::fromJson Createaccounttoken:" << createaccounttoken << endl;
    deletetoken = (deletetokenTmp.length()>0) ? deletetokenTmp : deletetoken;
    deleteglobalaccounttoken = (deleteglobalaccounttokenTmp.length()>0) ? deleteglobalaccounttokenTmp : deleteglobalaccounttoken;
    edittoken = (edittokenTmp.length()>0) ? edittokenTmp : edittoken;
