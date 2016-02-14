@@ -82,6 +82,7 @@ class Revision {
   string contentmodel;
   string errJson;
   int minor = -1;
+  long int ns=-1;
   long int parentid = -1;
   long int pageid=-1;
   string parsedcomment;
@@ -91,6 +92,7 @@ class Revision {
   string sha1;
   vector<string> tags;
   string timestamp; // ISO time string
+  string title;
   string user;
   long int userid = -1;
 
@@ -111,6 +113,7 @@ class Revision {
    contentformat.clear();
    contentmodel.clear();
    minor = -1;
+   ns=-1;
    pageid=-1;
    parentid = -1;
    parsedcomment.clear();
@@ -120,6 +123,7 @@ class Revision {
    sha1.clear();
    tags.clear();
    timestamp.clear();
+   title.clear();
    user.clear();
    userid = -1;
   }

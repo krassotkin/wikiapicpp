@@ -231,11 +231,11 @@ class Revisions {
   string dir;                  /* In which direction to enumerate: "newer" -  list oldest first. Note: start has to be before end. "older" - List newest first (default). Note: start has to be later than end. */
   string difftotextpst;        /* Perform a pre-save transform on the text before diffing it. Only valid when used with rvdifftotext. */                   
   string end;                  /* Enumerate up to this timestamp. Type: string of timestamp (allowed formats). */
-  long endid = -1;             /* Stop revision enumeration on this revision ID. List all revisions haven't alias. */
+  long int endid = -1;         /* Stop revision enumeration on this revision ID. List all revisions haven't alias. */
   int expandtemplates = -1;    /*  Expand templates in revision content (requires rvprop=content). */
   string excludeuser;          /* Exclude revisions made by user. Type: string of user name. */
   int generatetitles = -1;     /* When being used as a generator, generate titles rather than revision IDs. Get revision information haven't alias. */
-  long limit = -1;             /* Limit how many revisions will be returned. May only be used with a single page (mode #2). No more than 500 (5,000 for bots) allowed.Type: integer or max. */          
+  long int limit = -1;         /* Limit how many revisions will be returned. May only be used with a single page (mode #2). No more than 500 (5,000 for bots) allowed.Type: integer or max. */          
   string namespace_req;        /* Only list pages in this namespace. Note: Due to miser mode, using this may result in fewer than arvlimit results returned before continuing; in extreme cases, zero results may be returned. Values (separate with |): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 100, 101, 108, 109, 118, 119, 446, 447, 710, 711, 828, 829, 2300, 2301, 2302, 2303, 2600. Get revision information  haven't alias. */ 
   string pageids;              /* Id of pages for request. Conflict with titles. List all revisions haven't alias. */
   int parse = -1;              /* Parse revision content (requires rvprop=content). For performance reasons, if this option is used, rvlimit is enforced to 1. */
@@ -255,9 +255,9 @@ class Revisions {
                                   parsetree - The XML parse tree of revision content (requires content model wikitext).
                                   flagged - (no description) - has not in list all revisions.
                                */
-  long section = -1;           /* Only retrieve the content of this section number. */
+  long int section = -1;       /* Only retrieve the content of this section number. */
   string start;                /* From which revision timestamp to start enumeration.Type: string of timestamp (allowed formats). List all revisions alias: arvcontentformat. */
-  long startid = -1;           /* From which revision ID to start enumeration. List all revisions haven't alias. */
+  long int startid = -1;       /* From which revision ID to start enumeration. List all revisions haven't alias. */
   string tag;                  /* Only list revisions tagged with this tag.  List all revisions haven't alias. */
   string titles;               /* Titles of pages for request. Conflict with pageids. List all revisions haven't alias. */
   string user;                 /* Only include revisions made by user. Type: string of user name. */
@@ -269,7 +269,8 @@ class Revisions {
   string batchcomplete;        
   string continue_res;         /* continue->rvcontinue or continue->arvcontinue in API */
   string continue_2_res;       /* continue->continue in API */
-  vector<Page> pages; /* vector of all pages */
+
+  vector<Page> pages;          /* vector of all pages */
 
 
   // Interfaces

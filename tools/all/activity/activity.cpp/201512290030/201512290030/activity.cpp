@@ -29,7 +29,7 @@ using namespace std;
 const chrono::milliseconds TIMEOUT_MS(1000);
 
 struct ActivityTask {
- long lastId;
+ string lastTimestamp = "";
  LoginInfo loginInfo;
  Tokens tokens;
 };
@@ -44,21 +44,29 @@ string description() {
 
 void processTask(ActivityTask* task) {
  Revisions revisions;
- //revisions.startid = task->lastId;
- revisions.endid = task->lastId;
- revisions.prop = "ids|flags|timestamp|user|userid|size|sha1|contentmodel|comment|parsedcomment|content|tags|parsetree";
+ revisions.end = task->lastTimestamp;
+ //cout << "\t\tactivity::processTask revisions.end: " << revisions.end << endl;
+ //revisions.prop = "ids|flags|timestamp|user|userid|size|sha1|contentmodel|parsedcomment|content|tags|parsetree";
+ revisions.prop = "comment|flags|ids|size|timestamp|user|userid";
  mwaapi.allrevisions(&task->loginInfo, &revisions);
  if(revisions.revisions.size() == 0) return;
  sort(revisions.revisions.begin(), 
       revisions.revisions.end(),
       [] (const Revision& a, const Revision& b) -> bool {return a.revid < b.revid;});
- for(Revision r : revisions.revisions) {
+ for(unsigned ir =1; ir < revisions.revisions.size(); ir++) {
+  Revision r = revisions.revisions[ir];
+  // for(Revision r : revisions.revisions) {
   string tagsJsonString = "";
   for(string it : r.tags) tagsJsonString += (string)(tagsJsonString.length()==0 ? "" : ",") + "\""+it+"\"";
-  cout << "{"
+  cout << "• "
+       << task->loginInfo.site << ": "
+       << "{"
        << "\"revid\":" << r.revid
        << ",\"parentid\":" << r.parentid
        << ",\"timestamp\":\"" << r.timestamp << "\""
+       << ",\"ns\":\"" << r.ns << "\""
+       << ",\"pageid\":\"" << r.pageid << "\""
+       << ",\"title\":\"" << r.title << "\""
        << (r.minor==-1 ? "" : ",\"minor\":\"\"") 
        << (r.anon==-1 ? "" : ",\"anon\"=\"\"")
        << ",\"user\":\"" << r.user << "\""
@@ -68,8 +76,8 @@ void processTask(ActivityTask* task) {
        << (r.tags.size() == 0 ? "" : ",\"tags\":["+tagsJsonString + "]")
        << "}" << endl;
  }
- task->lastId = revisions.revisions.back().revid;
- cout << "\t\tactivity::processTask task->lastId: " << task->lastId << endl;
+ task->lastTimestamp = revisions.revisions.back().timestamp;
+ //cout << "\t\tactivity::processTask task->lastTimestamp: " << task->lastTimestamp << endl;
 }
 
 string usage() {
@@ -97,7 +105,7 @@ int main(int argc, char *argv[]) {
   return 0;
  }
 
- for(int ia=0; ia < argc; ia++) {
+ for(int ia=1; ia < argc; ia++) {
   string as(argv[ia]);
   if(as.length() == 0) continue;
   if(as[0] == '-' && options.find(as) == options.end()) {
@@ -119,10 +127,17 @@ int main(int argc, char *argv[]) {
  cout << "Started..." << endl;
  cout << "Please press Ctrl+C to stop." << endl;
  while(true) {
-  for(ActivityTask task : tasks) {
-   processTask(&task);
+  for(unsigned int it=0; it < tasks.size(); it++) {
+   ActivityTask* task = &tasks[it];
+   processTask(task);
    this_thread::sleep_for(TIMEOUT_MS);
   }
+  /*
+   for(ActivityTask task : tasks) {
+    processTask(task);
+    this_thread::sleep_for(TIMEOUT_MS);
+   }
+  */
  }
 
  return 0;

@@ -91,8 +91,10 @@ https://www.mediawiki.org/wiki/API:Allrevisions
 */
   void allrevisions(LoginInfo* loginInfo, Revisions* revisions) {
    string fullUrl = loginInfo->site+endpointPart+"?"
-                    + "action=query&list=allrevisions"
-                    + (revisions->titles.length()>0 ? "&titles="+escape(revisions->titles) : "&pageids="+revisions->pageids)
+                    + "action=query"
+                    + "&list=allrevisions"
+                    + (revisions->titles.length()==0 ? "" : "&titles="+escape(revisions->titles))
+                    + (revisions->pageids.length()==0 ? "" : "&pageids="+revisions->pageids)
                     + (revisions->prop.length()==0 ? "" : "&arvprop=" + revisions->prop)
                     + (revisions->limit == -1 ? "" : "&arvlimit=" + to_string(revisions->limit))
                     + (revisions->expandtemplates == -1 ? "" : "&arvexpandtemplates=" + to_string(revisions->expandtemplates))
@@ -102,8 +104,8 @@ https://www.mediawiki.org/wiki/API:Allrevisions
                     + (revisions->difftotext.length()==0 ? "" : "&arvdifftotext=" + revisions->difftotext)
                     + (revisions->difftotextpst.length()==0 ? "" : "&arvdifftotextpst=" + revisions->difftotextpst)
                     + (revisions->contentformat.length()==0 ? "" : "&arvcontentformat=" + revisions->contentformat)
-                    + (revisions->startid == -1 ? "" : "&arvstartid=" + to_string(revisions->startid))
-                    + (revisions->endid == -1 ? "" : "&arvendid=" + to_string(revisions->endid))
+                    //+ (revisions->startid == -1 ? "" : "&arvstartid=" + to_string(revisions->startid))
+                    //+ (revisions->endid == -1 ? "" : "&arvendid=" + to_string(revisions->endid))
                     + (revisions->start.length()==0 ? "" : "&arvstart=" + revisions->start)
                     + (revisions->end.length()==0 ? "" : "&arvend=" + revisions->end)
                     + (revisions->dir.length()==0 ? "" : "&arvdir=" + revisions->dir)
@@ -130,7 +132,8 @@ List all categories the pages belong to.
   void categories(LoginInfo* loginInfo, Categories* categories) {
    if(loginInfo->site.length() == 0) return;
    string fullUrl = loginInfo->site+endpointPart+"?"
-                    + "action=query&prop=categories"
+                    + "action=query"
+                    + "&prop=categories"
                     + formatPart;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
    string postFields = (categories->titles.length() == 0 ? "" : "titles=" + categories->titles)
