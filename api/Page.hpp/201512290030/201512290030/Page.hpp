@@ -64,7 +64,9 @@ using namespace std;
 #include "json11.hpp"
 
 // api
+#include "Category.hpp"
 #include "Revision.hpp"
+#include "LogEvent.hpp"
 
 class Page {
 
@@ -86,6 +88,8 @@ class Page {
   map<string, Category> categoriesMap;
   vector<Revision> revisions;
   map<long int, Revision> revisionsMap;
+  vector<LogEvent> logEvents;
+  map<long int, LogEvent> logEventsMap;
 
   Page() {}
   
@@ -105,6 +109,8 @@ class Page {
    pageid = -1;
    revisions.clear();
    revisionsMap.clear();
+   logEvents.clear();
+   logEventsMap.clear();
    title.clear();
   }
   

@@ -528,6 +528,25 @@ bool expectsLoginAll(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsLogEvents(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("logevents")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"content\"." << endl;
+  return true;
+ }
+ LogEvents logEvents;
+ if(commandVector.size() > 1) logEvents.lelimit = stol(commandVector[1]);
+ mwaapi.logevents(&loginInfo, &logEvents);
+ if(logEvents.events.size()==0) {
+  cout << "Events not found..." << endl << "Read server response:" <<  endl << logEvents.res << endl;
+  return true;
+ }
+ cout<< "We've found " << logEvents.events.size() << " events:" << endl;  
+ for(LogEvent le : logEvents.events)  cout << "• " << le.toJson() << endl;
+ return true;
+}
+
 bool expectsLogout(const vector<string>& commandVector) {
  if(commandVector[0].compare("logout") != 0) return false;
  if(loginInfo.result.compare("Success") != 0) {
@@ -860,6 +879,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsLogin(commandVector))return true;
  if(expectsLoginAll(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
+ if(expectsLogEvents(commandVector)) return true;
  if(expectsPurge(commandVector)) return true;
  if(expectsRecentChanges(commandVector)) return true;
  if(expectsRollback(commandVector)) return true;
@@ -928,6 +948,7 @@ void showHelp() {
  cout << "                  Format: loginall username userpassword" << endl;
  cout << "                  Example: loginall bob bobsecretpass" << endl;
  cout << "  logout          Log out and clear session data." << endl;
+ cout << "  logevents       Get events from logs." << endl;
  cout << "  purge           Purge the cache for the given titles." << endl;
  cout << "                  Example: purge \"Main Page\"" << endl;
  cout << "  quit            Exit from console." << endl;
