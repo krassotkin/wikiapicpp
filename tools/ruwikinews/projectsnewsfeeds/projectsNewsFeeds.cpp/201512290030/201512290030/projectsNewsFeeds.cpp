@@ -21,6 +21,7 @@ using namespace std;
 
 // api
 #include "LoginInfo.hpp"
+#include "MediaWikiActionAPI.hpp"
 #include "ProjectsNewsFeeds.hpp"
 #include "Tokens.hpp"
 
