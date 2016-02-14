@@ -31,6 +31,8 @@ using namespace std;
 #include "CreateAccount.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
+#include "LogEvents.hpp"
+#include "LogEvent.hpp"
 #include "MediaWikiActionAPI.hpp"
 #include "Page.hpp"
 #include "Purge.hpp"
@@ -288,6 +290,36 @@ https://www.mediawiki.org/wiki/API:Login
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::login res: " << res << endl;
    loginInfo->fromJsonString(res);
+  }
+
+/*
+ LogEvent
+https://www.mediawiki.org/wiki/API:Logevents
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
+*/
+  void logevents(LoginInfo* loginInfo, LogEvents* logEvents) {
+   if(loginInfo->site.length() == 0) return;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query"
+                    + "&list=logevents"
+                    + (logEvents->leprop.length() == 0 ? "" : "leprop=" + logEvents->leprop)
+                    + (logEvents->letype.length() == 0 ? "" : "letype=" + logEvents->letype)
+                    + (logEvents->leaction.length() == 0 ? "" : "&leaction=" + logEvents->leaction)
+                    + (logEvents->lestart.length() == 0 ? "" : "&lestart=" + logEvents->lestart)
+                    + (logEvents->leend.length() == 0 ? "" : "&leend=" + logEvents->leend)
+                    + (logEvents->ledir.length() == 0  ? "" : "&ledir=" + logEvents->ledir)
+                    + (logEvents->leuser.length() == 0 ? "" : "&leuser=" + logEvents->leuser)
+                    + (logEvents->letitle.length() == 0 ? "" : "&letitle=" + logEvents->letitle)
+                    + (logEvents->lenamespace == -1 ? "" : "&lenamespace=" + to_string(logEvents->lenamespace))
+                    + (logEvents->leprefix.length() == 0 ? "" : "&leprefix=" + logEvents->leprefix)
+                    + (logEvents->letag.length() == 0 ? "" : "&letag=" + logEvents->letag)
+                    + (logEvents->lelimit == -1 ? "" : "&lelimit=" + to_string(logEvents->lelimit))
+                    + (logEvents->lecontinue.length() == 0 ? "" : "&lecontinue=" + logEvents->lecontinue)
+                    + formatPart;
+   cout << "\t\tmwaapi::logevent fullUrl: " << fullUrl << endl;
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+    cout << "\t\tmwaapi::logevent res:" << res << endl;
+   logEvents->fromJsonString(res);
   }
   
 /*
