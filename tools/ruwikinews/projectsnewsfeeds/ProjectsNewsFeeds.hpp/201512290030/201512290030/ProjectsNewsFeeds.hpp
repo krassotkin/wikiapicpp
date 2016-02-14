@@ -1,7 +1,7 @@
 #ifndef PROJECTSNEWSFEEDS_HPP
 #define PROJECTSNEWSFEEDS_HPP
 /*
- ProjectsNewsFeeds.hpp update projects wikinews feeds in Wikipedia.
+ ProjectsNewsFeeds.hpp update projects wikinews feeds.
 
  Tasks page example: https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/ProjectsNewsFeeds
 

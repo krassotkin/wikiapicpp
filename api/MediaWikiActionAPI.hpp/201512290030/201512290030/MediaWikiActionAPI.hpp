@@ -110,7 +110,7 @@ https://www.mediawiki.org/wiki/API:Allrevisions
                     + (revisions->tag.length()==0 ? "" : "&arvtag=" + revisions->tag)
                     + (revisions->continue_req.length()==0 ? "" : "&arvcontinue=" + revisions->continue_req)
                     + formatPart;
-   //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
+   cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);

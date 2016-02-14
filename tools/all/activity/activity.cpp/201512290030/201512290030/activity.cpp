@@ -11,18 +11,65 @@
  since 2015-12-29
 */
 
+#include <chrono> 
 #include <iostream>
+#include <map>
 #include <string>
+#include <thread>
+#include <tuple>
 
 using namespace std;
 
 // api
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
+#include "Revisions.hpp"
 #include "Tokens.hpp"
+
+const chrono::milliseconds TIMEOUT_MS(1000);
+
+struct ActivityTask {
+ long lastId;
+ LoginInfo loginInfo;
+ Tokens tokens;
+};
+
+MediaWikiActionAPI mwaapi;
+map<string,bool> options;
+vector<ActivityTask> tasks;
 
 string description() {
  return "activity is a console tool to display the current activity on wikimedia projects.";
+}
+
+void processTask(ActivityTask* task) {
+ Revisions revisions;
+ //revisions.startid = task->lastId;
+ revisions.endid = task->lastId;
+ revisions.prop = "ids|flags|timestamp|user|userid|size|sha1|contentmodel|comment|parsedcomment|content|tags|parsetree";
+ mwaapi.allrevisions(&task->loginInfo, &revisions);
+ if(revisions.revisions.size() == 0) return;
+ sort(revisions.revisions.begin(), 
+      revisions.revisions.end(),
+      [] (const Revision& a, const Revision& b) -> bool {return a.revid < b.revid;});
+ for(Revision r : revisions.revisions) {
+  string tagsJsonString = "";
+  for(string it : r.tags) tagsJsonString += (string)(tagsJsonString.length()==0 ? "" : ",") + "\""+it+"\"";
+  cout << "{"
+       << "\"revid\":" << r.revid
+       << ",\"parentid\":" << r.parentid
+       << ",\"timestamp\":\"" << r.timestamp << "\""
+       << (r.minor==-1 ? "" : ",\"minor\":\"\"") 
+       << (r.anon==-1 ? "" : ",\"anon\"=\"\"")
+       << ",\"user\":\"" << r.user << "\""
+       << ",\"userid\":" << r.userid
+       << ",\"size\":" << r.size
+       << ",\"comment\":\"" << r.comment << "\""
+       << (r.tags.size() == 0 ? "" : ",\"tags\":["+tagsJsonString + "]")
+       << "}" << endl;
+ }
+ task->lastId = revisions.revisions.back().revid;
+ cout << "\t\tactivity::processTask task->lastId: " << task->lastId << endl;
 }
 
 string usage() {
@@ -50,7 +97,34 @@ int main(int argc, char *argv[]) {
   return 0;
  }
 
- MediaWikiActionAPI mwaapi;
+ for(int ia=0; ia < argc; ia++) {
+  string as(argv[ia]);
+  if(as.length() == 0) continue;
+  if(as[0] == '-' && options.find(as) == options.end()) {
+   options[as] = true;
+  } else {
+   ActivityTask task;
+   task.loginInfo.site = as;
+   tasks.push_back(task);
+  }
+ }
+
+ if(tasks.size() == 0) {
+  cout << "Wikimedia sites (urls) for task not found..." << endl;
+  cout << usage() << endl;
+  cout << "Nothing to do. Stopped." << endl;
+  return -2;
+ }
+
+ cout << "Started..." << endl;
+ cout << "Please press Ctrl+C to stop." << endl;
+ while(true) {
+  for(ActivityTask task : tasks) {
+   processTask(&task);
+   this_thread::sleep_for(TIMEOUT_MS);
+  }
+ }
+
  return 0;
 }
  

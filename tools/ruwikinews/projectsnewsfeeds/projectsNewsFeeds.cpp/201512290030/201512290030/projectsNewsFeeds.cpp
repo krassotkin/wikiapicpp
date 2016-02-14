@@ -27,13 +27,35 @@ using namespace std;
 
 const string siteName = "https://ru.wikinews.org/";
 
+string description() {
+ return "projectsNewsFeeds is a console tool for update projects wikinews feeds.";
+}
+
+string usage() {
+ return ((string)"Usage:\n"
+         + "\t./projectsNewsFeeds <username> <userpassword> <tasksPageName>\n"
+         + "Tasks page example:\n"
+         + "\thttps://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/ProjectsNewsFeeds (User:Wikiapicpp/Settings/ProjectsNewsFeeds)");
+}
+
 int main(int argc, char *argv[]) {
+
+ string firsArgv = argv[1];
+ if(argc == 2) {
+  string firsArgv = argv[1];
+  if(firsArgv.compare("--help") == 0
+     || firsArgv.compare("-h") == 0
+     || firsArgv.compare("-help") == 0
+     || firsArgv.compare("help") == 0
+     || firsArgv.compare("h") == 0) {
+   cout << description() << endl << endl;
+   cout << usage() << endl;
+   return 0;
+  }
+ }
  if(argc < 4) {
   cout << "Very few arguments..." << endl;
-  cout << "Usage:" << endl;
-  cout << "\tprojectsNewsFeeds <username> <userpassword> <tasksPageName>" << endl;
-  cout << "Tasks page example:" << endl;
-  cout << "\thttps://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/ProjectsNewsFeeds (User:Wikiapicpp/Settings/ProjectsNewsFeeds)" << endl;
+  cout << usage() << endl;
   cout << "Nothing to do. Stopped." << endl;
   return -1;
  }

@@ -167,7 +167,7 @@ class Revision {
            +"\",\"contentmodel\":\""+contentmodel
            +"\",\"comment\":\""+comment
            +"\",\"parsedcomment\":\""+parsedcomment
-           +"\",to_string(\"tags\":["+tagsJsonString
+           +"\",\"tags\":["+tagsJsonString
            +"],\"parsetree\":\""+parsetree
            +"\",\"contentformat\":\""+contentformat
            +"\",\"*\":\""+content
