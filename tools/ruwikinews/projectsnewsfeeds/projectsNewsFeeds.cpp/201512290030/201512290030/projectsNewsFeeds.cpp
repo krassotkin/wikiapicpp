@@ -1,5 +1,5 @@
 /*
- projectsNewsFeeds.cpp is console tool for test ProjectNewsFeeds.hpp.
+ projectsNewsFeeds.cpp is a console tool of the wikiapicpp project for test ProjectNewsFeeds.hpp.
 
  Compiling:
  make
