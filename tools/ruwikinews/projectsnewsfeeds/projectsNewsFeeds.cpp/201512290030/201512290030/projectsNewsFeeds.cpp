@@ -33,21 +33,24 @@ string description() {
 
 string usage() {
  return ((string)"Usage:\n"
-         + "\t./projectsNewsFeeds <username> <userpassword> <tasksPageName>\n"
-         + "Tasks page example:\n"
-         + "\thttps://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/ProjectsNewsFeeds (User:Wikiapicpp/Settings/ProjectsNewsFeeds)");
+         + "\tShow this help:\n"
+         + "\t\t./welcome --help\n"
+         + "\tProcess a tasks page:\n"
+         + "\t\t./projectsNewsFeeds <botusername> <botuserpassword> <tasksPageName>\n"
+         + "\tExample:\n"
+         + "\t\t./projectsNewsFeeds abot apass User:Wikiapicpp/Settings/ProjectsNewsFeeds\n"
+         + "\tTasks page example:\n"
+         + "\t\tUser:Wikiapicpp/Settings/ProjectsNewsFeeds (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/ProjectsNewsFeeds)");
 }
 
 int main(int argc, char *argv[]) {
-
- string firsArgv = argv[1];
  if(argc == 2) {
-  string firsArgv = argv[1];
-  if(firsArgv.compare("--help") == 0
-     || firsArgv.compare("-h") == 0
-     || firsArgv.compare("-help") == 0
-     || firsArgv.compare("help") == 0
-     || firsArgv.compare("h") == 0) {
+  string firstArg = argv[1];
+  if(firstArg.compare("--help") == 0
+     || firstArg.compare("-h") == 0
+     || firstArg.compare("-help") == 0
+     || firstArg.compare("help") == 0
+     || firstArg.compare("h") == 0) {
    cout << description() << endl << endl;
    cout << usage() << endl;
    return 0;

@@ -310,7 +310,7 @@ bool expectsCreateAccount(const vector<string>& commandVector) {
  cout << "Account successfuly created." << endl; 
  cout << "Logining..." << endl; 
  loginInfo.site = createaccount.site;
- loginInfo.lgusername = createaccount.name;
+ loginInfo.lgname = createaccount.name;
  loginInfo.lgpassword = createaccount.password;
  mwaapi.login(&loginInfo, &tokens);
  if(loginInfo.result.compare("Success") != 0) {
@@ -480,7 +480,7 @@ bool expectsLogin(const vector<string>& commandVector) {
   return true;
  }
  loginInfo.site = commandVector[1];
- loginInfo.lgusername = commandVector[2];
+ loginInfo.lgname = commandVector[2];
  loginInfo.lgpassword = commandVector[3];
  mwaapi.login(&loginInfo, &tokens);
  if(loginInfo.result.compare("Success") != 0) {
@@ -508,7 +508,7 @@ bool expectsLoginAll(const vector<string>& commandVector) {
  for(WikimediaProject wikimediaProject : WikimediaProjects::list) {
   if(wikimediaProject.active == 0) continue;
   loginInfo.site = wikimediaProject.getSite();
-  loginInfo.lgusername = commandVector[1];
+  loginInfo.lgname = commandVector[1];
   loginInfo.lgpassword = commandVector[2];
   cout << "Login to: " << loginInfo.site << " ... ";
   mwaapi.login(&loginInfo, &tokens);

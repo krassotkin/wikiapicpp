@@ -59,6 +59,10 @@ class ProjectsNewsFeeds {
    loadTasks();
   }
 
+  void init() {
+   loadTasks();
+  }
+
   void loadTasks() {
    loadTasksPage();
    parseTasks();

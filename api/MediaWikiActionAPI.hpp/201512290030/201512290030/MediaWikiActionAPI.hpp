@@ -285,13 +285,13 @@ https://www.mediawiki.org/wiki/API:Login
    if(tokens->logintoken.length() == 0) getTokens(loginInfo, tokens, "login");
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=login"
-                    + "&lgname="+loginInfo->lgusername
+                    + "&lgname="+loginInfo->lgname
                     + "&lgpassword="+loginInfo->lgpassword
                     + "&lgtoken="+escape(tokens->logintoken)
                     + formatPart;
-   //cout << "\t\tmwaapi::login fullUrl: " << fullUrl << endl;
+   //cout << "[mwaapi::login] fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   //cout << "\t\tmwaapi::login res: " << res << endl;
+   //cout << "[mwaapi::login] res: " << res << endl;
    loginInfo->fromJsonString(res);
   }
 
