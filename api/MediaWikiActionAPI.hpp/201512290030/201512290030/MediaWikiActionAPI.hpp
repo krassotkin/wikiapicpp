@@ -248,9 +248,9 @@ https://www.mediawiki.org/wiki/API:Edit
                        + (edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword))
                        + (edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid))
                        + ("&token="+escape(tokens->csrftoken));
-   // cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
+    //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-   // cout << "\t\tmwaapi::edit res: " << res << endl;
+    //cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }
 
@@ -319,9 +319,9 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
                     + (logEvents->lelimit == -1 ? "" : "&lelimit=" + to_string(logEvents->lelimit))
                     + (logEvents->lecontinue.length() == 0 ? "" : "&lecontinue=" + logEvents->lecontinue)
                     + formatPart;
-   cout << "\t\tmwaapi::logevent fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::logevent fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-    cout << "\t\tmwaapi::logevent res:" << res << endl;
+    //cout << "\t\tmwaapi::logevent res:" << res << endl;
    logEvents->fromJsonString(res);
   }
   
