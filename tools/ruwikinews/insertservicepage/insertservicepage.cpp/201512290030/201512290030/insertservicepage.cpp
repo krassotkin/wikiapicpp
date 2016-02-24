@@ -1,5 +1,5 @@
 /*
- insertservicepage is a console tool of the wikiapicpp project used to insert service page in articles.
+ insertservicepage is a console tool of the wikiapicpp project used to insert template {{Служебная информация}} in articles and creating pages of stats with template {{Статистика страницы}}.
 
  Compiling:
  make
@@ -27,7 +27,7 @@ using namespace std;
 #include "Revisions.hpp"
 
 string description() {
- return "insertservicepage is a console tool of the wikiapicpp project used to insert service page in articles.";
+ return "insertservicepage is a console tool of the wikiapicpp project used to insert template {{Служебная информация}} in articles and creating pages of stats with template {{Статистика страницы}}.";
 }
 
 string usage() {
@@ -49,8 +49,9 @@ int main(int argc, char *argv[]) {
    cout << description() << endl << endl;
    cout << usage() << endl;
    return 0;
+  }
  }
- }
+
  if(argc < 5) {
   cout << "Very few arguments..." << endl;
   cout << usage() << endl;
@@ -58,26 +59,16 @@ int main(int argc, char *argv[]) {
   return -1;
  }
 
- MediaWikiActionAPI mwaapi;
  LoginInfo loginInfo;
- Revisions revisions;
- Edit edit;
  loginInfo.site = argv[1];
  loginInfo.lgname = argv[2];
  loginInfo.lgpassword = argv[3];
- try {
-  long pageids = stol(argv[4]);
-  revisions.pageids = to_string(pageids);
-  edit.pageid = pageids;
- } catch(...) {
-  revisions.titles = argv[4];
-  edit.title = argv[4];
- }
- revisions.prop="content";
- edit.summary = "Insert service page";
+
  Tokens tokens;
 
+ MediaWikiActionAPI mwaapi;
  mwaapi.login(&loginInfo, &tokens);
+
  if(loginInfo.result.compare("Success") != 0) {
   cout << "Login failed..." << endl;
   cout << "Response:" << endl;
@@ -86,6 +77,10 @@ int main(int argc, char *argv[]) {
  } else {
   cout << "Success logined..." << endl;
  }
+
+ Revisions revisions;
+ revisions.titles = argv[4];
+ revisions.prop="content";
  
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
@@ -98,59 +93,52 @@ int main(int argc, char *argv[]) {
  }
  string pageContent = revisions.pages[0].revisions[0].content;
  
- cout << "[insertservicepage] pageContent: \n" << pageContent << endl;
+ //cout << "[insertservicepage] pageContent: \n" << pageContent << endl;
 
- long int positionOfSP = pageContent.find("{{Служебная информация}}");
- long int positionOfCategoryByFiguration = pageContent.find("{{Категории");
- long int positionOfCategoryBySquare = pageContent.find("[[Категория");
- long int positionOfCategoryByEnglish = pageContent.find("[[Category");
- long int positionOfCategoryByFigurationSmallRegiseter = pageContent.find("{{категории");
- long int positionOfCategoryBySquareSmallRegiseter = pageContent.find("[[категория");
- long int positionOfCategoryByEnglishSmallRegiseter = pageContent.find("[[category");
- long int minimumOfPosition=0;
-
- //cout << "[insertservicepage] positionOfSP: \n" << positionOfSP << endl;
- //cout << "[insertservicepage] positionOfHYS: \n" << positionOfHYS << endl;
- //cout << "[insertservicepage] positionOfCategoryByFiguration: \n" << positionOfCategoryByFiguration << endl;
- //cout << "[insertservicepage] positionOfCategoryBySquare: \n" << positionOfCategoryBySquare << endl;
- //cout << "[insertservicepage] positionOfCategoryByEnglish: \n" << positionOfCategoryByEnglish << endl;
-
- if (positionOfSP>0) {
- cout << " Service Page have ever belong to page" << endl;
- return 0;
+ size_t pos = pageContent.find("{{Служебная информация}}");
+ size_t pos1 = pageContent.find("{{служебная информация}}");
+ if (pos != std::string::npos || pos1 != std::string::npos ) {
+  cout << "Service Page have ever belong to page it position: " << pos << endl;
+  return 0;
  }
- if ( ( (positionOfCategoryByFiguration) < 0 ) && ( ( positionOfCategoryBySquare ) < 0 ) ) minimumOfPosition = positionOfCategoryByEnglish;
- else if ( ( (positionOfCategoryByEnglish) < 0 ) && ( ( positionOfCategoryByFiguration ) < 0 ) ) minimumOfPosition = positionOfCategoryBySquare;
- else if ( ( (positionOfCategoryByEnglish) < 0 ) && ( ( positionOfCategoryBySquare ) < 0 ) ) minimumOfPosition = positionOfCategoryByFiguration;
- else if ( ( (positionOfCategoryByFiguration) > 0 ) && ( ( positionOfCategoryBySquare ) > 0 ) ) minimumOfPosition = min(positionOfCategoryByFiguration, positionOfCategoryBySquare);
- else if ( ( (positionOfCategoryByFiguration) > 0 ) && ( ( positionOfCategoryByEnglish ) > 0 ) ) minimumOfPosition = min(positionOfCategoryByFiguration, positionOfCategoryByEnglish);
- else if ( ( (positionOfCategoryBySquare) > 0 ) && ( ( positionOfCategoryByEnglish ) > 0 ) ) minimumOfPosition = min(positionOfCategoryBySquare, positionOfCategoryByEnglish);
- else if(positionOfCategoryByFiguration < positionOfCategoryBySquare) {
-  if(positionOfCategoryByFiguration < positionOfCategoryByEnglish) minimumOfPosition=min(positionOfCategoryByFiguration, positionOfCategoryByEnglish);
- } 
- else minimumOfPosition = min(positionOfCategoryBySquare, positionOfCategoryByEnglish);
 
- if ( ( (positionOfCategoryByFigurationSmallRegiseter) < 0 ) && ( ( positionOfCategoryBySquareSmallRegiseter ) < 0 ) ) minimumOfPosition = positionOfCategoryByEnglishSmallRegiseter;
- else if ( ( (positionOfCategoryByEnglishSmallRegiseter) < 0 ) && ( ( positionOfCategoryByFigurationSmallRegiseter ) < 0 ) ) minimumOfPosition = positionOfCategoryBySquareSmallRegiseter;
- else if ( ( (positionOfCategoryByEnglishSmallRegiseter) < 0 ) && ( ( positionOfCategoryBySquareSmallRegiseter ) < 0 ) ) minimumOfPosition = positionOfCategoryByFigurationSmallRegiseter;
- else if ( ( (positionOfCategoryByFigurationSmallRegiseter) > 0 ) && ( ( positionOfCategoryBySquareSmallRegiseter ) > 0 ) ) minimumOfPosition = min(positionOfCategoryByFigurationSmallRegiseter, positionOfCategoryBySquareSmallRegiseter);
- else if ( ( (positionOfCategoryByFigurationSmallRegiseter) > 0 ) && ( ( positionOfCategoryByEnglishSmallRegiseter ) > 0 ) ) minimumOfPosition = min(positionOfCategoryByFigurationSmallRegiseter, positionOfCategoryByEnglishSmallRegiseter);
- else if ( ( (positionOfCategoryBySquareSmallRegiseter) > 0 ) && ( ( positionOfCategoryByEnglishSmallRegiseter ) > 0 ) ) minimumOfPosition = min(positionOfCategoryBySquareSmallRegiseter, positionOfCategoryByEnglishSmallRegiseter);
- else if(positionOfCategoryByFigurationSmallRegiseter < positionOfCategoryBySquareSmallRegiseter) {
-  if(positionOfCategoryByFigurationSmallRegiseter < positionOfCategoryByEnglishSmallRegiseter) minimumOfPosition=min(positionOfCategoryByFigurationSmallRegiseter, positionOfCategoryByEnglishSmallRegiseter);
- } 
- else minimumOfPosition = min(positionOfCategoryBySquare, positionOfCategoryByEnglish);
+ pos = pageContent.length();
+ size_t findPos = pageContent.find("{{Категории|");
+ //cout << "[insertservicepage] findPos (\"{{Категории|\"): \n" << findPos << endl;
+ if(findPos != std::string::npos && findPos < pos) pos = findPos;
+ findPos = pageContent.find("[[Категория:");
+ //cout << "[insertservicepage] findPos (\"[[Категория:\"): \n" << findPos << endl;
+ if(findPos != std::string::npos && findPos < pos) pos = findPos;
+ findPos = pageContent.find("[[Category:");
+ //cout << "[insertservicepage] findPos (\"[[Category:\"): \n" << findPos << endl;
+ if(findPos != std::string::npos && findPos < pos) pos = findPos;
+ findPos = pageContent.find("{{категории|");
+ //cout << "[insertservicepage] findPos (\"{{категории|\"): \n" << findPos << endl;
+ if(findPos != std::string::npos && findPos < pos) pos = findPos;
+ findPos = pageContent.find("[[категория:");
+ //cout << "[insertservicepage] findPos (\"[[категория:\"): \n" << findPos << endl;
+ if(findPos != std::string::npos && findPos < pos) pos = findPos;
+ findPos = pageContent.find("[[category:");
+ //cout << "[insertservicepage] findPos (\"[[category:\"): \n" << findPos << endl;
+ if(findPos != std::string::npos && findPos < pos) pos = findPos;
+ //cout << "[insertservicepage] pos (\"minimum\"): \n" << pos << endl;
 
- //cout << "[insertservicepage] minimumOfPosition: \n" << minimumOfPosition << endl;
+ if (pos == pageContent.length()) {
+  cout << "Categories not found..." << pos << endl;
+  return 0;
+ }
 
- pageContent = pageContent.insert(minimumOfPosition, "\n\n{{Служебная информация}}\n\n");
+ pageContent = pageContent.insert(pos, "\n\n{{-}}\n\n{{Служебная информация}}\n\n");
+ // cout << "New version of page: " << pageContent << endl;
 
+ Edit edit;
+ edit.title = argv[4];
  edit.text = pageContent;
+ edit.summary = "Добавление шаблона {{Служебная информация}}.";
  mwaapi.edit(&loginInfo, &tokens, &edit);
- cout << "New version of page: " << pageContent << endl;
 
- edit.title="Викиновости:Статистика страниц/";
- edit.title+=argv[4];
+ edit.clear();
+ edit.title=(string)"Викиновости:Статистика страниц/"+argv[4];
  edit.text="{{Статистика страницы}}";
  mwaapi.edit(&loginInfo, &tokens, &edit);
 
@@ -158,6 +146,4 @@ int main(int argc, char *argv[]) {
 
  return 0;
 }
- 
-
  
