@@ -140,10 +140,10 @@ class ProjectsNewsFeeds {
         [](const Page& a, const Page& b) -> bool {return a.pageid > b.pageid;});
  
    // Post last news to goal
-   LoginInfo loginInfoForEdit;
-   loginInfoForEdit.lgusername = loginInfo->lgusername;
-   loginInfoForEdit.lgpassword = loginInfo->lgpassword;
-   loginInfoForEdit.site = task->site;
+   LoginInfo loginInfoForEdit(task->site, loginInfo->lgusername, loginInfo->lgpassword);
+   //loginInfoForEdit.lgusername = loginInfo->lgusername;
+   //loginInfoForEdit.lgpassword = loginInfo->lgpassword;
+   //loginInfoForEdit.site = task->site;
    Tokens tokensForEdit;
    mwaapi->login(&loginInfoForEdit, &tokensForEdit);
    Edit edit;

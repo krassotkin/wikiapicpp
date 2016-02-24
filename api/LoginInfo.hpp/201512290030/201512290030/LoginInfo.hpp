@@ -71,6 +71,8 @@ class LoginInfo {
   string sessionid;
 
   LoginInfo() {}
+
+  LoginInfo(const string& site, const string& lgname, const string& lgpassword) : lgname(lgname), lgpassword(lgpassword), site(site) {}
   
   LoginInfo(const string& jsonString) {
    fromJsonString(jsonString);
@@ -93,6 +95,23 @@ class LoginInfo {
    lgusername.clear();
    result.clear();
    sessionid.clear();
+  }
+
+  LoginInfo clone() {
+   LoginInfo loginInfo = cloneAccount();
+   loginInfo.errJson = errJson;
+   loginInfo.res = res;
+   loginInfo.cookieprefix = cookieprefix;
+   loginInfo.lguserid = lguserid;
+   loginInfo.lgusername = lgusername;
+   loginInfo.result = result;
+   loginInfo.sessionid = sessionid;
+   return loginInfo;
+  }
+
+  LoginInfo cloneAccount() {
+   LoginInfo loginInfo(site, lgname, lgpassword);
+   return loginInfo; 
   }
 
   bool isLogin() {
@@ -124,6 +143,11 @@ class LoginInfo {
   
   string toJson() {
     return "{\"login\":{\"result\":\""+result+"\","+"\"lguserid\":"+to_string(lguserid)+","+"\"lgusername\":\""+lgusername+"\","+"\"cookieprefix\":\""+cookieprefix+"\","+"\"sessionid\":\""+sessionid+"\"}}";
+  }
+
+  void update(const string& s, const string& n, const string& p) {
+   clear();
+   site = s, lgname = n, lgpassword = p;
   }
 
 };

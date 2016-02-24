@@ -309,9 +309,12 @@ bool expectsCreateAccount(const vector<string>& commandVector) {
  }
  cout << "Account successfuly created." << endl; 
  cout << "Logining..." << endl; 
+ loginInfo.update(createaccount.site, createaccount.name, createaccount.password);
+/*
  loginInfo.site = createaccount.site;
  loginInfo.lgname = createaccount.name;
  loginInfo.lgpassword = createaccount.password;
+*/
  mwaapi.login(&loginInfo, &tokens);
  if(loginInfo.result.compare("Success") != 0) {
   cout << "Login failed..." << endl;
@@ -479,9 +482,12 @@ bool expectsLogin(const vector<string>& commandVector) {
   cout << "\tlogin https://en.wikipedia.org/ bob bobsecretpass" << endl;
   return true;
  }
+ loginInfo.update(commandVector[1], commandVector[2], commandVector[3]);
+/*
  loginInfo.site = commandVector[1];
  loginInfo.lgname = commandVector[2];
  loginInfo.lgpassword = commandVector[3];
+*/
  mwaapi.login(&loginInfo, &tokens);
  if(loginInfo.result.compare("Success") != 0) {
   cout << "Login failed..." << endl;
@@ -507,9 +513,12 @@ bool expectsLoginAll(const vector<string>& commandVector) {
  }
  for(WikimediaProject wikimediaProject : WikimediaProjects::list) {
   if(wikimediaProject.active == 0) continue;
+  loginInfo.update(wikimediaProject.getSite(), commandVector[1], commandVector[2]);
+/*
   loginInfo.site = wikimediaProject.getSite();
   loginInfo.lgname = commandVector[1];
   loginInfo.lgpassword = commandVector[2];
+*/
   cout << "Login to: " << loginInfo.site << " ... ";
   mwaapi.login(&loginInfo, &tokens);
   if(loginInfo.result.compare("Success") != 0) {

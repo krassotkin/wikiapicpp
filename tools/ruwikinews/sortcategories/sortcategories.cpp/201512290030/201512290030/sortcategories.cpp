@@ -1,5 +1,5 @@
 /*
- sortcategories is a console tool of the wikiapicpp project used to sort categories in articles.
+ sortcategories is a console tool of the wikiapicpp project used to sort categories in wikinews articles.
 
  Compiling:
  make
@@ -27,8 +27,10 @@ using namespace std;
 #include "Revision.hpp"
 #include "Revisions.hpp"
 
+MediaWikiActionAPI mwaapi;
+
 string description() {
- return "sortcategories is a console tool of the wikiapicpp project used to sort categories in articles.";
+ return "sortcategories is a console tool of the wikiapicpp project used to sort categories in wikinews articles.";
 }
 
 string usage() {
@@ -39,7 +41,7 @@ string usage() {
          + "\t\t./sortcategories <site> <botusername> <botuserpassword> <title>\n");
 }
 
-vector<string> listOfArrays;
+vector<string> categoriesVector;
 
 string pushArrayByFigur(string content, long int position) {
  string tmpArray="";
@@ -51,13 +53,13 @@ string pushArrayByFigur(string content, long int position) {
   for(int i=border;i<end;i++) {
    if(content[i]!='|') tmpArray+=content[i];
    else {
-     listOfArrays.push_back(tmpArray);
+     categoriesVector.push_back(tmpArray);
      tmpArray="";
    }
    content[i]=' ';
   }
   content[end]=' '; content[end+1]=' ';
-  listOfArrays.push_back(tmpArray);
+  categoriesVector.push_back(tmpArray);
   position=content.find("{{Категории|"); 
  }
  return content;
@@ -73,13 +75,13 @@ string pushArrayBySquare(string content, long int position) {
   for(int i=border;i<end;i++) {
    if(content[i]!=':') tmpArray+=content[i];
    else {
-     listOfArrays.push_back(tmpArray);
+     categoriesVector.push_back(tmpArray);
      tmpArray="";
    }
    content[i]=' ';
   }
   content[end]=' '; content[end+1]=' ';
-  listOfArrays.push_back(tmpArray);
+  categoriesVector.push_back(tmpArray);
   position=content.find("[[Категории:"); 
  }
  return content;
@@ -95,13 +97,13 @@ string pushArrayByEnglish(string content, long int position) {
   for(int i=border;i<end;i++) {
    if(content[i]!=':') tmpArray+=content[i];
    else {
-     listOfArrays.push_back(tmpArray);
+     categoriesVector.push_back(tmpArray);
      tmpArray="";
    }
    content[i]=' ';
   }
   content[end]=' '; content[end+1]=' ';
-  listOfArrays.push_back(tmpArray);
+  categoriesVector.push_back(tmpArray);
   position=content.find("[[Category:"); 
  }
  return content;
@@ -109,12 +111,12 @@ string pushArrayByEnglish(string content, long int position) {
 
 string rewritePage(string content, size_t yes) {
  cout<< "[rewritePage] content: " << content<<endl;
- std::sort(listOfArrays.begin(), listOfArrays.end()); 
- //for(unsigned i=0;i<listOfArrays.size();i++) cout << "[rewritePage] listOfArrays[i]: \n" << i << "   " << listOfArrays[i] << endl;
+ std::sort(categoriesVector.begin(), categoriesVector.end()); 
+ //for(unsigned i=0;i<categoriesVector.size();i++) cout << "[rewritePage] categoriesVector[i]: \n" << i << "   " << categoriesVector[i] << endl;
 
  string subContent=" ";
  unsigned u=0;
- for(string c : listOfArrays) {
+ for(string c : categoriesVector) {
   if(u == 0) subContent+="{{Категории";
   subContent+="|"+c;
   u++;
@@ -124,17 +126,6 @@ string rewritePage(string content, size_t yes) {
   }
  }
  if(u!=0) subContent+="}}\n";
-/*
- long int length = listOfArrays.size();
- long int groups=length/50 + 1;
- for(int i=0;i<groups;i++) {
-  subContent+="{{Категории|";
-  for(int j=0;j<50;j++) {
-   subContent += listOfArrays[j]; subContent += "|";
-  }
-  subContent+="}}\n";
- } 
-*/
  cout<< "[rewritePage] subContent: " << subContent<<endl;
  content+=subContent;
  if(yes > 0)content+="{{yes}}"; 
@@ -152,7 +143,7 @@ int main(int argc, char *argv[]) {
    cout << description() << endl << endl;
    cout << usage() << endl;
    return 0;
- }
+  }
  }
  if(argc < 5) {
   cout << "Very few arguments..." << endl;
@@ -161,23 +152,7 @@ int main(int argc, char *argv[]) {
   return -1;
  }
 
- MediaWikiActionAPI mwaapi;
- LoginInfo loginInfo;
- Revisions revisions;
- Edit edit;
- loginInfo.site = argv[1];
- loginInfo.lgname = argv[2];
- loginInfo.lgpassword = argv[3];
- try {
-  long pageids = stol(argv[4]);
-  revisions.pageids = to_string(pageids);
-  edit.pageid = pageids;
- } catch(...) {
-  revisions.titles = argv[4];
-  edit.title = argv[4];
- }
- revisions.prop="content";
- edit.summary = "Sort categories";
+ LoginInfo loginInfo(argv[1], argv[2], argv[3]);
  Tokens tokens;
 
  mwaapi.login(&loginInfo, &tokens);
@@ -189,6 +164,19 @@ int main(int argc, char *argv[]) {
  } else {
   cout << "Success logined..." << endl;
  }
+
+ Revisions revisions;
+ Edit edit;
+ try {
+  long pageids = stol(argv[4]);
+  revisions.pageids = to_string(pageids);
+  edit.pageid = pageids;
+ } catch(...) {
+  revisions.titles = argv[4];
+  edit.title = argv[4];
+ }
+ revisions.prop="content";
+ edit.summary = "Sort categories";
  
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
@@ -229,7 +217,7 @@ int main(int argc, char *argv[]) {
  pushArrayBySquare(pageContent, positioncategorySquare);
  pushArrayByEnglish(pageContent, positioncategoryEnglish);
   
- //for(unsigned i=0;i<listOfArrays.size();i++) cout << "[sortcategories] listOfArrays[i]: \n" << i << "   " << listOfArrays[i] << endl;
+ //for(unsigned i=0;i<categoriesVector.size();i++) cout << "[sortcategories] categoriesVector[i]: \n" << i << "   " << categoriesVector[i] << endl;
  //cout << "[sortcategories] pageContent: \n" << pageContent << endl;
 
  pageContent=rewritePage(pageContent, positionYes);

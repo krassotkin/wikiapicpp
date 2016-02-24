@@ -132,12 +132,6 @@ int main(int argc, char *argv[]) {
    processTask(task);
    this_thread::sleep_for(TIMEOUT_MS);
   }
-  /*
-   for(ActivityTask task : tasks) {
-    processTask(task);
-    this_thread::sleep_for(TIMEOUT_MS);
-   }
-  */
  }
 
  return 0;

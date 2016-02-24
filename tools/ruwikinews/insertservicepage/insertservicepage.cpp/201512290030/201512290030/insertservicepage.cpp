@@ -59,11 +59,7 @@ int main(int argc, char *argv[]) {
   return -1;
  }
 
- LoginInfo loginInfo;
- loginInfo.site = argv[1];
- loginInfo.lgname = argv[2];
- loginInfo.lgpassword = argv[3];
-
+ LoginInfo loginInfo(argv[1], argv[2], argv[3]);
  Tokens tokens;
 
  MediaWikiActionAPI mwaapi;

@@ -98,11 +98,14 @@ class Welcome {
     cout << "[Welcome::parseTasks] tio.size(): " << tio.size() << endl;
     WelcomeTask task;
     task.project = tio["project"].string_value();
+    task.loginInfo.update(tio["site"].string_value(), loginInfo->lgname, loginInfo->lgpassword);
+/*
     task.loginInfo.lgname = loginInfo->lgname;
     cout << "[Welcome::parseTasks] loginInfo->lgname: " << loginInfo->lgname << endl;
     cout << "[Welcome::parseTasks] task.loginInfo.lgname: " << task.loginInfo.lgname << endl;
     task.loginInfo.lgpassword = loginInfo->lgpassword;
     task.loginInfo.site = tio["site"].string_value();
+*/
     mwaapi->login(&task.loginInfo, &task.tokens);
     cout << (task.loginInfo.isSuccess() ? "Success logined to " : "Login failed to ") << task.loginInfo.site << endl;
     task.temp = tio["template"].string_value();

@@ -67,11 +67,8 @@ int main(int argc, char *argv[]) {
  }
 
  MediaWikiActionAPI mwaapi;
- LoginInfo loginInfo;
- loginInfo.site = argv[1];
- loginInfo.lgname = argv[2];
- cout << "[welcome.cpp] loginInfo.lgname = " << loginInfo.lgname << endl;
- loginInfo.lgpassword = argv[3];
+ LoginInfo loginInfo(argv[1], argv[2], argv[3]);
+ //cout << "[welcome.cpp] loginInfo.lgname = " << loginInfo.lgname << endl;
  Tokens tokens;
 
  Welcome welcome(&mwaapi, &loginInfo, &tokens, argv[4]);

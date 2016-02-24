@@ -66,10 +66,7 @@ int main(int argc, char *argv[]) {
  MediaWikiActionAPI mwaapi;
 
  // Login
- LoginInfo loginInfo;
- loginInfo.site = siteName;
- loginInfo.lgusername = argv[1];
- loginInfo.lgpassword = argv[2];
+ LoginInfo loginInfo(argv[1], argv[2], argv[3]);
  Tokens tokens;
  mwaapi.login(&loginInfo, &tokens);
  if(!loginInfo.isSuccess()) {
