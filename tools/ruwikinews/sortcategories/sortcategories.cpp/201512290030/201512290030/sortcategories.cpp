@@ -166,17 +166,8 @@ int main(int argc, char *argv[]) {
  }
 
  Revisions revisions;
- Edit edit;
- try {
-  long pageids = stol(argv[4]);
-  revisions.pageids = to_string(pageids);
-  edit.pageid = pageids;
- } catch(...) {
-  revisions.titles = argv[4];
-  edit.title = argv[4];
- }
+ revisions.titles = argv[4];
  revisions.prop="content";
- edit.summary = "Sort categories";
  
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
@@ -221,6 +212,10 @@ int main(int argc, char *argv[]) {
  //cout << "[sortcategories] pageContent: \n" << pageContent << endl;
 
  pageContent=rewritePage(pageContent, positionYes);
+ 
+ Edit edit;
+ edit.title = argv[4];
+ edit.summary = "Sort categories";
 
  //cout << "[sortcategories] pageContent: \n" << pageContent << endl;
  edit.text = pageContent;
