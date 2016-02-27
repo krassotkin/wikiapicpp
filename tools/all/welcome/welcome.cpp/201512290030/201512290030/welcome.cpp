@@ -30,6 +30,8 @@ using namespace std;
 #include "Tokens.hpp"
 #include "Welcome.hpp"
 
+const int countOfLastChanges = 100;
+
 string description() {
  return "welcome is a console tool of the wikiapicpp project used to welcome new users.";
 }
@@ -75,7 +77,7 @@ int main(int argc, char *argv[]) {
  welcome.init();
  cout << "[welcome.cpp] argc = " << argc << endl;
  if(argc == 5) {
-  welcome.run();
+  welcome.welcomeLastUsers(countOfLastChanges);
   if(!welcome.status) {
    cout << "Something went wrong..." << endl;
    cout << "Nothing to do. Stopped." << endl;
