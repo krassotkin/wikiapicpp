@@ -121,6 +121,9 @@ class Welcome {
   }
 
   void processTask(WelcomeTask* task, const int& countOfLastChanges) {
+   Revisions revisions;
+   revisions.limit = countOfLastChanges;
+   revisions.prop = "user|userid";
    //status &= edit.isSuccess();
    status = false;
   }
