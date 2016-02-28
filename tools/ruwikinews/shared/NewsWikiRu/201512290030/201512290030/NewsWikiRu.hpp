@@ -41,6 +41,7 @@ class NewsWikiRu {
  vector<vector<string>> links;
  bool comments;
  bool haveyoursay;
+ bool servicePage;
  vector<string> categories;
  bool published;
 
@@ -157,7 +158,7 @@ class NewsWikiRu {
   }
   tmpArray="";
 
-  vector <string> source;
+  vector <string> link;
   position = content.find("Ссылки");
   position = content.find("* [", position) + 3;
   while(position > 0){
@@ -165,27 +166,27 @@ class NewsWikiRu {
    for(size_t i=position;i<end;i++) {
     tmpArray+=content[i];
    }
-   source.push_back(tmpArray);
+   link.push_back(tmpArray);
    tmpArray="";
    position = content.find("[", position)+3;
-   sources.push_back(source);
+   links.push_back(link);
   }
   tmpArray="";
   
-  vector<string> link;
+  vector<string> source;
   position = content.find("* {{источник|")+13;
   while(position > 0){
    end=content.find("}}", position);
    for(size_t i=position;i<end;i++) {
     if(content[i] != '|') tmpArray+=content[i];
     else {
-     link.push_back(tmpArray);
+     source.push_back(tmpArray);
      tmpArray="";
     } 
    }
-   link.push_back(tmpArray);
+   source.push_back(tmpArray);
    tmpArray="";
-   links.push_back(link);
+   sources.push_back(source);
    position = clearContent.find("* {{источник|", position)+13;
   }
   tmpArray="";
@@ -199,6 +200,14 @@ class NewsWikiRu {
   else comments=0;
 
   position = clearContent.find("{{haveyoursay}}");
+  end=clearContent.find("}}", position);
+  if(position > 0){
+   clearContent.erase(position,end+2);
+   comments=1;
+  } 
+  else comments=0;
+
+  position = clearContent.find("{{Служебная информация}}");
   end=clearContent.find("}}", position);
   if(position > 0){
    clearContent.erase(position,end+2);
@@ -266,6 +275,8 @@ class NewsWikiRu {
   content+="\n{{-}}\n";
   content+="{{haveyoursay}}";
   content+="\n{{-}}\n";
+  content+="{{Служебная информация}}";
+  content+="\n{{-}}\n";
   unsigned u=0;
   for(string c : listOfArrays) {
   if(u == 0) content+="{{Категории";
@@ -285,6 +296,118 @@ class NewsWikiRu {
   mwaapi.edit(&loginInfo, &tokens, &edit);
 
   cout << "Page have been written canonically." << endl;
+ }
+
+  void newsDate(string newDate) {  
+   date=newDate;
+   newiru.writeAsItIs();
+ }
+
+ void newsTopic(vector<string> tops, string capture) {
+  if(capture == "deletion"){
+   for(unsigned i=0; i<tops.size(); i++) {
+    for(string tT : topics) {
+     if(tT==tops[i]){
+      topics[topics.size()]=tT;
+      topics.pop_back();
+     }
+    }
+   }
+  }
+
+  if(capture == "addition"){
+   for(unsigned i=0;i<tops.size(); i++){ 
+    topics.push_back(tops[i]);
+   }
+  }
+
+  newiru.writeAsItIs();
+ }
+
+ void newsImage(vector<vector<string>> im, string capture) {  
+  if(capture = "deletion"){
+   for(unsigned i=0; i<im.size();i++) {
+    for(string tI : im[i][0]) {
+     if(tI == images[i][0]) {
+      images[images.size()]=images[i];
+      images.pop_back();
+     }
+    }
+   }
+  }
+  
+  if(capture = "addition"){
+   for(unsigned i=0;i<images.size();i++){
+    images.push_back(im[i]);
+   }
+  }  
+
+  newiru.writeAsItIs();
+ }
+ 
+ void newsWikification() {
+  size_t start = tmpContent.find("[[File:")+3;
+  while(start > 0){
+   clearContent[i]='Ф';clearContent[i+1]='а';clearContent[i+2]='й';clearContent[i+3]='л';
+   size_t start = clearContent.find("[[File:")+3;
+  }
+  
+  size_t start = clearContent.find('"')+1;
+  size_t end = clearContent.find('"', start)+1;
+  while(start > 0){
+   clearContent[start]='«';clearContent[i+1]='»';
+   size_t start = clearContent.find('"')+1;
+   size_t end = clearContent.find('"', start)+1;
+  }
+
+  newiru.writeAsItIs();
+ } 
+
+ void addSource(vector<vector<string>> s, string capture) {  
+  if(capture = "deletion"){
+   for(unsigned i=0; i<s.size();i++) {
+    for(string tS : s[i][0]) {
+     if(tS == sources[i][0]) {
+      sources[sources.size()]=sources[i];
+      sources.pop_back();
+     }
+    }
+   }
+  }
+  
+  if(capture = "addition"){
+   for(unsigned i=0;i<sources.size();i++){
+    sources.push_back(s[i]);
+   }
+  }  
+
+  newiru.writeAsItIs();
+ }
+
+ void addCategory(vector<string> c, string capture) {
+  if(capture == "deletion"){
+   for(unsigned i=0; i<c.size(); i++) {
+    for(string tC : categories) {
+     if(tC==c[i]){
+      categories[categories.size()]=tC;
+      categories.pop_back();
+     }
+    }
+   }
+  }
+
+  if(capture == "addition"){
+   for(unsigned i=0;i<c.size(); i++){ 
+    categories.push_back(c[i]);
+   }
+  }
+
+  newiru.writeAsItIs();
+ }
+ 
+ void newsPublished() {
+  if(newiru.published == 0 ) newiru.published = 1;
+  newiru.writeAsItIs();
  }
 }; 
   
