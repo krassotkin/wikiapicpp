@@ -26,6 +26,7 @@ using namespace std;
 #include "Tokens.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
+#include "NewsWikiRu.hpp"
 
 MediaWikiActionAPI mwaapi;
 
@@ -186,14 +187,14 @@ int main(int argc, char *argv[]) {
  long int positioncategoryFiguration=0;
  long int positioncategorySquare=0;
  long int positioncategoryEnglish=0;
- size_t positionYes=0;
- long int lengthYes;
+ //size_t positionYes=0;
+ //long int lengthYes;
  
  positioncategoryFiguration=pageContent.find("{{Категории|");
  positioncategorySquare=pageContent.find("[[Категория:");
  positioncategoryEnglish=pageContent.find("[[Category:");
  
- positionYes=pageContent.find("{{yes}}");
+ /*positionYes=pageContent.find("{{yes}}");
  if (positionYes <= 0) {
   positionYes=pageContent.find("{{Опубликовать}}");
   lengthYes=16;
@@ -202,7 +203,7 @@ int main(int argc, char *argv[]) {
  else {
   lengthYes=7;
   pageContent.erase(positionYes,positionYes+lengthYes);
- }
+ }*/
  
  pageContent=pushArrayByFigur(pageContent, positioncategoryFiguration);
  pushArrayBySquare(pageContent, positioncategorySquare);
@@ -211,16 +212,21 @@ int main(int argc, char *argv[]) {
  //for(unsigned i=0;i<categoriesVector.size();i++) cout << "[sortcategories] categoriesVector[i]: \n" << i << "   " << categoriesVector[i] << endl;
  //cout << "[sortcategories] pageContent: \n" << pageContent << endl;
 
- pageContent=rewritePage(pageContent, positionYes);
+ // pageContent=rewritePage(pageContent, positionYes);
  
- Edit edit;
+ /*Edit edit;
  edit.title = argv[4];
- edit.summary = "Sort categories";
+ edit.summary = "Sort categories";*/
 
  //cout << "[sortcategories] pageContent: \n" << pageContent << endl;
- edit.text = pageContent;
+ /*edit.text = pageContent;
  mwaapi.edit(&loginInfo, &tokens, &edit);
- cout << "New version of page: " << pageContent << endl;
+ cout << "New version of page: " << pageContent << endl;*/
+
+ NewsWikiRu newiru;
+ newiru.title=argv[4];
+ newiru.init();
+ newiru.writeCanonical();
 
  cout << "All tasks are successfully completed." << endl;
  return 0;

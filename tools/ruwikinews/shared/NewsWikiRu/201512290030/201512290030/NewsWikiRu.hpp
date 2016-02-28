@@ -41,13 +41,14 @@ class NewsWikiRu {
  vector<vector<string>> links;
  bool comments;
  bool haveyoursay;
+ bool servicePage;
  vector<string> categories;
  bool published;
 
  MediaWikiActionAPI mwaapi;
  LoginInfo loginInfo;
  Revisions revisions;
- Token tokens;
+ Tokens tokens;
  Edit edit;
   
  NewsWikiRu() {}
@@ -57,7 +58,7 @@ class NewsWikiRu {
  NewsWikiRu(const long int& id) : id(id) {}
 
  bool init() {
-  readСontent();
+  readContent();
   parseContent();
  }
  
@@ -69,14 +70,14 @@ class NewsWikiRu {
   mwaapi.revisions(&loginInfo, &revisions);
   if(revisions.pages.size()==0) {
    cout << "Page not found..." << endl;
-   return true;
   }
   if(revisions.pages[0].revisions.size()==0) {
    cout << "Content not found." << endl;
-   return true;
   }
  
   string content = revisions.pages[0].revisions[0].content;
+
+  cout << "NewsWikiRu.[readContent] content :\n" << content << endl; 
  }
 
  void parseContent() {
@@ -90,9 +91,9 @@ class NewsWikiRu {
   end =clearContent.find("}", position);
   for(size_t i=position;i<end;i++) {
    date+=clearContent[i];
-   clearContent[i]=" ";
+   clearContent[i]=' ';
   }
-  clearContent[end]=" "; clearContent[end+1]=" ";
+  clearContent[end]=' '; clearContent[end+1]=' ';
   
   position = clearContent.find("{{тема|")+7;
   content.erase(position,position+7);
@@ -105,7 +106,7 @@ class NewsWikiRu {
    }
    clearContent[i]=' ';
   }
-  clearContent[end]=" "; clearContent[end+1]=" ";
+  clearContent[end]=' '; clearContent[end+1]=' ';
   tmpArray="";
 
   vector<string> oneImage;
@@ -118,7 +119,7 @@ class NewsWikiRu {
      oneImage.push_back(tmpArray);
      tmpArray="";
     }
-   } tmpArray+=content[i];
+   } 
    oneImage.push_back(tmpArray);
    tmpArray="";
    images.push_back(oneImage);
@@ -142,7 +143,7 @@ class NewsWikiRu {
  
   vector <string> externalSource;
   position = content.find("[") + 1;
-  positionNormal = content.find("Ссылки");
+  size_t positionNormal = content.find("Ссылки");
   if( (position>=positionNormal) or (content[position]=='[') ) position = content.find("[", position) + 1;
   while(position > 0){
    end=content.find("]", position);
@@ -157,7 +158,7 @@ class NewsWikiRu {
   }
   tmpArray="";
 
-  vector <string> source;
+  vector <string> link;
   position = content.find("Ссылки");
   position = content.find("* [", position) + 3;
   while(position > 0){
@@ -165,27 +166,27 @@ class NewsWikiRu {
    for(size_t i=position;i<end;i++) {
     tmpArray+=content[i];
    }
-   source.push_back(tmpArray);
+   link.push_back(tmpArray);
    tmpArray="";
    position = content.find("[", position)+3;
-   sources.push_back(source);
+   links.push_back(link);
   }
   tmpArray="";
   
-  vector<string> link;
+  vector<string> source;
   position = content.find("* {{источник|")+13;
   while(position > 0){
    end=content.find("}}", position);
    for(size_t i=position;i<end;i++) {
     if(content[i] != '|') tmpArray+=content[i];
     else {
-     link.push_back(tmpArray);
+     source.push_back(tmpArray);
      tmpArray="";
     } 
    }
-   link.push_back(tmpArray);
+   source.push_back(tmpArray);
    tmpArray="";
-   links.push_back(link);
+   sources.push_back(source);
    position = clearContent.find("* {{источник|", position)+13;
   }
   tmpArray="";
@@ -206,7 +207,14 @@ class NewsWikiRu {
   } 
   else comments=0;
 
-  vector<string> oneCategory;
+  position = clearContent.find("{{Служебная информация}}");
+  end=clearContent.find("}}", position);
+  if(position > 0){
+   clearContent.erase(position,end+2);
+   comments=1;
+  } 
+  else comments=0;
+
   position = clearContent.find("{{Категории|")+13;
   while(position > 0){
    clearContent.erase(position,position+13);
@@ -214,18 +222,16 @@ class NewsWikiRu {
    for(size_t i=position;i<end;i++) {
    if(content[i]!='|') tmpArray+=clearContent[i];
    else {
-     oneCategory.push_back(tmpArray);
+     categories.push_back(tmpArray);
      tmpArray="";
    }
    clearContent[i]=' ';
    }
-   oneCategory.push_back(tmpArray);
+   categories.push_back(tmpArray);
    tmpArray="";
    clearContent[end]=' '; clearContent[end+1]=' ';
-   categories.push_back(oneCategory);
    position = clearContent.find("{{Категории|", position)+13;
   }
-  categories.push_back(oneCategory);
   tmpArray="";
   
   position = clearContent.find("{{yes}}");
@@ -255,7 +261,7 @@ class NewsWikiRu {
   content+="}}\n";
   for(vector<string> i : images){
    content+="[[";
-   for(string j : vector<string> i) {
+   for(string j : i) {
     content+=j+"|";
    }
    content+="]]\n";
@@ -266,8 +272,10 @@ class NewsWikiRu {
   content+="\n{{-}}\n";
   content+="{{haveyoursay}}";
   content+="\n{{-}}\n";
+  content+="{{Служебная информация}}";
+  content+="\n{{-}}\n";
   unsigned u=0;
-  for(string c : listOfArrays) {
+  for(string c : categories) {
   if(u == 0) content+="{{Категории";
   content+="|"+c;
   u++;
@@ -279,17 +287,126 @@ class NewsWikiRu {
   if(u!=0) content+="}}\n";
   content+="{{yes}}";
 
-  if (title.length() > 0) edit.titles = title;
-  if (id > 0) edit.pageids = id;
+  if (title.length() > 0) edit.title = title;
+  if (id > 0) edit.pageid = id;
   edit.text = content;
   mwaapi.edit(&loginInfo, &tokens, &edit);
 
   cout << "Page have been written canonically." << endl;
  }
+
+  void newsDate(string newDate) {  
+   date=newDate;
+   writeAsItIs();
+ }
+
+ void newsTopic(vector<string> tops, string capture) {
+  if(capture == "deletion"){
+   for(unsigned i=0; i<tops.size(); i++) {
+    for(string tT : topics) {
+     if(tT==tops[i]){
+      topics[topics.size()]=tT;
+      topics.pop_back();
+     }
+    }
+   }
+  }
+
+  if(capture == "addition"){
+   for(unsigned i=0;i<tops.size(); i++){ 
+    topics.push_back(tops[i]);
+   }
+  }
+
+  writeAsItIs();
+ }
+
+ void newsImage(vector<vector<string>> im, string capture) {  
+  if(capture == "deletion"){
+   for(unsigned i=0; i<im.size();i++) {
+    for(string tI : im[i]) {
+     if(tI == images[i][0]) {
+      images[images.size()]=images[i];
+      images.pop_back();
+     }
+    }
+   }
+  }
+  
+  if(capture == "addition"){
+   for(unsigned i=0;i<images.size();i++){
+    images.push_back(im[i]);
+   }
+  }  
+
+  writeAsItIs();
+ }
+ 
+ void newsWikification() {
+  size_t start = clearContent.find("[[File:")+3;
+  while(start > 0){
+   clearContent[start]='Ф';clearContent[start+1]='а';clearContent[start+2]='й';clearContent[start+3]='л';
+   start = clearContent.find("[[File:")+3;
+  }
+  
+  start = clearContent.find('"')+1;
+  size_t end = clearContent.find('"', start)+1;
+  while(start > 0){
+   clearContent[start]='«';clearContent[start+1]='»';
+   start = clearContent.find('"')+1;
+   end = clearContent.find('"', start)+1;
+  }
+
+  writeAsItIs();
+ } 
+
+ void addSource(vector<vector<string>> s, string capture) {  
+  if(capture == "deletion"){
+   for(unsigned i=0; i<s.size();i++) {
+    for(string tS : s[i]) {
+     if(tS == sources[i][0]) {
+      sources[sources.size()]=sources[i];
+      sources.pop_back();
+     }
+    }
+   }
+  }
+  
+  if(capture == "addition"){
+   for(unsigned i=0;i<sources.size();i++){
+    sources.push_back(s[i]);
+   }
+  }  
+
+  writeAsItIs();
+ }
+
+ void addCategory(vector<string> c, string capture) {
+  if(capture == "deletion"){
+   for(unsigned i=0; i<c.size(); i++) {
+    for(string tC : categories) {
+     if(tC==c[i]){
+      categories[categories.size()]=tC;
+      categories.pop_back();
+     }
+    }
+   }
+  }
+
+  if(capture == "addition"){
+   for(unsigned i=0;i<c.size(); i++){ 
+    categories.push_back(c[i]);
+   }
+  }
+
+  writeAsItIs();
+ }
+ 
+ void newsPublished() {
+  if(published == 0 ) published = 1;
+  writeAsItIs();
+ }
 }; 
   
-const string newswikiru::versionMajor = "201512290030";
-const string newswikiru::versionMinor = "201512290030";
-
 #endif // #ifndef NEWSWIKIRU_HPP
 
