@@ -48,7 +48,7 @@ class NewsWikiRu {
  MediaWikiActionAPI mwaapi;
  LoginInfo loginInfo;
  Revisions revisions;
- Token tokens;
+ Tokens tokens;
  Edit edit;
   
  NewsWikiRu() {}
@@ -58,7 +58,7 @@ class NewsWikiRu {
  NewsWikiRu(const long int& id) : id(id) {}
 
  bool init() {
-  readСontent();
+  readContent();
   parseContent();
  }
  
@@ -70,14 +70,14 @@ class NewsWikiRu {
   mwaapi.revisions(&loginInfo, &revisions);
   if(revisions.pages.size()==0) {
    cout << "Page not found..." << endl;
-   return true;
   }
   if(revisions.pages[0].revisions.size()==0) {
    cout << "Content not found." << endl;
-   return true;
   }
  
   string content = revisions.pages[0].revisions[0].content;
+
+  cout << "NewsWikiRu.[readContent] content :\n" << content << endl; 
  }
 
  void parseContent() {
@@ -91,9 +91,9 @@ class NewsWikiRu {
   end =clearContent.find("}", position);
   for(size_t i=position;i<end;i++) {
    date+=clearContent[i];
-   clearContent[i]=" ";
+   clearContent[i]=' ';
   }
-  clearContent[end]=" "; clearContent[end+1]=" ";
+  clearContent[end]=' '; clearContent[end+1]=' ';
   
   position = clearContent.find("{{тема|")+7;
   content.erase(position,position+7);
@@ -106,7 +106,7 @@ class NewsWikiRu {
    }
    clearContent[i]=' ';
   }
-  clearContent[end]=" "; clearContent[end+1]=" ";
+  clearContent[end]=' '; clearContent[end+1]=' ';
   tmpArray="";
 
   vector<string> oneImage;
@@ -119,7 +119,7 @@ class NewsWikiRu {
      oneImage.push_back(tmpArray);
      tmpArray="";
     }
-   } tmpArray+=content[i];
+   } 
    oneImage.push_back(tmpArray);
    tmpArray="";
    images.push_back(oneImage);
@@ -143,7 +143,7 @@ class NewsWikiRu {
  
   vector <string> externalSource;
   position = content.find("[") + 1;
-  positionNormal = content.find("Ссылки");
+  size_t positionNormal = content.find("Ссылки");
   if( (position>=positionNormal) or (content[position]=='[') ) position = content.find("[", position) + 1;
   while(position > 0){
    end=content.find("]", position);
@@ -215,7 +215,6 @@ class NewsWikiRu {
   } 
   else comments=0;
 
-  vector<string> oneCategory;
   position = clearContent.find("{{Категории|")+13;
   while(position > 0){
    clearContent.erase(position,position+13);
@@ -223,18 +222,16 @@ class NewsWikiRu {
    for(size_t i=position;i<end;i++) {
    if(content[i]!='|') tmpArray+=clearContent[i];
    else {
-     oneCategory.push_back(tmpArray);
+     categories.push_back(tmpArray);
      tmpArray="";
    }
    clearContent[i]=' ';
    }
-   oneCategory.push_back(tmpArray);
+   categories.push_back(tmpArray);
    tmpArray="";
    clearContent[end]=' '; clearContent[end+1]=' ';
-   categories.push_back(oneCategory);
    position = clearContent.find("{{Категории|", position)+13;
   }
-  categories.push_back(oneCategory);
   tmpArray="";
   
   position = clearContent.find("{{yes}}");
@@ -264,7 +261,7 @@ class NewsWikiRu {
   content+="}}\n";
   for(vector<string> i : images){
    content+="[[";
-   for(string j : vector<string> i) {
+   for(string j : i) {
     content+=j+"|";
    }
    content+="]]\n";
@@ -278,7 +275,7 @@ class NewsWikiRu {
   content+="{{Служебная информация}}";
   content+="\n{{-}}\n";
   unsigned u=0;
-  for(string c : listOfArrays) {
+  for(string c : categories) {
   if(u == 0) content+="{{Категории";
   content+="|"+c;
   u++;
@@ -290,8 +287,8 @@ class NewsWikiRu {
   if(u!=0) content+="}}\n";
   content+="{{yes}}";
 
-  if (title.length() > 0) edit.titles = title;
-  if (id > 0) edit.pageids = id;
+  if (title.length() > 0) edit.title = title;
+  if (id > 0) edit.pageid = id;
   edit.text = content;
   mwaapi.edit(&loginInfo, &tokens, &edit);
 
@@ -300,7 +297,7 @@ class NewsWikiRu {
 
   void newsDate(string newDate) {  
    date=newDate;
-   newiru.writeAsItIs();
+   writeAsItIs();
  }
 
  void newsTopic(vector<string> tops, string capture) {
@@ -321,13 +318,13 @@ class NewsWikiRu {
    }
   }
 
-  newiru.writeAsItIs();
+  writeAsItIs();
  }
 
  void newsImage(vector<vector<string>> im, string capture) {  
-  if(capture = "deletion"){
+  if(capture == "deletion"){
    for(unsigned i=0; i<im.size();i++) {
-    for(string tI : im[i][0]) {
+    for(string tI : im[i]) {
      if(tI == images[i][0]) {
       images[images.size()]=images[i];
       images.pop_back();
@@ -336,37 +333,37 @@ class NewsWikiRu {
    }
   }
   
-  if(capture = "addition"){
+  if(capture == "addition"){
    for(unsigned i=0;i<images.size();i++){
     images.push_back(im[i]);
    }
   }  
 
-  newiru.writeAsItIs();
+  writeAsItIs();
  }
  
  void newsWikification() {
-  size_t start = tmpContent.find("[[File:")+3;
+  size_t start = clearContent.find("[[File:")+3;
   while(start > 0){
-   clearContent[i]='Ф';clearContent[i+1]='а';clearContent[i+2]='й';clearContent[i+3]='л';
-   size_t start = clearContent.find("[[File:")+3;
+   clearContent[start]='Ф';clearContent[start+1]='а';clearContent[start+2]='й';clearContent[start+3]='л';
+   start = clearContent.find("[[File:")+3;
   }
   
-  size_t start = clearContent.find('"')+1;
+  start = clearContent.find('"')+1;
   size_t end = clearContent.find('"', start)+1;
   while(start > 0){
-   clearContent[start]='«';clearContent[i+1]='»';
-   size_t start = clearContent.find('"')+1;
-   size_t end = clearContent.find('"', start)+1;
+   clearContent[start]='«';clearContent[start+1]='»';
+   start = clearContent.find('"')+1;
+   end = clearContent.find('"', start)+1;
   }
 
-  newiru.writeAsItIs();
+  writeAsItIs();
  } 
 
  void addSource(vector<vector<string>> s, string capture) {  
-  if(capture = "deletion"){
+  if(capture == "deletion"){
    for(unsigned i=0; i<s.size();i++) {
-    for(string tS : s[i][0]) {
+    for(string tS : s[i]) {
      if(tS == sources[i][0]) {
       sources[sources.size()]=sources[i];
       sources.pop_back();
@@ -375,13 +372,13 @@ class NewsWikiRu {
    }
   }
   
-  if(capture = "addition"){
+  if(capture == "addition"){
    for(unsigned i=0;i<sources.size();i++){
     sources.push_back(s[i]);
    }
   }  
 
-  newiru.writeAsItIs();
+  writeAsItIs();
  }
 
  void addCategory(vector<string> c, string capture) {
@@ -402,17 +399,14 @@ class NewsWikiRu {
    }
   }
 
-  newiru.writeAsItIs();
+  writeAsItIs();
  }
  
  void newsPublished() {
-  if(newiru.published == 0 ) newiru.published = 1;
-  newiru.writeAsItIs();
+  if(published == 0 ) published = 1;
+  writeAsItIs();
  }
 }; 
   
-const string newswikiru::versionMajor = "201512290030";
-const string newswikiru::versionMinor = "201512290030";
-
 #endif // #ifndef NEWSWIKIRU_HPP
 
