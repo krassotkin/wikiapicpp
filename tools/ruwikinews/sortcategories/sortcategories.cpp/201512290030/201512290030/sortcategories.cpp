@@ -26,7 +26,6 @@ using namespace std;
 #include "Tokens.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
-#include "NewsWikiRu.hpp"
 
 MediaWikiActionAPI mwaapi;
 
@@ -222,11 +221,11 @@ int main(int argc, char *argv[]) {
  /*edit.text = pageContent;
  mwaapi.edit(&loginInfo, &tokens, &edit);
  cout << "New version of page: " << pageContent << endl;*/
-
+/*
  NewsWikiRu newiru;
  newiru.title=argv[4];
  newiru.init();
- newiru.writeCanonical();
+ newiru.writeCanonical();*/
 
  cout << "All tasks are successfully completed." << endl;
  return 0;
