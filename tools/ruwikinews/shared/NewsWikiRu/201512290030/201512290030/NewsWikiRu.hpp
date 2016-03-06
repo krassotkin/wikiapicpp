@@ -24,9 +24,14 @@
 
 using namespace std;
 
-class NewsWikiRu {
-  
- public:
+class NewsWikiRu { 
+ public: 
+ LoginInfo loginInfo;
+ MediaWikiActionAPI mwaapi;
+ Tokens tokens;
+ Revisions revisions;
+ Edit edit;
+
  string title;
  long int id;
  string content;
@@ -44,71 +49,154 @@ class NewsWikiRu {
  bool servicePage;
  vector<string> categories;
  bool published;
-
- MediaWikiActionAPI mwaapi;
- LoginInfo loginInfo;
- Revisions revisions;
- Tokens tokens;
- Edit edit;
   
  NewsWikiRu() {}
 
  NewsWikiRu(const string& title) : title(title) {}
-
+ 
  NewsWikiRu(const long int& id) : id(id) {}
-
- bool init() {
-  readContent();
-  parseContent();
- }
  
- void readContent() {  
-  if (title.length() > 0) revisions.titles = title;
-  if (id > 0) revisions.pageids = id;
-  revisions.prop="content";
- 
-  mwaapi.revisions(&loginInfo, &revisions);
-  if(revisions.pages.size()==0) {
-   cout << "Page not found..." << endl;
-  }
-  if(revisions.pages[0].revisions.size()==0) {
-   cout << "Content not found." << endl;
-  }
- 
-  string content = revisions.pages[0].revisions[0].content;
-
-  cout << "NewsWikiRu.[readContent] content :\n" << content << endl; 
+ void init(LoginInfo* loginInfo, Tokens* tokens, Revisions* revisions) {
+  readContent(loginInfo, tokens, revisions);
+  parseContent(loginInfo, tokens);
  }
 
- void parseContent() {
+ void readContent(LoginInfo* loginInfo, Tokens* tokens, Revisions* revisions) {
+  if(revisions->titles.length()>0) title = revisions->titles;
+  else if(revisions->pageids.length()>0) id = stol(revisions->pageids);
+
+  content = revisions->pages[0].revisions[0].content;
+ }
+
+ void parseContent(LoginInfo* loginInfo, Tokens* tokens) {
+ cout<< "check" << endl;
+ cout << "NewsWikiRu [NewsWikiRu] title: " << title << endl;
+ cout<< "check" << endl;
+ cout << "NewsWikiRu [NewsWikiRu] content: " << content << endl;
+ cout<< "check" << endl;
   clearContent=content;
   size_t position;
   size_t end;
   string tmpArray="";
+  cout<< "check0" << endl;
 
-  position = clearContent.find("{{дата|")+7;
-  content.erase(position,position+7);
+  position = clearContent.find("{{дата|");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
   end =clearContent.find("}", position);
-  for(size_t i=position;i<end;i++) {
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  for(size_t i=(position+11);i<end;i++) {
    date+=clearContent[i];
    clearContent[i]=' ';
   }
   clearContent[end]=' '; clearContent[end+1]=' ';
+  clearContent.erase(position,(end+1));
+  cout << "NewsWikiRu [parseContent] content[2]: " << clearContent[2] << endl;
+  cout << "NewsWikiRu [parseContent] date: " << date << endl;
+  cout<< "check1" << endl;
   
-  position = clearContent.find("{{тема|")+7;
-  content.erase(position,position+7);
+  position = clearContent.find("{{тема|");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
   end=clearContent.find("}", position);
-  for(size_t i=position;i<end;i++) {
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  for(size_t i=(position+7);i<end;i++) {
    if(clearContent[i]!='|') tmpArray+=clearContent[i];
    else {
      topics.push_back(tmpArray);
      tmpArray="";
    }
-   clearContent[i]=' ';
   }
+  topics.push_back(tmpArray);
+  //clearContent[end]=' '; clearContent[end+1]=' ';
+  tmpArray="";
+  //clearContent.erase(position,end); 
+  cout<< "check2" << endl;
+
+  position = clearContent.find("yes");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+  end=clearContent.find("}", position);
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  if((position>0) && (position<content.size())) {
+   published=1;
+   clearContent.erase((position-2), end);
+  }
+  else published=0;
+  cout << "check3" << endl;
+
+  position = clearContent.find("{{Категории|");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+  end=clearContent.find("}", position);
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  for(size_t i=(position+12);i<end;i++) {
+   if(clearContent[i]!='|') tmpArray+=clearContent[i];
+   else {
+     categories.push_back(tmpArray);
+     tmpArray="";
+   }
+  }
+  categories.push_back(tmpArray);
   clearContent[end]=' '; clearContent[end+1]=' ';
   tmpArray="";
+  clearContent.erase(position, end);
+  cout << "check4" << endl;
 
+  position = clearContent.find("{{Служебная информация");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+  end=clearContent.find("}", position);
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  if((position>0) && (position<content.size())) {
+   servicePage=1;
+   clearContent.erase(position, end);
+  }
+  else servicePage=0;
+  cout << "check5" << endl;
+  cout << "servicePage" << servicePage << endl;
+
+  position = clearContent.find("{{haveyoursay");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+  end=clearContent.find("}", position);
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  if((position>0) && (position<content.size())) {
+   haveyoursay=1;
+   clearContent.erase(position, end);
+  }
+  else servicePage=0;
+  cout << "check6" << endl;
+  cout << "haveyoursay: " << haveyoursay << endl;
+
+  position = clearContent.find("{{Комментарии");
+  cout << "NewsWikiRu [parseContent] position: " << position << endl;
+  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+  end=clearContent.find("}", position);
+  cout << "NewsWikiRu [parseContent] end: " << end << endl;
+  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+  if((position>0) && (position<content.size())) {
+   comments=1;
+   clearContent.erase(position, end);
+  }
+  else servicePage=0;
+  cout << "check7" << endl;
+  cout << "comments: " << comments << endl;
+  
+  /*
   vector<string> oneImage;
   position = content.find("[[Файл:")+2;
   while(position > 0){
@@ -126,7 +214,10 @@ class NewsWikiRu {
    position = content.find("[[Файл:", position)+2;
   }
   tmpArray="";
+  cout<< "check3" << endl;
+  */
 
+  /*
   vector <string> wikiSource;
   position = content.find("[[", position) + 2;
   while(position > 0){
@@ -140,7 +231,10 @@ class NewsWikiRu {
    wikiSources.push_back(wikiSource);
   }
   tmpArray="";
+  cout<< "check4" << endl;
+  */
  
+  /*
   vector <string> externalSource;
   position = content.find("[") + 1;
   size_t positionNormal = content.find("Ссылки");
@@ -157,7 +251,10 @@ class NewsWikiRu {
    if( (position>=positionNormal) or (content[position]=='[') ) position = content.find("[", position) + 1;
   }
   tmpArray="";
+  cout<< "check5" << endl;
+  */
 
+  /*
   vector <string> link;
   position = content.find("Ссылки");
   position = content.find("* [", position) + 3;
@@ -172,7 +269,10 @@ class NewsWikiRu {
    links.push_back(link);
   }
   tmpArray="";
+  cout<< "check6" << endl;
+  */
   
+  /*
   vector<string> source;
   position = content.find("* {{источник|")+13;
   while(position > 0){
@@ -190,57 +290,11 @@ class NewsWikiRu {
    position = clearContent.find("* {{источник|", position)+13;
   }
   tmpArray="";
+  cout<< "check7" << endl;
+  */
 
-  position = clearContent.find("{{Комментарии:{{PAGENAME}}}}");
-  end=clearContent.find("}}", position);
-  if(position > 0) {
-   clearContent.erase(position,end+2);
-   comments=1;
-  }
-  else comments=0;
-
-  position = clearContent.find("{{haveyoursay}}");
-  end=clearContent.find("}}", position);
-  if(position > 0){
-   clearContent.erase(position,end+2);
-   comments=1;
-  } 
-  else comments=0;
-
-  position = clearContent.find("{{Служебная информация}}");
-  end=clearContent.find("}}", position);
-  if(position > 0){
-   clearContent.erase(position,end+2);
-   comments=1;
-  } 
-  else comments=0;
-
-  position = clearContent.find("{{Категории|")+13;
-  while(position > 0){
-   clearContent.erase(position,position+13);
-   end=clearContent.find("}}", position);
-   for(size_t i=position;i<end;i++) {
-   if(content[i]!='|') tmpArray+=clearContent[i];
-   else {
-     categories.push_back(tmpArray);
-     tmpArray="";
-   }
-   clearContent[i]=' ';
-   }
-   categories.push_back(tmpArray);
-   tmpArray="";
-   clearContent[end]=' '; clearContent[end+1]=' ';
-   position = clearContent.find("{{Категории|", position)+13;
-  }
-  tmpArray="";
-  
-  position = clearContent.find("{{yes}}");
-  end=clearContent.find("}}", position);
-  if(position > 0){
-   clearContent.erase(position,end+2);
-   comments=1;
-  }
-  else comments=0;
+  //cout << "NewsWikiRu [parseContent] clearContent: " << clearContent << endl;
+  content = "";
  }
 
  void writeAsItIs() {
@@ -250,31 +304,25 @@ class NewsWikiRu {
   cout << "Page have been written as it is." << endl;
  }
  
- void writeCanonical() {
+ void writeCanonical(string f, string s, string t) {
+  LoginInfo loginInfo(f, s, t);
+  mwaapi.login(&loginInfo, &tokens);
   edit.summary="Format";
   content+="{{дата|"+date+"}}\n";
-  content+="{{тема|";
-  std::sort(topics.begin(), topics.end()); 
+  /*content+="{{тема|"; 
   for(unsigned i;i<(topics.size());i++){
    content+=topics[i]+"|";
   }
-  content+="}}\n";
-  for(vector<string> i : images){
-   content+="[[";
-   for(string j : i) {
-    content+=j+"|";
-   }
-   content+="]]\n";
-  }
+  content+="}}\n";*/
   content+=clearContent;
-  content+="\n{{-}}\n";
-  content+="{{Комментарии:{{PAGENAME}}}}";
-  content+="\n{{-}}\n";
-  content+="{{haveyoursay}}";
-  content+="\n{{-}}\n";
-  content+="{{Служебная информация}}";
-  content+="\n{{-}}\n";
+  content+="{{Комментарии:{{PAGENAME}}}}\n";
+  content+="\n{{-}}\n\n";
+  content+="{{haveyoursay}}\n";
+  content+="\n{{-}}\n\n";
+  content+="{{Служебная информация}}\n";
+  content+="\n{{-}}\n\n";
   unsigned u=0;
+  categories.erase(categories.begin());
   for(string c : categories) {
   if(u == 0) content+="{{Категории";
   content+="|"+c;
@@ -285,126 +333,20 @@ class NewsWikiRu {
   }
   }
   if(u!=0) content+="}}\n";
-  content+="{{yes}}";
+  if(published) content+="\n{{yes}}";
+  cout << "NewsWikiRu [writeCanonical] content: " << content << endl;
 
   if (title.length() > 0) edit.title = title;
   if (id > 0) edit.pageid = id;
   edit.text = content;
   mwaapi.edit(&loginInfo, &tokens, &edit);
+  
+  edit.clear();
+  edit.title=(string)"Викиновости:Статистика страниц/"+title;
+  edit.text="{{Статистика страницы}}";
+  mwaapi.edit(&loginInfo, &tokens, &edit);
 
   cout << "Page have been written canonically." << endl;
- }
-
-  void newsDate(string newDate) {  
-   date=newDate;
-   writeAsItIs();
- }
-
- void newsTopic(vector<string> tops, string capture) {
-  if(capture == "deletion"){
-   for(unsigned i=0; i<tops.size(); i++) {
-    for(string tT : topics) {
-     if(tT==tops[i]){
-      topics[topics.size()]=tT;
-      topics.pop_back();
-     }
-    }
-   }
-  }
-
-  if(capture == "addition"){
-   for(unsigned i=0;i<tops.size(); i++){ 
-    topics.push_back(tops[i]);
-   }
-  }
-
-  writeAsItIs();
- }
-
- void newsImage(vector<vector<string>> im, string capture) {  
-  if(capture == "deletion"){
-   for(unsigned i=0; i<im.size();i++) {
-    for(string tI : im[i]) {
-     if(tI == images[i][0]) {
-      images[images.size()]=images[i];
-      images.pop_back();
-     }
-    }
-   }
-  }
-  
-  if(capture == "addition"){
-   for(unsigned i=0;i<images.size();i++){
-    images.push_back(im[i]);
-   }
-  }  
-
-  writeAsItIs();
- }
- 
- void newsWikification() {
-  size_t start = clearContent.find("[[File:")+3;
-  while(start > 0){
-   clearContent[start]='Ф';clearContent[start+1]='а';clearContent[start+2]='й';clearContent[start+3]='л';
-   start = clearContent.find("[[File:")+3;
-  }
-  
-  start = clearContent.find('"')+1;
-  size_t end = clearContent.find('"', start)+1;
-  while(start > 0){
-   clearContent[start]='«';clearContent[start+1]='»';
-   start = clearContent.find('"')+1;
-   end = clearContent.find('"', start)+1;
-  }
-
-  writeAsItIs();
- } 
-
- void addSource(vector<vector<string>> s, string capture) {  
-  if(capture == "deletion"){
-   for(unsigned i=0; i<s.size();i++) {
-    for(string tS : s[i]) {
-     if(tS == sources[i][0]) {
-      sources[sources.size()]=sources[i];
-      sources.pop_back();
-     }
-    }
-   }
-  }
-  
-  if(capture == "addition"){
-   for(unsigned i=0;i<sources.size();i++){
-    sources.push_back(s[i]);
-   }
-  }  
-
-  writeAsItIs();
- }
-
- void addCategory(vector<string> c, string capture) {
-  if(capture == "deletion"){
-   for(unsigned i=0; i<c.size(); i++) {
-    for(string tC : categories) {
-     if(tC==c[i]){
-      categories[categories.size()]=tC;
-      categories.pop_back();
-     }
-    }
-   }
-  }
-
-  if(capture == "addition"){
-   for(unsigned i=0;i<c.size(); i++){ 
-    categories.push_back(c[i]);
-   }
-  }
-
-  writeAsItIs();
- }
- 
- void newsPublished() {
-  if(published == 0 ) published = 1;
-  writeAsItIs();
  }
 }; 
   

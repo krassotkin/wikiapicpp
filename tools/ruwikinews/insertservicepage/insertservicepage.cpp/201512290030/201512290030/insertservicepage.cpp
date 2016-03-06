@@ -1,14 +1,10 @@
 /*
  insertservicepage is a console tool of the wikiapicpp project used to insert template {{Служебная информация}} in articles and creating pages of stats with template {{Статистика страницы}}.
-
  Compiling:
  make
-
  Usage:
-
  For insertservicepage:
  ./insertservicepage <site> <botusername> <botuserpassword> <title>
-
  Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
  since 2015-12-29
 */
@@ -25,6 +21,7 @@ using namespace std;
 #include "Tokens.hpp"
 #include "Revision.hpp"
 #include "Revisions.hpp"
+#include "NewsWikiRu.hpp"
 
 string description() {
  return "insertservicepage is a console tool of the wikiapicpp project used to insert template {{Служебная информация}} in articles and creating pages of stats with template {{Статистика страницы}}.";
@@ -80,16 +77,22 @@ int main(int argc, char *argv[]) {
  
  mwaapi.revisions(&loginInfo, &revisions);
  if(revisions.pages.size()==0) {
-  cout << "Page not found..." << endl;
+  cout << "Page not found..." << 
+endl;
   return true;
  }
  if(revisions.pages[0].revisions.size()==0) {
   cout << "Content not found." << endl;
   return true;
  }
- string pageContent = revisions.pages[0].revisions[0].content;
- 
- //cout << "[insertservicepage] pageContent: \n" << pageContent << endl;
+ //string pageContent = revisions.pages[0].revisions[0].content;
+
+ Edit edit;
+ NewsWikiRu newiru;
+ newiru.init(&loginInfo, &tokens, &revisions); 
+ newiru.writeCanonical(argv[1], argv[2], argv[3]);
+ /*
+ cout << "[insertservicepage] pageContent: \n" << pageContent << endl;
 
  size_t pos = pageContent.find("{{Служебная информация}}");
  size_t pos1 = pageContent.find("{{служебная информация}}");
@@ -139,7 +142,7 @@ int main(int argc, char *argv[]) {
  mwaapi.edit(&loginInfo, &tokens, &edit);
 
  cout << "All tasks are successfully completed." << endl;
+ */
 
  return 0;
 }
- 
