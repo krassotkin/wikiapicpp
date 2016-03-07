@@ -40,8 +40,9 @@ class NewsWikiRu {
  vector<string> topics;
  vector<vector<string>> images;
  string text;
- vector<vector<string>> wikiSources;
- vector<vector<string>> externalSources;
+ vector<string> newsLinks;
+ vector<string> wikiLinks;
+ vector<string> externalLinks;
  vector<vector<string>> sources;
  vector<vector<string>> links;
  bool comments;
@@ -117,6 +118,67 @@ class NewsWikiRu {
   //clearContent.erase(position,end); 
   cout<< "check2" << endl;
 
+  
+  /*position = clearContent.find("[[");
+  while( (position > 0) && (position < clearContent.length() ) ){
+   cout << "NewsWikiRu [parseContent] position: " << position << endl;
+   cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+   end=clearContent.find("]", position);
+   cout << "NewsWikiRu [parseContent] end: " << end << endl;
+   cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+   cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+   for(size_t i=(position+2);i<end;i++) {
+    if(clearContent[i]!='|') tmpArray+=clearContent[i];
+    else {
+      newsLinks.push_back(tmpArray);
+      tmpArray="";
+      break;
+    }
+   }
+   newsLinks.push_back(tmpArray);
+   position = clearContent.find("[[", position);
+  }
+  cout << "check1 <03-07-16>" << endl;*/
+
+   /*position = clearContent.find("[[w:");
+   while (position > 0) {
+   cout << "NewsWikiRu [parseContent] position: " << position << endl;
+   cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+   end=clearContent.find("]", position);
+   cout << "NewsWikiRu [parseContent] end: " << end << endl;
+   cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+   cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+   for(size_t i=(position+4);i<end;i++) {
+    if(clearContent[i]!='|') tmpArray+=clearContent[i];
+    else {
+      wikiLinks.push_back(tmpArray);
+      tmpArray="";
+      break;
+    }
+   }
+   wikiLinks.push_back(tmpArray);
+   position = clearContent.find("[[w:", position);
+  }
+  cout << "check2 <03-07-16>" << endl;*/
+    
+  position = clearContent.find("[[Категория:");
+  while( (position > 0 ) && (position < clearContent.length()) ){
+   cout << "NewsWikiRu [parseContent] position: " << position << endl;
+   cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+   end=clearContent.find("]", position);
+   cout << "NewsWikiRu [parseContent] end: " << end << endl;
+   cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+   cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+   for(size_t i=(position+21);i<end;i++) tmpArray+=clearContent[i];
+   categories.push_back(tmpArray);
+   cout << "NewsWikiRu [parseContent] categories[0]: " << categories[0] << endl;
+   clearContent[end]=' '; clearContent[end+1]=' ';
+   tmpArray="";
+   position = clearContent.find("[[Категория:");
+   clearContent.erase(position, end);
+  }
+  cout << "check4-3" << endl;
+  
   position = clearContent.find("yes");
   cout << "NewsWikiRu [parseContent] position: " << position << endl;
   cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
@@ -132,24 +194,48 @@ class NewsWikiRu {
   cout << "check3" << endl;
 
   position = clearContent.find("{{Категории|");
-  cout << "NewsWikiRu [parseContent] position: " << position << endl;
-  cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
-  end=clearContent.find("}", position);
-  cout << "NewsWikiRu [parseContent] end: " << end << endl;
-  cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
-  cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
-  for(size_t i=(position+12);i<end;i++) {
-   if(clearContent[i]!='|') tmpArray+=clearContent[i];
-   else {
-     categories.push_back(tmpArray);
-     tmpArray="";
+  size_t fPosition = position;
+  while( (position > 0 ) && (position < clearContent.length()) ){
+   cout << "NewsWikiRu [parseContent] position: " << position << endl;
+   cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+   end=clearContent.find("}", position);
+   cout << "NewsWikiRu [parseContent] end: " << end << endl;
+   cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+   cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+   for(size_t i=(position+21);i<end;i++) {
+    if(clearContent[i]!='|') tmpArray+=clearContent[i];
+    else {
+      categories.push_back(tmpArray);
+      tmpArray="";
+    }
    }
+   categories.push_back(tmpArray);
+   clearContent[end]=' '; clearContent[end+1]=' ';
+   tmpArray="";
+   position = clearContent.find("{{Категории|", (position+1));
   }
-  categories.push_back(tmpArray);
-  clearContent[end]=' '; clearContent[end+1]=' ';
-  tmpArray="";
-  clearContent.erase(position, end);
-  cout << "check4" << endl;
+  clearContent.erase(fPosition, end);
+  cout << "check4-1" << endl;
+
+  position = clearContent.find("[[Category:");
+  while( (position > 0 ) && (position < clearContent.length() ) ) {
+   cout << "NewsWikiRu [parseContent] position: " << position << endl;
+   cout << "NewsWikiRu [parseContent] content[position]: " << clearContent[position] << endl;
+   end=clearContent.find("]", position);
+   cout << "NewsWikiRu [parseContent] end: " << end << endl;
+   cout << "NewsWikiRu [parseContent] content[end-1]: " << clearContent[end-1] << endl;
+   cout << "NewsWikiRu [parseContent] content[end]: " << clearContent[end] << endl;
+   for(size_t i=(position+11);i<end;i++) tmpArray+=clearContent[i];
+   categories.push_back(tmpArray);
+   cout<< "NewsWikiRu [parseContent] tmpArray: " << tmpArray << endl;
+   clearContent[end]=' '; clearContent[end+1]=' ';
+   tmpArray="";
+   position = clearContent.find("[[Category:");
+   clearContent.erase(position, end);
+  }
+  cout << "NewsWikiRu [parseContent] categories[0]: " << categories[0] << endl;
+  cout << "NewsWikiRu [parseContent] categories[1]: " << categories[1] << endl;
+  cout << "check4-2" << endl;
 
   position = clearContent.find("{{Служебная информация");
   cout << "NewsWikiRu [parseContent] position: " << position << endl;
@@ -321,8 +407,8 @@ class NewsWikiRu {
   content+="\n{{-}}\n\n";
   content+="{{Служебная информация}}\n";
   content+="\n{{-}}\n\n";
-  unsigned u=0;
-  categories.erase(categories.begin());
+  unsigned u=0; 
+  std::sort (categories.begin(), categories.end());
   for(string c : categories) {
   if(u == 0) content+="{{Категории";
   content+="|"+c;
