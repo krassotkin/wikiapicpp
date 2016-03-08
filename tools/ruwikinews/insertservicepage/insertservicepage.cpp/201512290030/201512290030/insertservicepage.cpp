@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
   return -1;
  }
 
+ /*
  LoginInfo loginInfo(argv[1], argv[2], argv[3]);
  Tokens tokens;
 
@@ -72,6 +73,7 @@ int main(int argc, char *argv[]) {
  }
 
  Revisions revisions;
+ cout << "[insertservicepage.cpp] main argv[4]: " << argv[4] << endl;
  revisions.titles = argv[4];
  revisions.prop="content";
  
@@ -85,12 +87,12 @@ endl;
   cout << "Content not found." << endl;
   return true;
  }
+ */
  //string pageContent = revisions.pages[0].revisions[0].content;
 
- Edit edit;
  NewsWikiRu newiru;
- newiru.init(&loginInfo, &tokens, &revisions); 
- newiru.writeCanonical(argv[1], argv[2], argv[3]);
+ newiru.init(argv[1], argv[2], argv[3], argv[4]); 
+ newiru.writeCanonical();
  /*
  cout << "[insertservicepage] pageContent: \n" << pageContent << endl;
 

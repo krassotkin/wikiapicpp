@@ -379,6 +379,20 @@ bool expectsEcho(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsEscape(const vector<string>& commandVector) {
+ if(commandVector.size()<1 || commandVector[0].compare("escape") != 0) return false;
+ if(commandVector.size()<2) {
+  cout << "Very few arguments for content..." << endl;
+  cout << "Escape format:" << endl;
+  cout << "\tescape \"a text\""<< endl;
+  cout << "Example:" << endl;
+  cout << "\tescape \"a text\""<< endl;
+  return true;
+ }
+ cout << mwaapi.escape(commandVector[1]) << endl;
+ return true;
+}
+
 bool expectsHelp(const vector<string>& commandVector) {
  if(commandVector[0].compare("--help") == 0
     || commandVector[0].compare("-h") == 0
@@ -883,6 +897,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsCreateAccount(commandVector)) return true;
  if(expectsDownload(commandVector)) return true;
  if(expectsEcho(commandVector)) return true;
+ if(expectsEscape(commandVector)) return true;
  if(expectsHelp(commandVector)) return true;
  if(expectsHistory(commandVector)) return true;
  if(expectsLogin(commandVector))return true;
@@ -944,6 +959,9 @@ void showHelp() {
  cout << "                  Format: download \"Name or id of a page\" \"Path to file\"" << endl;
  cout << "                  Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
  cout << "  echo            Show parsed command line with options." << endl;
+ cout << "  escape          Escape a text" << endl;
+ cout << "                  Format: escape \"a text\"" << endl;
+ cout << "                  Example: escape \"a text\"" << endl;
  cout << "  help            Show this help." << endl;
  cout << "                  Aliases: --help, -h, h, help." << endl;
  cout << "  history         Show standard history of page. Use after \"login\"." << endl;
