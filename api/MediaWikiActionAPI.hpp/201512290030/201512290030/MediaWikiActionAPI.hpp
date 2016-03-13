@@ -221,7 +221,7 @@ https://www.mediawiki.org/wiki/API:Edit
    string fullUrl = loginInfo->site+endpointPart+"?"
                     +"action=edit"
                     +formatPart;
-   cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
    string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))
                        + (edit->section == -1 ? "" : "&section="+to_string(edit->section))
                        + (edit->sectiontitle.length() == 0 ? "" : "&sectiontitle="+escape(edit->sectiontitle))
@@ -248,9 +248,9 @@ https://www.mediawiki.org/wiki/API:Edit
                        + (edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword))
                        + (edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid))
                        + ("&token="+escape(tokens->csrftoken));
-    cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
+    //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-    cout << "\t\tmwaapi::edit res: " << res << endl;
+    //cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }
 
@@ -400,9 +400,9 @@ https://www.mediawiki.org/wiki/API:Revisions
                     + (revisions->tag.length()==0 ? "" : "&rvtag=" + revisions->tag)
                     + (revisions->continue_req.length()==0 ? "" : "&rvcontinue=" + revisions->continue_req)
                     + formatPart;
-   cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl);
-   cout << "\t\tmwaapi::revisions res: " << res << endl;
+   //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
   
