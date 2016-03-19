@@ -54,7 +54,7 @@ string showUsage() {
 }
 
 string showVersions() {
- return ((string)"Versions of welcome and components:\n" 
+ return ((string)"Versions of welcome and components (major.minor):\n" 
          + "\twelcome            " + versionMajor + "." + versionMinor + "\n"
          + "\tLoginInfo          " + LoginInfo::versionMajor + "." + LoginInfo::versionMinor + "\n"
          + "\tMediaWikiActionAPI " + MediaWikiActionAPI::versionMajor + "." + MediaWikiActionAPI::versionMinor + "\n"
