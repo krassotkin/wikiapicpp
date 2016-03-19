@@ -25,22 +25,36 @@ using namespace std;
 #include "ProjectsNewsFeeds.hpp"
 #include "Tokens.hpp"
 
+const string versionMajor = "201512290030";
+const string versionMinor = "201512290030";
+
 const string siteName = "https://ru.wikinews.org/";
 
-string description() {
+string showDescription() {
  return "projectsNewsFeeds is a console tool for update projects wikinews feeds.";
 }
 
-string usage() {
+string showUsage() {
  return ((string)"Usage:\n"
-         + "\tShow this help:\n"
-         + "\t\t./welcome --help\n"
+         + "\tShow full help:\n"
+         + "\t\t./projectsNewsFeeds --help\n"
+         + "\tShow versions:\n"
+         + "\t\t./projectsNewsFeeds --versions\n"
          + "\tProcess a tasks page:\n"
          + "\t\t./projectsNewsFeeds <botusername> <botuserpassword> <tasksPageName>\n"
          + "\tExample:\n"
          + "\t\t./projectsNewsFeeds abot apass User:Wikiapicpp/Settings/ProjectsNewsFeeds\n"
          + "\tTasks page example:\n"
          + "\t\tUser:Wikiapicpp/Settings/ProjectsNewsFeeds (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/ProjectsNewsFeeds)");
+}
+
+string showVersions() {
+ return ((string)"Versions of projectsNewsFeeds and components:\n" 
+         + "\tprojectsNewsFeeds  " + versionMajor + "." + versionMinor + "\n"
+         + "\tLoginInfo          " + LoginInfo::versionMajor + "." + LoginInfo::versionMinor + "\n"
+         + "\tMediaWikiActionAPI " + MediaWikiActionAPI::versionMajor + "." + MediaWikiActionAPI::versionMinor + "\n"
+         + "\tProjectsNewsFeeds  " + ProjectsNewsFeeds::versionMajor + "." + ProjectsNewsFeeds::versionMinor + "\n"
+         + "\tTokens             " + Tokens::versionMajor + "." + Tokens::versionMinor);
 }
 
 int main(int argc, char *argv[]) {
@@ -51,14 +65,22 @@ int main(int argc, char *argv[]) {
      || firstArg.compare("-help") == 0
      || firstArg.compare("help") == 0
      || firstArg.compare("h") == 0) {
-   cout << description() << endl << endl;
-   cout << usage() << endl;
+   cout << showDescription() << endl << endl;
+   cout << showVersions() << endl << endl;
+   cout << showUsage() << endl;
+   return 0;
+  } else if(firstArg.compare("--version") == 0
+            || firstArg.compare("--versions") == 0
+            || firstArg.compare("-v") == 0
+            || firstArg.compare("version") == 0
+            || firstArg.compare("versions") == 0) {
+   cout << showVersions() << endl;
    return 0;
   }
  }
  if(argc < 4) {
   cout << "Very few arguments..." << endl;
-  cout << usage() << endl;
+  cout << showUsage() << endl;
   cout << "Nothing to do. Stopped." << endl;
   return -1;
  }

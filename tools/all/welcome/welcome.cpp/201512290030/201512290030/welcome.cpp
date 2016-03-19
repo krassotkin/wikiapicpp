@@ -30,22 +30,36 @@ using namespace std;
 #include "Tokens.hpp"
 #include "Welcome.hpp"
 
+const string versionMajor = "201512290030";
+const string versionMinor = "201512290030";
+
 const int countOfLastChanges = 100;
 
-string description() {
+string showDescription() {
  return "welcome is a console tool of the wikiapicpp project used to welcome new users.";
 }
 
-string usage() {
+string showUsage() {
  return ((string)"Usage:\n"
-         + "\tShow this help:\n"
+         + "\tShow full help:\n"
          + "\t\t./welcome --help\n"
+         + "\tShow versions:\n"
+         + "\t\t./welcome --versions\n"
          + "\tWelcome a user:\n"
          + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page> <username without \"User:\" prefix>\n"
          + "\tWelcome the last users from projects:\n"
          + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page>\n"
          + "\tTasks page example:\n"
          + "\t\tUser:Wikiapicpp/Settings/Welcome (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/Welcome)");
+}
+
+string showVersions() {
+ return ((string)"Versions of welcome and components:\n" 
+         + "\twelcome            " + versionMajor + "." + versionMinor + "\n"
+         + "\tLoginInfo          " + LoginInfo::versionMajor + "." + LoginInfo::versionMinor + "\n"
+         + "\tMediaWikiActionAPI " + MediaWikiActionAPI::versionMajor + "." + MediaWikiActionAPI::versionMinor + "\n"
+         + "\tTokens             " + Tokens::versionMajor + "." + Tokens::versionMinor + "\n"
+         + "\tWelcome            " + Welcome::versionMajor + "." + Welcome::versionMinor);
 }
 
 int main(int argc, char *argv[]) {
@@ -56,14 +70,21 @@ int main(int argc, char *argv[]) {
      || firstArg.compare("-help") == 0
      || firstArg.compare("help") == 0
      || firstArg.compare("h") == 0) {
-   cout << description() << endl << endl;
-   cout << usage() << endl;
+   cout << showDescription() << endl << endl;
+   cout << showVersions() << endl << endl;
+   cout << showUsage() << endl;
+   return 0;
+  } else if(firstArg.compare("--version") == 0
+            || firstArg.compare("--versions") == 0
+            || firstArg.compare("-v") == 0
+            || firstArg.compare("version") == 0
+            || firstArg.compare("versions") == 0) {
+   cout << showVersions() << endl;
    return 0;
   }
- }
- if(argc < 5) {
+ } else if(argc < 5) {
   cout << "Very few arguments..." << endl;
-  cout << usage() << endl;
+  cout << showUsage() << endl;
   cout << "Nothing to do. Stopped." << endl;
   return -1;
  }
@@ -91,7 +112,7 @@ int main(int argc, char *argv[]) {
   }
  } else {
   cout << "The task is not defined...." << endl;
-  cout << usage() << endl;
+  cout << showUsage() << endl;
   cout << "Nothing to do. Stopped." << endl;
   return -5;
  }
