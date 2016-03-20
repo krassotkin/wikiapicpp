@@ -248,9 +248,9 @@ https://www.mediawiki.org/wiki/API:Edit
                        + (edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword))
                        + (edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid))
                        + ("&token="+escape(tokens->csrftoken));
-    //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
+   //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
-    //cout << "\t\tmwaapi::edit res: " << res << endl;
+   //cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }
 

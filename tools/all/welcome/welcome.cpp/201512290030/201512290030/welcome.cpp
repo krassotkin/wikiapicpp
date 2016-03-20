@@ -33,8 +33,6 @@ using namespace std;
 const string versionMajor = "201512290030";
 const string versionMinor = "201512290030";
 
-const int countOfLastChanges = 100;
-
 string showDescription() {
  return "welcome is a console tool of the wikiapicpp project used to welcome new users.";
 }
@@ -48,6 +46,8 @@ string showUsage() {
          + "\tWelcome a user:\n"
          + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page> <username without \"User:\" prefix>\n"
          + "\tWelcome the last users from projects:\n"
+         + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page> <count of last revisions>\n"
+         + "\tWelcome last users as daemon:\n"
          + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page>\n"
          + "\tTasks page example:\n"
          + "\t\tUser:Wikiapicpp/Settings/Welcome (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/Welcome)");
@@ -63,6 +63,7 @@ string showVersions() {
 }
 
 int main(int argc, char *argv[]) {
+ cout << "[Welcome::welcome] argc:" << argc << endl;
  if(argc == 2) {
   string firstArg = argv[1];
   if(firstArg.compare("--help") == 0
@@ -91,30 +92,21 @@ int main(int argc, char *argv[]) {
 
  MediaWikiActionAPI mwaapi;
  LoginInfo loginInfo(argv[1], argv[2], argv[3]);
- //cout << "[welcome.cpp] loginInfo.lgname = " << loginInfo.lgname << endl;
  Tokens tokens;
 
  Welcome welcome(&mwaapi, &loginInfo, &tokens, argv[4]);
- welcome.init();
- cout << "[welcome.cpp] argc = " << argc << endl;
+
  if(argc == 5) {
-  welcome.welcomeLastUsers(countOfLastChanges);
-  if(!welcome.status) {
-   cout << "Something went wrong..." << endl;
-   cout << "Nothing to do. Stopped." << endl;
-   return -3;
-  }
- } else if(argc == 6) {
-  if(!welcome.welcomeUser(argv[5])) {
-   cout << "Something went wrong..." << endl;
-   cout << "Nothing to do. Stopped." << endl;
-   return -4;
-  }
+  welcome.runAsDaemon();
  } else {
-  cout << "The task is not defined...." << endl;
-  cout << showUsage() << endl;
-  cout << "Nothing to do. Stopped." << endl;
-  return -5;
+  string argv5(argv[5]);
+  cout << "[Welcome::welcome] argv5:" << argv5 << endl;
+  try {
+   int cnt = stoi(argv5);
+   welcome.welcomeLastUsers(cnt);
+  } catch(...) {
+   welcome.welcomeUser(argv5);
+  }
  }
 
  cout << "All tasks are successfully completed." << endl;
