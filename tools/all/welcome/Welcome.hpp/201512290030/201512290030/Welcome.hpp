@@ -121,14 +121,14 @@ class Welcome {
      usersVector.push_back(make_tuple(uio["username"].string_value(),uio["signature"].string_value()));
     }
     task.users = usersVector;
-    cout << "[Welcome::parseTasks] task ready"<< endl;
+    //cout << "[Welcome::parseTasks] task ready"<< endl;
     tasksVector.push_back(task);
-    cout << "[Welcome::parseTasks] vector added"<< endl;
+    //cout << "[Welcome::parseTasks] vector added"<< endl;
     //siteTaskMap[task.loginInfo.site] = &task;
     siteTaskMap[task.loginInfo.site] = &tasksVector[tasksVector.size()-1];
-    cout << "[Welcome::parseTasks] map added"<< endl;
+    //cout << "[Welcome::parseTasks] map added"<< endl;
    }
-   cout << "[Welcome::parseTasks] tasksToJson:" << endl << tasksToJson() << endl;
+   //cout << "[Welcome::parseTasks] tasksToJson:" << endl << tasksToJson() << endl;
   }
 
   void processTask(WelcomeTask* task, const int& countOfLastChanges) {
@@ -199,8 +199,8 @@ class Welcome {
    if(task->processedRevisions.find(revision->revid) != task->processedRevisions.end()) return;
    task->processedRevisions[revision->revid] = true;
    if(revision->anon == 1) return;
-   cout << "[Welcome::welcomeRevision] revision.toJson(): " << revision->toJson() << endl;
-   cout << "[Welcome::welcomeRevision] revision.user: " << revision->user << endl;
+   //cout << "[Welcome::welcomeRevision] revision.toJson(): " << revision->toJson() << endl;
+   cout << "[Welcome::welcomeRevision] revision.revid: " << revision->revid << "; revision.user: " << revision->user << endl;
    welcomeUserRaw(task, revision->user);
   }
 
