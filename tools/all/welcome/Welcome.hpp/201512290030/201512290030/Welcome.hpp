@@ -31,7 +31,10 @@ using namespace std;
 #include "Tokens.hpp"
 
 struct WelcomeTask {
+ //int n=0;
  LoginInfo loginInfo;
+ map<long int, bool> processedRevisions;
+ map<string, bool> processedUsers;
  string project;
  string summary;
  string temp; // welcome template
@@ -55,14 +58,12 @@ class Welcome {
   string errJson;
   MediaWikiActionAPI* mwaapi;
   LoginInfo* loginInfo;
-  map<long int, bool> processedRevisions;
   map<string,WelcomeTask*> siteTaskMap;
   vector<WelcomeTask> tasksVector;
   string tasksPage;
   string tasksPageName; // For example: User:Wikiapicpp/Settings/Welcome
   chrono::milliseconds timeout_ms = chrono::milliseconds(1000);
   Tokens* tokens;
-  map<string, bool> processedUsers;
 
   Welcome() {}
 
@@ -120,10 +121,14 @@ class Welcome {
      usersVector.push_back(make_tuple(uio["username"].string_value(),uio["signature"].string_value()));
     }
     task.users = usersVector;
+    cout << "[Welcome::parseTasks] task ready"<< endl;
     tasksVector.push_back(task);
-    siteTaskMap[task.loginInfo.site] = &task;
+    cout << "[Welcome::parseTasks] vector added"<< endl;
+    //siteTaskMap[task.loginInfo.site] = &task;
+    siteTaskMap[task.loginInfo.site] = &tasksVector[tasksVector.size()-1];
+    cout << "[Welcome::parseTasks] map added"<< endl;
    }
-   //cout << "[Welcome::parseTasks] tasksToJson:" << endl << tasksToJson() << endl;
+   cout << "[Welcome::parseTasks] tasksToJson:" << endl << tasksToJson() << endl;
   }
 
   void processTask(WelcomeTask* task, const int& countOfLastChanges) {
@@ -136,16 +141,9 @@ class Welcome {
     cout << "[Welcome::processTask] Revisions not found." << endl;
     return;
    }
-   for(Revision ir : revisions.revisions) {
+   for(Revision ir : revisions.revisions) {    
     //cout << "[Welcome::processTask] (before) ir.toJson(): " << ir.toJson() << endl;
-    if(processedRevisions.find(ir.revid) != processedRevisions.end()) continue;
-    processedRevisions[ir.revid] = true;
-    if(ir.anon == 1) continue;
-    if(processedUsers.find(ir.user) != processedUsers.end()) continue;
-    processedUsers[ir.user] = true;
-    cout << "[Welcome::processTask] (after) ir.toJson(): " << ir.toJson() << endl;
-    cout << "[Welcome::processTask] To welcomeUserRaw ir.user: " << ir.user << endl;
-    welcomeUserRaw(task, ir.user);
+    welcomeRevision(task, &ir);
    }
   }
 
@@ -182,11 +180,28 @@ class Welcome {
   }
 
   void welcomeLastUsers(const int& countOfLastChanges) {
-   for(WelcomeTask task : tasksVector) processTask(&task, countOfLastChanges);
+   //for(WelcomeTask task : tasksVector) processTask(&task, countOfLastChanges);
+   for(unsigned it=0; it<tasksVector.size(); it++) processTask(&tasksVector[it], countOfLastChanges);
   }
 
   void welcomeRevision(LoginInfo* loginInfo, Revision* revision) {
-   welcomeUserRaw(siteTaskMap[loginInfo->site], revision->user);
+   welcomeRevision(siteTaskMap[loginInfo->site], revision);
+  }
+
+  void welcomeRevision(WelcomeTask* task, Revision* revision) {
+   /*
+   cout << "[Welcome::welcomeRevision] task->n++: " << task->n++ << endl;
+   cout << "[Welcome::welcomeRevision] revision->revid: " << revision->revid << endl;
+   cout << "[Welcome::welcomeRevision] (task->processedRevisions.find(revision->revid) != task->processedRevisions.end()) : " 
+        << (task->processedRevisions.find(revision->revid) != task->processedRevisions.end())  
+        << endl;
+   */
+   if(task->processedRevisions.find(revision->revid) != task->processedRevisions.end()) return;
+   task->processedRevisions[revision->revid] = true;
+   if(revision->anon == 1) return;
+   cout << "[Welcome::welcomeRevision] revision.toJson(): " << revision->toJson() << endl;
+   cout << "[Welcome::welcomeRevision] revision.user: " << revision->user << endl;
+   welcomeUserRaw(task, revision->user);
   }
 
   void welcomeUser(const string& userName) {
@@ -196,6 +211,8 @@ class Welcome {
   }
 
   void welcomeUserRaw(WelcomeTask* task, const string& userName) {
+   if(task->processedUsers.find(userName) != task->processedUsers.end()) return;
+   task->processedUsers[userName] = true;
    Revisions revisions;
    revisions.titles = "User talk: "+userName;
    cout << "[Welcome::welcomeUserRaw] revisions.title: " << revisions.titles << endl;
@@ -241,4 +258,4 @@ const string Welcome::versionMajor = "201512290030";
 const string Welcome::versionMinor = "201512290030";
 
 #endif // #ifndef WELCOME_HPP
- 
+
