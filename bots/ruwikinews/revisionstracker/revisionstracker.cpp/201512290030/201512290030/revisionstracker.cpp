@@ -1,11 +1,11 @@
 /*
- welcome is a console tool of the wikiapicpp project used to welcome new users.
+ revisiontracker is a console script for run tracking of all new wikinews revisions with RevisionTracker.hpp.
 
  Compiling:
  make
 
  For usage see:
- ./welcome --help
+ ./revisiontracker --help
 
  Tasks page example: 
  https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/Welcome
@@ -23,42 +23,40 @@ using namespace std;
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
 #include "Tokens.hpp"
-#include "Welcome.hpp"
+#include "RevisionsTracker.hpp"
 
 const string versionMajor = "201512290030";
 const string versionMinor = "201512290030";
 
 string showDescription() {
- return "welcome is a console tool of the wikiapicpp project used to welcome new users.";
+ return "revisiontracker is a console script for run tracking of all new wikinews revisions and processing of certain events.";
 }
 
 string showUsage() {
  return ((string)"Usage:\n"
          + "\tShow full help:\n"
-         + "\t\t./welcome --help\n"
+         + "\t\t./revisiontracker --help\n"
          + "\tShow versions:\n"
-         + "\t\t./welcome --versions\n"
-         + "\tWelcome a user:\n"
-         + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page> <username without \"User:\" prefix>\n"
-         + "\tWelcome the last users from projects:\n"
-         + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page> <count of last revisions>\n"
-         + "\tWelcome last users as daemon:\n"
-         + "\t\t./welcome <site> <botusername> <botuserpassword> <Name of tasks page>\n"
+         + "\t\t./revisiontracker --versions\n"
+         + "\tRun for the last revisions:\n"
+         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of tasks page> <count of last revisions>\n"
+         + "\tRun as daemon:\n"
+         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of tasks page>\n"
          + "\tTasks page example:\n"
          + "\t\tUser:Wikiapicpp/Settings/Welcome (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/Welcome)");
 }
 
 string showVersions() {
  return ((string)"Versions of welcome and components (major.minor):\n" 
-         + "\twelcome            " + versionMajor + "." + versionMinor + "\n"
+         + "\trevisiontracker            " + versionMajor + "." + versionMinor + "\n"
          + "\tLoginInfo          " + LoginInfo::versionMajor + "." + LoginInfo::versionMinor + "\n"
          + "\tMediaWikiActionAPI " + MediaWikiActionAPI::versionMajor + "." + MediaWikiActionAPI::versionMinor + "\n"
          + "\tTokens             " + Tokens::versionMajor + "." + Tokens::versionMinor + "\n"
-         + "\tWelcome            " + Welcome::versionMajor + "." + Welcome::versionMinor);
+         + "\tRevisionsTracker   " + RevisionsTracker::versionMajor + "." + RevisionsTracker::versionMinor);
 }
 
 int main(int argc, char *argv[]) {
- //cout << "[welcome] argc:" << argc << endl;
+ cout << "[revisionstracker] argc:" << argc << endl;
  if(argc == 2) {
   string firstArg = argv[1];
   if(firstArg.compare("--help") == 0
@@ -89,18 +87,18 @@ int main(int argc, char *argv[]) {
  LoginInfo loginInfo(argv[1], argv[2], argv[3]);
  Tokens tokens;
 
- Welcome welcome(&mwaapi, &loginInfo, &tokens, argv[4]);
+ RevisionsTracker revisionsTracker(&mwaapi, &loginInfo, &tokens, argv[4]);
 
  if(argc == 5) {
-  welcome.runAsDaemon();
+  revisionsTracker.runAsDaemon();
  } else {
   string argv5(argv[5]);
-  //cout << "[Welcome::welcome] argv5:" << argv5 << endl;
+  cout << "[revisionstracker] argv5:" << argv5 << endl;
   try {
    int cnt = stoi(argv5);
-   welcome.welcomeLastUsers(cnt);
+   revisionsTracker.processLastRevisions(cnt);
   } catch(...) {
-   welcome.welcomeUser(argv5);
+    cout << "Five argument must be number." << endl;
   }
  }
 
