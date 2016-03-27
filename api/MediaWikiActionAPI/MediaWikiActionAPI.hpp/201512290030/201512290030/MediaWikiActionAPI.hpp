@@ -56,6 +56,10 @@ class MediaWikiActionAPI {
   
   const string endpointPart = "w/api.php";
   const string formatPart = "&format=json";
+
+  string lastFullUrl;
+  string lastPostFields;
+  string lastResponse;
   
   MediaWikiActionAPI() {}
   
@@ -114,8 +118,11 @@ https://www.mediawiki.org/wiki/API:Allrevisions
                     + (revisions->tag.length()==0 ? "" : "&arvtag=" + revisions->tag)
                     + (revisions->continue_req.length()==0 ? "" : "&arvcontinue=" + revisions->continue_req)
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
@@ -135,6 +142,7 @@ List all categories the pages belong to.
                     + "action=query"
                     + "&prop=categories"
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
    string postFields = (categories->titles.length() == 0 ? "" : "titles=" + categories->titles)
                        + (categories->pageids.length() == 0 ? "" : "pageids=" + categories->pageids)
@@ -145,7 +153,9 @@ List all categories the pages belong to.
                        + (categories->clcategories.length() == 0 ? "" : "&clcategories=" + categories->clcategories)
                        + (categories->cldir.length() == 0 ? "" : "&cldir=" + categories->cldir);
    //cout << "\t\tmwaapi::categories postFields: " << postFields << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
    //cout << "\t\tmwaapi::categories res:" << res << endl;
    categories->fromJsonString(res);
   } 
@@ -162,6 +172,7 @@ https://www.mediawiki.org/wiki/API:Account_creation
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=createaccount"
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::createaccount fullUrl: " << fullUrl << endl;
    string postFields = "name=" + createAccount->name
                        + "&password=" + createAccount->password
@@ -176,8 +187,10 @@ https://www.mediawiki.org/wiki/API:Account_creation
                        + (createAccount->captchaword.length() == 0 ? "" : "&captchaword=" + createAccount->captchaword)
                        + (createAccount->captchaid.length() == 0 ? "" : "&captchaid=" + createAccount->captchaid)
                        + (createAccount->language.length() == 0 ? "" : "&language=" + createAccount->language);
+   lastPostFields = postFields;
    //cout << "\t\tmwaapi::createaccount postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
    //cout << "\t\tmwaapi::createaccount res:" << res << endl;
    createAccount->fromJsonString(res);
   }
@@ -202,8 +215,11 @@ https://www.mediawiki.org/wiki/API:Categorymembers
                     + (categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : "")
                     + (categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : "")
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::categoryMembers fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "\t\tmwaapi::categoryMembers res:" << res << endl;
    categoryMembers->fromJsonString(res);
   }
@@ -221,6 +237,7 @@ https://www.mediawiki.org/wiki/API:Edit
    string fullUrl = loginInfo->site+endpointPart+"?"
                     +"action=edit"
                     +formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
    string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))
                        + (edit->section == -1 ? "" : "&section="+to_string(edit->section))
@@ -248,8 +265,10 @@ https://www.mediawiki.org/wiki/API:Edit
                        + (edit->captchaword.length() == 0 ? "" : "&captchaword="+escape(edit->captchaword))
                        + (edit->captchaid.length() == 0 ? "" : "&captchaid="+escape(edit->captchaid))
                        + ("&token="+escape(tokens->csrftoken));
+   lastPostFields = postFields;
    //cout << "\t\tmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
    //cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }
@@ -265,8 +284,11 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
                     + "&meta=tokens"
                     + "&type="+tokens->type
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "\t\tmwaapi::getTokens res: " << res << endl;
    tokens->fromJsonString(res);
   }
@@ -289,8 +311,11 @@ https://www.mediawiki.org/wiki/API:Login
                     + "&lgpassword="+loginInfo->lgpassword
                     + "&lgtoken="+escape(tokens->logintoken)
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "[mwaapi::login] fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "[mwaapi::login] res: " << res << endl;
    loginInfo->fromJsonString(res);
   }
@@ -319,8 +344,11 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
                     + (logEvents->lelimit == -1 ? "" : "&lelimit=" + to_string(logEvents->lelimit))
                     + (logEvents->lecontinue.length() == 0 ? "" : "&lecontinue=" + logEvents->lecontinue)
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::logevent fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
     //cout << "\t\tmwaapi::logevent res:" << res << endl;
    logEvents->fromJsonString(res);
   }
@@ -334,8 +362,11 @@ https://www.mediawiki.org/wiki/API:Logout
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=logout"
                     + formatPart;
+   lastFullUrl = fullUrl;
    cout << "\t\tmwaapi::logout fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    cout << "\t\tmwaapi::logout res: " << res << endl;
    loginInfo->clear();
   }
@@ -358,8 +389,11 @@ https://www.mediawiki.org/wiki/API:Purge
                     + (purge->revids == -1 ? "" : "&revids=" + to_string(purge->revids))
                     + (purge->generator.length() > 0 ? "&generator=" + escape(purge->generator) : "")  
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::purge fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "\t\tmwaapi::purge res:" << res << endl;
    purge->fromJsonString(res);
   }
@@ -400,8 +434,11 @@ https://www.mediawiki.org/wiki/API:Revisions
                     + (revisions->tag.length()==0 ? "" : "&rvtag=" + revisions->tag)
                     + (revisions->continue_req.length()==0 ? "" : "&rvcontinue=" + revisions->continue_req)
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "\t\tmwaapi::revisions res: " << res << endl;
    revisions->fromJsonString(res);
   } 
@@ -422,6 +459,7 @@ https://www.mediawiki.org/wiki/API:Rollback
    }
    string fullUrl = loginInfo->site+endpointPart+"?"
                     +"action=rollback";
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::rollback fullUrl: " << fullUrl << endl;
    string postFields = (rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid))
                        + (rollback->user.length() > 0 ? "&user="+escape(rollback->user) : "")
@@ -429,8 +467,10 @@ https://www.mediawiki.org/wiki/API:Rollback
                        + (rollback->markbot == -1 ? "" : "&markbot=" + rollback->markbot)
                        + ("&token="+escape(tokens->rollbacktoken))
                        + formatPart;
+   lastPostFields = postFields;
    //cout << "\t\tmwaapi::rollback postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
    //cout << "\t\tmwaapi::rollback res: " << res << endl;
    rollback->fromJsonString(res);
   } 
@@ -450,8 +490,11 @@ https://www.mediawiki.org/wiki/API:Rollback
                     + (search->sroffset == -1 ? "" : "&sroffset=" + to_string(search->sroffset))
                     + (search->srlimit == -1 ? "" : "&srlimit=" + to_string(search->srlimit)) 
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::search fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
    //cout << "\t\tmwaapi::search res:" << res << endl;
    search->fromJsonString(res);
   }
@@ -472,10 +515,13 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
                     + "action=thank"
                     + "&rev="+revidString
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
    string postFields = "token="+escape(tokens->csrftoken);
+   lastPostFields = postFields;
    //cout << "\t\tmwaapi::thank postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
    //cout << "\t\tmwaapi::thank res: " << res << endl;
   }
   
@@ -490,12 +536,15 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=edit"
                     + formatPart;
+   lastFullUrl = fullUrl;
    //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
    string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))
                        + (edit->undo == -1 ? "" : "&undo="+to_string(edit->undo))
                        + ("&token="+escape(tokens->csrftoken));
+   lastPostFields = postFields;
    //cout << "\t\ttmwaapi::edit postFields: " << postFields << endl;
    string res = curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
    //cout << "\t\tmwaapi::edit res: " << res << endl;
    edit->fromJsonString(res);
   }

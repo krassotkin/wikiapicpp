@@ -85,11 +85,11 @@ class Page {
   long int pageid=-1;
   string title;
   vector<Category> categories;
-  map<string, Category> categoriesMap;
+  map<string, Category*> categoriesMap;
   vector<Revision> revisions;
-  map<long int, Revision> revisionsMap;
+  map<long int, Revision*> revisionsMap;
   vector<LogEvent> logEvents;
-  map<long int, LogEvent> logEventsMap;
+  map<long int, LogEvent*> logEventsMap;
 
   Page() {}
   
@@ -119,28 +119,43 @@ class Page {
    fromJson(json);
   }
   
-  void fromJson(const json11::Json& json) {
-   ns = json["ns"].int_value();
-   pageid = json["pageid"].int_value();
-   title = json["title"].string_value();
+  void fromJson(const json11::Json& json) {  
+   //cout << "[[Page::fromJson]]" << endl;  
+   long n_pageid = json["pageid"].int_value();
+   //cout << "[[Page::fromJson]] n_pageid: " << n_pageid << endl; 
+   if(pageid == -1) pageid = n_pageid;
+   else if(pageid!=n_pageid) return; // serious error in logic
+
+   int n_ns = json["ns"].int_value();
+   //cout << "[[Page::fromJson]] n_ns: " << n_ns << endl;
+   if(ns==-1) ns = n_ns;
+   else if(ns!=n_ns) return; // serious error in logic
+
+   string n_title = json["title"].string_value();
+   //cout << "[[Page::fromJson]] n_title: " << n_title << endl;
+   if(title.length() == 0) title = n_title;
+   else if(title.compare(n_title) != 0) return; // serious error in logic
+
    auto revisionsJson = json["revisions"].array_items();
    for(auto itr : revisionsJson) {
     Revision revision(itr);
+    //cout << "[[Page::fromJson]] revision.revid: " << revision.revid << endl;
+    if(revisionsMap.find(revision.revid) != revisionsMap.end()) continue;
+    //cout << "[[Page::fromJson]] new revision" << endl;
     revision.ns = ns;
     revision.pageid = pageid;
     revision.title = title;
-    if(revisionsMap.find(revision.revid) == revisionsMap.end()) {
-     revisions.push_back(revision);
-     revisionsMap[revision.revid] = revision;
-    }
+    //cout << "[[Page::fromJson]] (revisionsMap.find(revision.revid) == revisionsMap.end()): " << (revisionsMap.find(revision.revid) == revisionsMap.end()) << endl;
+    revisions.push_back(revision);
+    revisionsMap[revision.revid] = &revisions[revisions.size()-1];
    }
+
    auto categoriesJson = json["categories"].array_items();
    for(auto ipr : categoriesJson) {
     Category category(ipr);
-    if(categoriesMap.find(category.title) == categoriesMap.end()) {
-     categories.push_back(category);
-     categoriesMap[category.title] = category;
-    }
+    if(categoriesMap.find(category.title) != categoriesMap.end()) continue;
+    categories.push_back(category);
+    categoriesMap[category.title] = &categories[categories.size()-1];
    }
   }
   

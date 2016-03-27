@@ -53,7 +53,7 @@ class Welcome {
   static const string versionMinor;
 
   const int COUNT_OF_LAST_CHANGES = 10;
-  //const chrono::milliseconds TIMEOUT_MS(1000);
+  chrono::milliseconds TIMEOUT_MS = chrono::milliseconds(1000);
 
   string errJson;
   MediaWikiActionAPI* mwaapi;
@@ -62,7 +62,7 @@ class Welcome {
   vector<WelcomeTask> tasksVector;
   string tasksPage;
   string tasksPageName; // For example: User:Wikiapicpp/Settings/Welcome
-  chrono::milliseconds timeout_ms = chrono::milliseconds(1000);
+  chrono::milliseconds timeout_ms = TIMEOUT_MS;
   Tokens* tokens;
 
   Welcome() {}

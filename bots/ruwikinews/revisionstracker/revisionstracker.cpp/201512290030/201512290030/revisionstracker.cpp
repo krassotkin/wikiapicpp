@@ -8,9 +8,9 @@
  ./revisiontracker --help
 
  Tasks page example: 
- https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/Welcome
+ https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/RevisionsTracker
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin
  since 2015-12-29
 */
 
@@ -39,16 +39,16 @@ string showUsage() {
          + "\tShow versions:\n"
          + "\t\t./revisiontracker --versions\n"
          + "\tRun for the last revisions:\n"
-         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of tasks page> <count of last revisions>\n"
+         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of settings page> <count of last revisions or date from>\n"
          + "\tRun as daemon:\n"
-         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of tasks page>\n"
-         + "\tTasks page example:\n"
-         + "\t\tUser:Wikiapicpp/Settings/Welcome (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/Welcome)");
+         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of settings page>\n"
+         + "Example of settings page:\n"
+         + "\tUser:Wikiapicpp/Settings/RevisionsTracker on RuWikinews (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/RevisionsTracker)");
 }
 
 string showVersions() {
  return ((string)"Versions of welcome and components (major.minor):\n" 
-         + "\trevisiontracker            " + versionMajor + "." + versionMinor + "\n"
+         + "\trevisiontracker    " + versionMajor + "." + versionMinor + "\n"
          + "\tLoginInfo          " + LoginInfo::versionMajor + "." + LoginInfo::versionMinor + "\n"
          + "\tMediaWikiActionAPI " + MediaWikiActionAPI::versionMajor + "." + MediaWikiActionAPI::versionMinor + "\n"
          + "\tTokens             " + Tokens::versionMajor + "." + Tokens::versionMinor + "\n"
@@ -91,14 +91,14 @@ int main(int argc, char *argv[]) {
 
  if(argc == 5) {
   revisionsTracker.runAsDaemon();
- } else {
+ } else if(argc == 6) {
   string argv5(argv[5]);
   cout << "[revisionstracker] argv5:" << argv5 << endl;
   try {
    int cnt = stoi(argv5);
    revisionsTracker.processLastRevisions(cnt);
   } catch(...) {
-    cout << "Five argument must be number." << endl;
+   revisionsTracker.processLastRevisions(argv5);
   }
  }
 

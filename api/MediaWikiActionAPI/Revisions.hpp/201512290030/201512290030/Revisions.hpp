@@ -255,6 +255,8 @@ class Revisions {
                                   parsetree - The XML parse tree of revision content (requires content model wikitext).
                                   flagged - (no description) - has not in list all revisions.
                                */
+  const string PROP_ARV_ALL = "ids|flags|timestamp|user|userid|size|sha1|contentmodel|comment|parsedcomment|content|tags|parsetree";
+  const string PROP_RV_ALL = "ids|flags|timestamp|user|userid|size|sha1|contentmodel|comment|parsedcomment|content|tags|parsetree|flagged";
   long int section = -1;       /* Only retrieve the content of this section number. */
   string start;                /* From which revision timestamp to start enumeration.Type: string of timestamp (allowed formats). List all revisions alias: arvcontentformat. */
   long int startid = -1;       /* From which revision ID to start enumeration. List all revisions haven't alias. */
@@ -274,9 +276,11 @@ class Revisions {
 
 
   // Interfaces
-  map<long int, Page> pagesById;
+  map<long int, Page*> pagesById;
+  //map<long int, Page> pagesById;
   map<string, string> pagesNormalizedTitles;
-  map<string, Page> pagesByTitle;
+  map<string, Page*> pagesByTitle;
+  //map<string, Page> pagesByTitle;
   vector<Revision> revisions;
 
   Revisions() {}
@@ -339,6 +343,8 @@ class Revisions {
   
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
+   continue_res.clear();
+   continue_2_res.clear();
    if(json.object_items().find("continue") != json.object_items().end()) {
     auto continueJson = json["continue"].object_items();
     if(continueJson.find("rvcontinue") != continueJson.end()) continue_res = continueJson["rvcontinue"].string_value();
@@ -356,38 +362,67 @@ class Revisions {
      pagesNormalizedTitles[from] = to;
     }
    }
+
    map<string, json11::Json> pagesJsonObjects = queryJson["pages"].object_items();
-   vector<json11::Json> pagesJsonArray = queryJson["allrevisions"].array_items();
-   //if(queryJson.find("pages") != queryJson.end()) pagesJson = queryJson["pages"].object_items();
-   //else if(queryJson.find("allrevisions") != queryJson.end()) pagesJson = queryJson["allrevisions"].array_items();
-   //cout << "[[Revisions::fromJson]] pagesJsonObjects.size(): " << pagesJsonObjects.size() << endl;
-   //cout << "[[Revisions::fromJson]] pagesJsonArray.size(): " << pagesJsonArray.size() << endl;
+   //cout << "[[Revisions::fromJson]] pagesJsonObjects.size(): " << pagesJsonObjects.size() << endl
    for(auto ipro : pagesJsonObjects) {
     if(pagesById.find(stol(ipro.first)) == pagesById.end()) {
-     Page pageRevisions(ipro.second);
-     pages.push_back(pageRevisions);
-     pagesById[pageRevisions.pageid] = pageRevisions;
-     pagesByTitle[pageRevisions.title] = pageRevisions;
+     Page page(ipro.second);
+     pages.push_back(page);
+     //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
+     Page* pagePointer = &pages[pages.size()-1];
+     //cout << "[[Revisions::fromJson]] page.pageid: " << page.pageid << endl;
+     pagesById[page.pageid] = pagePointer;
+     //cout << "[[Revisions::fromJson]] page.title: " << page.title << endl;
+     pagesByTitle[page.title] = pagePointer;
+     /*
+     pagesById[page.pageid] = page;
+     pagesByTitle[page.title] = page;
+     */
     } else {
-     pagesById[stol(ipro.first)].fromJson(ipro.second);
+     //cout << "[[Revisions::fromJson]] stol(ipro.first): " << stol(ipro.first) << endl;
+     //cout << "[[Revisions::fromJson]] pagesById[stol(ipro.first)]: " << pagesById[stol(ipro.first)] << endl;
+     pagesById[stol(ipro.first)]->fromJson(ipro.second);
+     //pagesById[stol(ipro.first)].fromJson(ipro.second);
     }
    }
+
+   vector<json11::Json> pagesJsonArray = queryJson["allrevisions"].array_items();;
+   //cout << "[[Revisions::fromJson]] pagesJsonArray.size(): " << pagesJsonArray.size() << endl;
    for(auto ipra : pagesJsonArray) {
-    Page pageRevisions(ipra);
-    if(pagesById.find(pageRevisions.pageid) == pagesById.end()) {
-     pages.push_back(pageRevisions);
-     pagesById[pageRevisions.pageid] = pageRevisions;
-     pagesByTitle[pageRevisions.title] = pageRevisions;
+    Page page(ipra);
+    //cout << "[[Revisions::fromJson]] page.pageid: " << page.pageid << endl;
+    if(pagesById.find(page.pageid) == pagesById.end()) {
+     pages.push_back(page);
+     //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
+     Page* pagePointer = &pages[pages.size()-1];
+     //cout << "[[Revisions::fromJson]] pagePointer: " << pagePointer << endl;
+     //cout << "[[Revisions::fromJson]] page.pageid (new): " << page.pageid << endl;
+     pagesById[page.pageid] = pagePointer;
+     //cout << "[[Revisions::fromJson]] page.title: " << page.title << endl;
+     pagesByTitle[page.title] = pagePointer;
+     /*
+     pagesById[page.pageid] = page;
+     pagesByTitle[page.title] = page;
+     */
     } else {
-     pagesById[pageRevisions.pageid].fromJson(ipra);
+     //cout << "[[Revisions::fromJson]] page.pageid (old): " << page.pageid << endl;
+     Page* pagePointer = pagesById[page.pageid];
+     //cout << "[[Revisions::fromJson]] pagesById[page.pageid]: pagePointer" << pagePointer << endl;
+     pagePointer->fromJson(ipra);
+     //pagesById[page.pageid]->fromJson(ipra);
+     //pagesById[pageRevisions.pageid].fromJson(ipra);
     }
    }
+
    //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
+   revisions.clear();
    for(Page prs : pages) {
     for(Revision r : prs.revisions) {
      revisions.push_back(r);
     }
    }
+
    //cout << "[[Revisions::fromJson]] revisions.size(): " << revisions.size() << endl;
    if(dir.compare("older") == 0) sort(revisions.begin( ), revisions.end( ), [] (const Revision& lhs, const Revision& rhs) {return lhs.revid < rhs.revid;});
    else sort(revisions.begin( ), revisions.end( ), [] (const Revision& lhs, const Revision& rhs) {return lhs.revid > rhs.revid;});   

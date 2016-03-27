@@ -2,6 +2,10 @@
 #define REVISIONSTRACKER_HPP
 /*
  RevisionsTracker.hpp is a class for tracking all wikinews revisions and processing of certain events.
+
+ Tasks page example: 
+ https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/RevisionsTracker
+
  Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin
  since 2015-12-29
 */
@@ -36,35 +40,110 @@ class RevisionsTracker {
   static const string versionMinor;
 
   const int COUNT_OF_LAST_CHANGES = 10;
+  const string SWITCH_ON_STATUS = "on";
+  chrono::milliseconds TIMEOUT_MS = chrono::milliseconds(1000);
 
   string errJson;
   MediaWikiActionAPI* mwaapi;
+  string lastChangesDateTimeString;
   LoginInfo* loginInfo;
-  chrono::milliseconds timeout_ms = chrono::milliseconds(1000);
-  string tasksPageName;
+  string settingsPage; // content of setteings page
+  map<string,string> settingPagesMap;
+  string settingsPageName;
+  int switchStatus = -1;
+  int switchStatusPrevious = -1;
+  chrono::milliseconds timeout_ms = TIMEOUT_MS;
   Tokens* tokens;
 
   RevisionsTracker() {}
 
-  RevisionsTracker(MediaWikiActionAPI* mwaapi, LoginInfo* loginInfo, Tokens* tokens, const string& tasksPageName) : mwaapi(mwaapi), loginInfo(loginInfo), tasksPageName(tasksPageName), tokens(tokens) {
+  RevisionsTracker(MediaWikiActionAPI* mwaapi, LoginInfo* loginInfo, Tokens* tokens, const string& settingsPageName) : mwaapi(mwaapi), loginInfo(loginInfo), settingsPageName(settingsPageName), tokens(tokens) {
    init();
   }
 
   void init() {
-   loadTasksPage();
-   parseTasks();
+   cout << "[RevisionsTracker::init] settingsPageName:" << settingsPageName << endl;
+   loadSettingsPage();
+   parseSettings();
   }
 
-  void loadTasksPage() {
+  void loadSettingsPage() {
+   settingsPage.clear();
+   cout << "[RevisionsTracker::loadSettingsPage] loginInfo->site:" << loginInfo->site << endl;
+   if(loginInfo->site.length()==0) return;
+   cout << "[RevisionsTracker::loadSettingsPage] settingsPageName:" << settingsPageName << endl;
+   if(settingsPageName.length()==0) return;
+   Revisions revisions;
+   revisions.titles = settingsPageName;
+   revisions.prop="content";
+   mwaapi->revisions(loginInfo, &revisions);
+   if(revisions.pages.size()==0) return;
+   if(revisions.pages[0].revisions.size()==0) return;
+   settingsPage = revisions.pages[0].revisions[0].content;
+   cout << "[RevisionsTracker::loadSettingsPage] settingsPage:" << endl << settingsPage << endl;
   }
 
-  void parseTasks() {
+  void parseSettings() {
+   settingPagesMap.clear();
+   switchStatus = -1;
+   cout << "[RevisionsTracker::parseSettings] settingsPage.length():" << settingsPage.length() << endl;
+   if(settingsPage.length()==0) return;
+   auto json = json11::Json::parse(settingsPage, errJson);
+   auto settingPagesJson = json["settingpages"].object_items();
+   cout << "[RevisionsTracker::parseSettings] settingPagesJson.size():" << settingPagesJson.size() << endl;
+   for(auto sp : settingPagesJson) settingPagesMap[sp.first] = sp.second.string_value();
+   string switchString = json["switch"].string_value();
+   cout << "[RevisionsTracker::parseSettings] switchString:" << switchString << endl;
+   switchStatus = (SWITCH_ON_STATUS.compare(switchString) == 0);
+   cout << "[RevisionsTracker::parseSettings] switchStatus:" << switchStatus << endl;
   }
 
-  void processLastRevisions(const int& countOfLastChanges) {
+  void processLastRevisions(const int& lastChangesCount) {
+   if(switchStatus!=1) return;
+   Revisions revisions;
+   revisions.prop = revisions.PROP_ARV_ALL;
+   revisions.limit = lastChangesCount;
+   processRevisions(&revisions);
+  }
+
+  void processLastRevisions(const string& lastChangesFromDateTime) {
+   if(switchStatus!=1) return;
+   Revisions revisions;
+   revisions.prop = revisions.PROP_ARV_ALL;
+   revisions.start = lastChangesFromDateTime;
+   processRevisions(&revisions);
+  }
+
+  void processRevisions(Revisions* revisions) {
+   mwaapi->allrevisions(loginInfo, revisions);
+   if(revisions->revisions.size() == 0) {
+    cout << "[RevisionsTracker::processRevisions] Revisions not found." << endl;
+    return;
+   }
   }
 
   void runAsDaemon() {
+   testSwitch();
+   processLastRevisions(COUNT_OF_LAST_CHANGES);
+   while(true) {
+    testSwitch();
+    processLastRevisions(lastChangesDateTimeString);
+    this_thread::sleep_for(timeout_ms);
+   }
+  }
+
+  void testSwitch() {
+   switchStatusPrevious = switchStatus;
+   switchStatus = -1;
+   loadSettingsPage();
+   auto json = json11::Json::parse(settingsPage, errJson);
+   string switchString = json["switch"].string_value();
+   cout << "[RevisionsTracker::testSwitch] switchString:" << switchString << endl;
+   switchStatus = (SWITCH_ON_STATUS.compare(switchString) == 0);
+   if(switchStatusPrevious!=switchStatus) {
+    cout << "[RevisionsTracker::testSwitch] switchStatusPrevious: " << switchStatusPrevious << "; switchStatus: " << switchStatus;
+    cout << (switchStatus == 1 ? " -> started" : " -> stopped") << endl; 
+   }
   }
 
 };

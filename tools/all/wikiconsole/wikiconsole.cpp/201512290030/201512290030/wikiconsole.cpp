@@ -463,6 +463,8 @@ bool expectsHistory(const vector<string>& commandVector) {
  }
  revisions.prop="ids|flags|timestamp|user|userid|size|sha1|comment|tags|flagged";
  mwaapi.revisions(&loginInfo, &revisions);
+ //cout << "[wikiconsole::expectsHistory] mwaapi.lastFullUrl:\n" << mwaapi.lastFullUrl << endl;
+ //cout << "[wikiconsole::expectsHistory] mwaapi.lastResponse:\n" << mwaapi.lastResponse << endl;
  if(revisions.pages.size()==0) {
   cout << "Page not found..." << endl;
   return true;
@@ -477,7 +479,8 @@ bool expectsHistory(const vector<string>& commandVector) {
   cout << r.timestamp << "  ";
   cout << r.user;
   for(unsigned int i=r.user.length(); i<20; i++) cout << ' ';
-  if(r.minor>0) cout << "m .. "; 
+  cout << r.title;
+  if(r.minor>0) cout << " m .. "; 
   else cout << "  .. "; 
   cout << "(" << to_string(r.size) << " bytes)  ";
   cout << "(" << r.comment << ")";
@@ -634,7 +637,7 @@ bool expectsRecentChanges(const vector<string>& commandVector) {
   cout << "Example:" << endl;
   cout << "\trecentchanges 10" << endl;
   cout << "\trecentchanges 20 2015-12-29T00:30" << endl;
-  cout << "\trecentchanges - 2015-12-29T00:30 2014-12-29T00:30" << endl;
+  cout << "\trecentchanges - 2014-12-29T00:30 2015-12-29T00:30" << endl;
   return true;
  }
  Revisions revisions;
@@ -651,10 +654,20 @@ bool expectsRecentChanges(const vector<string>& commandVector) {
   }
  }
  //cout << "[[wikiconsole::expectsRecentChanges]] revisions.limit: " << revisions.limit << endl;
- if(commandVector.size() > 2) revisions.start = commandVector[2];
- if(commandVector.size() > 3) revisions.end = commandVector[3];
- revisions.prop="ids|flags|timestamp|user|userid|size|sha1|comment|tags|flagged";
+ if(commandVector.size() > 2) revisions.end = commandVector[2];
+ if(commandVector.size() > 3) revisions.start = commandVector[3];
+ revisions.prop="ids|flags|timestamp|user|userid|size|sha1|comment|tags";
  mwaapi.allrevisions(&loginInfo, &revisions);
+ //cout << "[wikiconsole::expectsRecentChanges] mwaapi.lastFullUrl:\n" << mwaapi.lastFullUrl << endl;
+ //cout << "[wikiconsole::expectsRecentChanges] mwaapi.lastResponse:\n" << mwaapi.lastResponse << endl;
+ if(commandVector.size() > 2) {
+  while(revisions.continue_res.length() > 0) {
+   revisions.continue_req = revisions.continue_res;
+   mwaapi.allrevisions(&loginInfo, &revisions);
+   //cout << "[wikiconsole::expectsRecentChanges] mwaapi.lastFullUrl:\n" << mwaapi.lastFullUrl << endl;
+   //cout << "[wikiconsole::expectsRecentChanges] mwaapi.lastResponse:\n" << mwaapi.lastResponse << endl;
+  }
+ }
  if(revisions.revisions.size()==0) {
   cout << "Recent changes not found." << endl;
   return true;
@@ -665,7 +678,8 @@ bool expectsRecentChanges(const vector<string>& commandVector) {
   cout << r.timestamp << "  ";
   cout << r.user;
   for(unsigned int i=r.user.length(); i<20; i++) cout << ' ';
-  if(r.minor>0) cout << "m .. "; 
+  cout << r.title;
+  if(r.minor>0) cout << " m .. "; 
   else cout << "  .. "; 
   cout << "(" << to_string(r.size) << " bytes)  ";
   cout << "(" << r.comment << ")";
