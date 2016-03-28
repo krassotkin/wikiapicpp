@@ -8,8 +8,8 @@
  The MediaWiki action API Help: https://en.wikipedia.org/w/api.php
  The MediaWiki action API Sandbox: https://en.wikipedia.org/wiki/Special:ApiSandbox
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin.
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <cstdlib>
@@ -34,7 +34,7 @@ using namespace std;
 #include "LoginInfo.hpp"
 #include "LogEvents.hpp"
 #include "LogEvent.hpp"
-#include "MediaWikiActionAPI.hpp"
+#include "MediaWikiActionAPIParameters.hpp"
 #include "Page.hpp"
 #include "Purge.hpp"
 #include "Revision.hpp"
@@ -56,7 +56,7 @@ class MediaWikiActionAPI {
   static const string versionMinor;
   
   const string endpointPart = "w/api.php";
-  const string formatPart = "&format=json";
+  // const string formatPart = "&format=json";
 
   string lastFullUrl;
   string lastPostFields;
@@ -70,14 +70,6 @@ class MediaWikiActionAPI {
 ***************************************************************************/
   
   string escape(const string& s) {
-   string res;
-   /*
-   for(char c : s) {
-    if(c == ' ') res+='_';
-    else res += c;
-   }
-   return curlWrapper.escape(res);
-   */
    return curlWrapper.escape(s);
   }
   
@@ -118,7 +110,7 @@ https://www.mediawiki.org/wiki/API:Allrevisions
                     + (revisions->excludeuser.length()==0 ? "" : "&arvexcludeuser=" + revisions->excludeuser)
                     + (revisions->tag.length()==0 ? "" : "&arvtag=" + revisions->tag)
                     + (revisions->continue_req.length()==0 ? "" : "&arvcontinue=" + revisions->continue_req)
-                    + formatPart;
+                    + revisions->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -142,7 +134,7 @@ List all categories the pages belong to.
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=query"
                     + "&prop=categories"
-                    + formatPart;
+                    + categories->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
    string postFields = (categories->titles.length() == 0 ? "" : "titles=" + categories->titles)
@@ -172,7 +164,7 @@ https://www.mediawiki.org/wiki/API:Account_creation
    if(tokens->createaccounttoken.length() == 0) getTokens(loginInfo, tokens, "createaccount");
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=createaccount"
-                    + formatPart;
+                    + createAccount->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::createaccount fullUrl: " << fullUrl << endl;
    string postFields = "name=" + createAccount->name
@@ -215,7 +207,7 @@ https://www.mediawiki.org/wiki/API:Categorymembers
                     + (categoryMembers->cmcontinue.length() > 0 ? "&cmcontinue=" + escape(categoryMembers->cmcontinue) : "")
                     + (categoryMembers->cmsort.length() > 0 ? "&cmsort=" + escape(categoryMembers->cmsort) : "")
                     + (categoryMembers->cmdir.length() > 0 ? "&cmdir=" + escape(categoryMembers->cmdir) : "")
-                    + formatPart;
+                    + categoryMembers->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::categoryMembers fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -244,7 +236,7 @@ https://www.mediawiki.org/wiki/API:Categorymembers
                     + (compare->toid > -1 ? "&toid=" + to_string(compare->toid) : "")
                     + (compare->torev > -1 ? "&torev=" + to_string(compare->torev) : "")
                     + (compare->totitle.length() > 0 ? "&totitle=" + compare->totitle : "")
-                    + formatPart;
+                    + compare->getSuperParameters();
    lastFullUrl = fullUrl;
    lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
@@ -264,7 +256,7 @@ https://www.mediawiki.org/wiki/API:Edit
    if(tokens->csrftoken.length() == 0) getTokens(loginInfo, tokens, "csrf");
    string fullUrl = loginInfo->site+endpointPart+"?"
                     +"action=edit"
-                    +formatPart;
+                    +edit->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::edit fullUrl: " << fullUrl << endl;
    string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))
@@ -311,7 +303,7 @@ https://en.wikinews.org/w/api.php?action=help&modules=query%2Btokens
                     + "action=query"
                     + "&meta=tokens"
                     + "&type="+tokens->type
-                    + formatPart;
+                    + tokens->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::getTokens fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -338,7 +330,7 @@ https://www.mediawiki.org/wiki/API:Login
                     + "&lgname="+loginInfo->lgname
                     + "&lgpassword="+loginInfo->lgpassword
                     + "&lgtoken="+escape(tokens->logintoken)
-                    + formatPart;
+                    + loginInfo->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "[mwaapi::login] fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -371,7 +363,7 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
                     + (logEvents->letag.length() == 0 ? "" : "&letag=" + logEvents->letag)
                     + (logEvents->lelimit == -1 ? "" : "&lelimit=" + to_string(logEvents->lelimit))
                     + (logEvents->lecontinue.length() == 0 ? "" : "&lecontinue=" + logEvents->lecontinue)
-                    + formatPart;
+                    + logEvents->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::logevent fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -389,13 +381,13 @@ https://www.mediawiki.org/wiki/API:Logout
   void logout(LoginInfo* loginInfo) {
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=logout"
-                    + formatPart;
+                    + loginInfo->getSuperParameters();
    lastFullUrl = fullUrl;
-   cout << "\t\tmwaapi::logout fullUrl: " << fullUrl << endl;
+   //cout << "\t\tmwaapi::logout fullUrl: " << fullUrl << endl;
    lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl);
    lastResponse = res;
-   cout << "\t\tmwaapi::logout res: " << res << endl;
+   //cout << "\t\tmwaapi::logout res: " << res << endl;
    loginInfo->clear();
   }
   
@@ -416,7 +408,7 @@ https://www.mediawiki.org/wiki/API:Purge
                     + (purge->pageids == -1 ? "" : "&pageids=" + to_string(purge->pageids))
                     + (purge->revids == -1 ? "" : "&revids=" + to_string(purge->revids))
                     + (purge->generator.length() > 0 ? "&generator=" + escape(purge->generator) : "")  
-                    + formatPart;
+                    + purge->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::purge fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -461,7 +453,7 @@ https://www.mediawiki.org/wiki/API:Revisions
                     + (revisions->excludeuser.length()==0 ? "" : "&rvexcludeuser=" + revisions->excludeuser)
                     + (revisions->tag.length()==0 ? "" : "&rvtag=" + revisions->tag)
                     + (revisions->continue_req.length()==0 ? "" : "&rvcontinue=" + revisions->continue_req)
-                    + formatPart;
+                    + revisions->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::revisions fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -486,15 +478,15 @@ https://www.mediawiki.org/wiki/API:Rollback
     getTokens(loginInfo, tokens);
    }
    string fullUrl = loginInfo->site+endpointPart+"?"
-                    +"action=rollback";
+                    +"action=rollback"
+                    + rollback->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::rollback fullUrl: " << fullUrl << endl;
    string postFields = (rollback->title.length() > 0 ? "title="+escape(rollback->title) : "pageid="+escape(rollback->pageid))
                        + (rollback->user.length() > 0 ? "&user="+escape(rollback->user) : "")
                        + (rollback->summary.length() > 0 ? "&summary="+escape(rollback->summary) : "")
                        + (rollback->markbot == -1 ? "" : "&markbot=" + rollback->markbot)
-                       + ("&token="+escape(tokens->rollbacktoken))
-                       + formatPart;
+                       + ("&token="+escape(tokens->rollbacktoken));
    lastPostFields = postFields;
    //cout << "\t\tmwaapi::rollback postFields: " << postFields << endl;
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
@@ -517,7 +509,7 @@ https://www.mediawiki.org/wiki/API:Rollback
                     + (search->srprop.length() > 0 ? "&srprop=" + escape(search->srprop) : "")
                     + (search->sroffset == -1 ? "" : "&sroffset=" + to_string(search->sroffset))
                     + (search->srlimit == -1 ? "" : "&srlimit=" + to_string(search->srlimit)) 
-                    + formatPart;
+                    + search->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::search fullUrl: " << fullUrl << endl;
    lastPostFields = "";
@@ -542,7 +534,7 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=thank"
                     + "&rev="+revidString
-                    + formatPart;
+                    + loginInfo->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::thank fullUrl: " << fullUrl << endl;
    string postFields = "token="+escape(tokens->csrftoken);
@@ -563,7 +555,7 @@ https://en.wikipedia.org/w/api.php?action=help&modules=thank
    }
    string fullUrl = loginInfo->site+endpointPart+"?"
                     + "action=edit"
-                    + formatPart;
+                    + edit->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\ttmwaapi::edit fullUrl: " << fullUrl << endl;
    string postFields = (edit->title.length() > 0 ? "title="+escape(edit->title) : "pageid="+to_string(edit->pageid))

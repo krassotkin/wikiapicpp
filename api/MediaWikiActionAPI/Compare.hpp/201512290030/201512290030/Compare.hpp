@@ -1,13 +1,14 @@
 #ifndef COMPARE_HPP
 #define COMPARE_HPP
 /*
- Compare.hpp 
+ Compare.hpp represent request and response to The MediaWiki action API for diff between 2 pages.
 
  Get the difference between 2 pages by titles, page ID, or revision number.
 
  A revision number, a page title, or a page ID for both "from" and "to" must be passed. 
 
- https://en.wikipedia.org/w/api.php?action=help&modules=compare
+ Help:
+https://en.wikipedia.org/w/api.php?action=help&modules=compare
 
  Examples:
 
@@ -54,9 +55,8 @@ https://ru.wikinews.org/w/api.php?action=compare&fromid=15852&toid=18220
     }
 }
 
-
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <iostream>
@@ -97,10 +97,8 @@ class Compare : public MediaWikiActionAPIParameters {
   long int torev_res = -1;   /* Second revision to compare. */
   string totitle_res;        /* Second title to compare. */
 
-  Compare() : MediaWikiActionAPIParameters() {}
-  
-  Compare(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}
-  
+  Compare() : MediaWikiActionAPIParameters() {}  
+  Compare(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
   Compare(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
   void clearRequest() {

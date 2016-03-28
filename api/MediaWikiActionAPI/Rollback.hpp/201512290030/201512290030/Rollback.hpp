@@ -9,8 +9,8 @@
 https://en.wikipedia.org/w/api.php?action=help&modules=rollback
 https://www.mediawiki.org/wiki/API:Rollback
 
- Public Domain by authors: Simon Krassotkin, Alexander Krassotkin (http://www.krassotkin.com/).
- since 2015-12-29
+ Public Domain by authors: Simon Krassotkin, Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <chrono>
@@ -23,7 +23,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class Rollback {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class Rollback : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -31,66 +34,49 @@ class Rollback {
 
   static const string versionMajor;
   static const string versionMinor;
-
-  string errJson;
-
-  // Request
-   string title; //Title of the page to roll back. Cannot be used together with pageid. 
-   string pageid; //Page ID of the page to roll back. Cannot be used together with title.
-   string user; //Name of the user whose edits are to be rolled back.
-   string summary; //Custom edit summary. If empty, default summary will be used.
-   int markbot=-1; //Mark the reverted edits and the revert as bot edits.
-   string watchlist; //Unconditionally add or remove the page from the current user's watchlist, use preferences or do not change watch.
-
-  // Response
-   string response;
-   string titleres;
-   string pageidres;
-   string summaryres; 
-   string revid;
-   string old_revid;
-   string last_revid; 
-
-  Rollback() {}
-  
-  Rollback(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Rollback(const json11::Json& json) {
-   fromJson(json);
-  }
-
-  void clear() {
-   errJson = "";
-
-   response = "";
-
-   title = ""; 
-   pageid = "";
-   user = "";
-   summary = "";
-   markbot=-1;
-   watchlist = "";
-
-   titleres = "";
-   pageidres = "";
-   summaryres = ""; 
-   revid = "";
-   old_revid = "";
-   last_revid = ""; 
    
+  // Request
+  int markbot=-1;   /* Mark the reverted edits and the revert as bot edits. */
+  string pageid;    /* Page ID of the page to roll back. Cannot be used together with title. */
+  string summary;   /* Custom edit summary. If empty, default summary will be used. */
+  string title;    /* Title of the page to roll back. Cannot be used together with pageid. */
+  string user;      /* Name of the user whose edits are to be rolled back. */
+  string watchlist; /* Unconditionally add or remove the page from the current user's watchlist, use preferences or do not change watch. */
+    
+  // Response
+  string last_revid;  
+  string old_revid;
+  string pageidres;
+  string revid;
+  string summaryres;
+  string titleres;
+
+  Rollback() : MediaWikiActionAPIParameters() {}   
+  Rollback(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  Rollback(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+
+  void clearRequest() {
+   markbot=-1;
+   pageid.clear();
+   summary.clear();
+   title.clear(); 
+   user.clear();
+   watchlist.clear();
   }
-  
-  void fromJsonString(const string& jsonString) {
-   response = jsonString;
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
+
+  void clearResponse() {
+   last_revid.clear();
+   old_revid.clear(); 
+   pageidres.clear();
+   revid.clear();
+   summaryres.clear();
+   titleres.clear();    
   }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    auto rollbackJson = json["rollback"].object_items();
-   //cout << "Rollback::fromJson result" << result << endl;
    pageidres = rollbackJson["pageid"].int_value();
    titleres = rollbackJson["title"].string_value();
    summaryres = rollbackJson["summary"].string_value();
@@ -101,7 +87,7 @@ class Rollback {
   
   string toJson() {
    /* not implemented */
-   return "";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };

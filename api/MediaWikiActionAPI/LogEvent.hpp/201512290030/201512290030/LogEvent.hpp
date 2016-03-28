@@ -10,7 +10,7 @@ https://www.mediawiki.org/wiki/API:Logevents
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
 
  Example of a response:
-                    {
+               {
                 "logid": 350248,
                 "ns": 2,
                 "title": "\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a:Aminought",
@@ -24,10 +24,10 @@ https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
                 "user": "Aminought",
                 "timestamp": "2016-02-14T02:58:10Z",
                 "comment": ""
-            }
+               }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <cstdlib>
@@ -39,9 +39,12 @@ using namespace std;
 
 // shared
 #include "json11.hpp"
-#include "LogEventParams.hpp"
 
-class LogEvent {
+// api
+#include "LogEventParams.hpp"
+#include "MediaWikiActionAPIParameters.hpp"
+
+class LogEvent : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -49,9 +52,6 @@ class LogEvent {
 
   static const string versionMajor;
   static const string versionMinor;
-
- 
-  string errJson;
   
   long int logid=-1;
   long int ns=-1;
@@ -78,20 +78,14 @@ class LogEvent {
   string parsedcomment;
   vector<string> tags;
 
-  LogEvent() {}
-  
-  LogEvent(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  LogEvent(const json11::Json& json) {
-   fromJson(json);
-  }
+  LogEvent() : MediaWikiActionAPIParameters() {}   
+  LogEvent(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  LogEvent(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
-  void clear() {
+  void clearRequest() {
    logid=-1;
    ns=-1;
-   title="";
+   title.clear();
    pageid=-1;
    logpage=-1;
    //logEventParams.clear();
@@ -101,24 +95,24 @@ class LogEvent {
    third=-1;
    curid=-1;
    previd=-1;
-   resauto="";
-   olduser="";
-   newuser="";
+   resauto.clear();
+   olduser.clear();
+   newuser.clear();
    edits=-1;
-   type="";
-   action="";
-   user="";
+   type.clear();
+   action.clear();
+   user.clear();
    userid=-1;
-   timestamp="";
-   comment="";
-   parsedcomment="";
+   timestamp.clear();
+   comment.clear();
+   parsedcomment.clear();
    tags.clear();
   }
-  
-  void fromJsonString(const string& jsonString) {
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
+
+  void clearResponse() {
   }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    logid = json["logid"].int_value();

@@ -42,8 +42,8 @@ Response:
                         "timestamp": "2016-02-05T08:06:59Z"
                     },
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <chrono>
@@ -59,9 +59,10 @@ using namespace std;
 
 // api
 #include "Category.hpp"
+#include "MediaWikiActionAPIParameters.hpp"
 #include "Page.hpp"
 
-class Categories {
+class Categories : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -70,67 +71,46 @@ class Categories {
   static const string versionMajor;
   static const string versionMinor;
 
-  const long rvlimitDefault = 10;
-
-  // Servo
-  string errJson;
+  //const long rvlimitDefault = 10;
 
   // Request 
-  string clprop;       /*    Which additional properties to get for each category: sortkey       Adds the sortkey (hexadecimal string) and sortkey prefix (human-readable part) for the category. timestamp Adds timestamp of when the category was added. hidden Tags categories that are hidden with __HIDDENCAT__. Values (separate with |): sortkey, timestamp, hidden*/
-  string clshow;       /* Which kind of categories to show. Values (separate with |): hidden, !hidden*/
-  int cllimit = -1;      /* How many categories to return. No more than 500 (5,000 for bots) allowed. Type: integer or max Default: 10*/
-  string clcontinue;   /* When more results are available, use this to continue.*/ 
   string clcategories; /* Only list these categories. Useful for checking whether a certain page is in a certain category. Separate values with |. Maximum number of values is 50 (500 for bots).*/
+  string clcontinue;   /* When more results are available, use this to continue.*/ 
   string cldir;        /* The direction in which to list. One of the following values: ascending, descending Default: ascending */ 
+  int cllimit = -1;    /* How many categories to return. No more than 500 (5,000 for bots) allowed. Type: integer or max Default: 10*/
+  string clprop;       /* Which additional properties to get for each category: sortkey       Adds the sortkey (hexadecimal string) and sortkey prefix (human-readable part) for the category. timestamp Adds timestamp of when the category was added. hidden Tags categories that are hidden with __HIDDENCAT__. Values (separate with |): sortkey, timestamp, hidden*/
+  string clshow;       /* Which kind of categories to show. Values (separate with |): hidden, !hidden*/
   string pageids;
   string titles;
-
-/*
-  long int pageid = -1;
-  int ns = -1;
-*/
  
   // Response
-  string batchcomplete;
-  vector <Page> pages;
-  string res;
   string clcontinue_res;
   string continue_res;
+  string batchcomplete;
+  vector <Page> pages;
 
-  Categories() {}
-  
-  Categories(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Categories(const json11::Json& json) {
-   fromJson(json);
-  }
+  Categories() : MediaWikiActionAPIParameters() {}  
+  Categories(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
+  Categories(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
-  void clear() {
-   errJson = "";
-
-   clprop = "";
-   clshow = "";
+  void clearRequest() {
+   clprop.clear();
+   clshow.clear();
    cllimit = -1;
-   clcontinue = "";
-   clcategories = "";
-   cldir = "";
-   titles = "";
-   //pageid = -1;
-   //ns = -1;
+   clcontinue.clear();
+   clcategories.clear();
+   cldir.clear();
+   titles.clear();
+  }
 
-   batchcomplete = "";
+  void clearResponse() {
+   batchcomplete.clear();
+   clcontinue_res.clear();
+   continue_res.clear();
    pages.clear();
-   res = "";
-   continue_res = "";
   }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString; 
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
@@ -142,23 +122,12 @@ class Categories {
    for(auto ipro : pagesJson) {
     Page pageRevisions(ipro.second);
     pages.push_back(pageRevisions);
-/*
-    auto resJson = page.second; 
-    title = resJson["title"].string_value();
-    ns = resJson["ns"].int_value();
-    pageid = resJson["pageid"].int_value();
-    auto categoriesJson = resJson["categories"].array_items();
-    for(auto ipr : categoriesJson) {
-     Category itemCategories(ipr);
-     items.push_back(itemCategories);
-    }
-*/
    }
   }
   
   string toJson() {
    /* not implemented */
-   return "";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };

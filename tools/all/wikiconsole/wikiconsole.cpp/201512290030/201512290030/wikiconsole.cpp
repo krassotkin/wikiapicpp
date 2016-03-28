@@ -13,8 +13,11 @@ Examples:
 ./wikiconsole -v
 ./wikiconsole
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+For help type:
+./wikiconsole -h
+
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */ 
 
 #include <chrono>
@@ -39,6 +42,7 @@ Examples:
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
 #include "MediaWikiActionAPI.hpp"
+#include "MediaWikiActionAPIParameters.hpp"
 #include "Page.hpp"
 #include "Purge.hpp"
 #include "Revision.hpp"
@@ -317,7 +321,7 @@ bool expectsCreate(const vector<string>& commandVector) {
   cout << "Page \"" << commandVector[1] << "\" (" << edit.pageidres << ") has been successfully created." << endl;
  } else {
   cout << "Something went wrong..." << endl << "Read server response:" << endl;
-  cout << edit.response << endl;
+  cout << edit.res << endl;
  }
  return true;
 }
@@ -649,7 +653,7 @@ bool expectsPurge(const vector<string>& commandVector){
  Purge purge;  
  purge.titles=commandVector[1];
  mwaapi.purge(&loginInfo, &purge);
- if(purge.purgeRes != "") {
+ if(purge.purged != "") {
   cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
   cout << purge.res << endl;
   return true;
@@ -760,7 +764,7 @@ bool expectsRollback(const vector<string>& commandVector) {
   rollback.summary = commandVector[3];
  }
  mwaapi.rollback(&loginInfo, &tokens, &rollback);
- cout << "Read server response:" << endl << rollback.response << endl;
+ cout << "Read server response:" << endl << rollback.res << endl;
  return true;
 }
 
@@ -880,7 +884,7 @@ bool expectsUndo(const vector<string>& commandVector){
   cout << "Edit from page \"" << commandVector[1] << "\" (" << edit.pageidres << ") has been successfully undoded" << endl;
  } else {
   cout << "Something went wrong..." << endl << "Read server response:" << endl;
-  cout << edit.response << endl;
+  cout << edit.res << endl;
  }
  return true;
 }
@@ -932,7 +936,7 @@ bool expectsUpload(const vector<string>& commandVector){
   cout << "Page \"" << commandVector[1] << "\" (" << edit.pageidres << ") has been successfully updated with content from file \"" << commandVector[2] << "\"." << endl;
  } else {
   cout << "Something went wrong..." << endl << "Read server response:" << endl;
-  cout << edit.response << endl;
+  cout << edit.res << endl;
  }
  return true;
 }
@@ -1072,25 +1076,26 @@ void showHelp() {
 
 void showVersions() {
  cout << endl << "Versions of wikiconsole and components (major.minor):" << endl << endl;
- cout << "\twikiconsole        " << versionMajor << "." << versionMinor << endl << endl;
- cout << "\tCategories         " << Categories::versionMajor << "." << Categories::versionMinor << endl;
- cout << "\tCategoryMembers    " << CategoryMembers::versionMajor << "." << CategoryMembers::versionMinor << endl;
- cout << "\tCategoryMember     " << CategoryMember::versionMajor << "." << CategoryMember::versionMinor << endl;
- cout << "\tCompare            " << Compare::versionMajor << "." << Compare::versionMinor << endl;
- cout << "\tCurlWrapper        " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
- cout << "\tEdit               " << Edit::versionMajor << "." << Edit::versionMinor << endl;
- cout << "\tLoginInfo          " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
- cout << "\tMediaWikiActionAPI " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
- cout << "\tPage               " << Page::versionMajor << "." << Page::versionMinor << endl;
- cout << "\tPurge              " << Purge::versionMajor << "." << Purge::versionMinor << endl;
- cout << "\tRevision           " << Revision::versionMajor << "." << Revision::versionMinor << endl;
- cout << "\tRevisions          " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;
- cout << "\tRollback           " << Rollback::versionMajor << "." << Rollback::versionMinor << endl;
- cout << "\tSearch             " << Search::versionMajor << "." << Search::versionMinor << endl;
- cout << "\tSearchItem         " << SearchItem::versionMajor << "." << SearchItem::versionMinor << endl;
- cout << "\tTokens             " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
- cout << "\tWikimediaProject   " << WikimediaProject::versionMajor << "." << WikimediaProject::versionMinor << endl;
- cout << "\tWikimediaProjects  " << WikimediaProjects::versionMajor << "." << WikimediaProjects::versionMinor << endl;
+ cout << "\twikiconsole                  " << versionMajor << "." << versionMinor << endl << endl;
+ cout << "\tCategories                   " << Categories::versionMajor << "." << Categories::versionMinor << endl;
+ cout << "\tCategoryMembers              " << CategoryMembers::versionMajor << "." << CategoryMembers::versionMinor << endl;
+ cout << "\tCategoryMember               " << CategoryMember::versionMajor << "." << CategoryMember::versionMinor << endl;
+ cout << "\tCompare                      " << Compare::versionMajor << "." << Compare::versionMinor << endl;
+ cout << "\tCurlWrapper                  " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
+ cout << "\tEdit                         " << Edit::versionMajor << "." << Edit::versionMinor << endl;
+ cout << "\tLoginInfo                    " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
+ cout << "\tMediaWikiActionAPI           " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
+ cout << "\tMediaWikiActionAPIParameters " << MediaWikiActionAPIParameters::versionMajor << "." << MediaWikiActionAPIParameters::versionMinor << endl;
+ cout << "\tPage                         " << Page::versionMajor << "." << Page::versionMinor << endl;
+ cout << "\tPurge                        " << Purge::versionMajor << "." << Purge::versionMinor << endl;
+ cout << "\tRevision                     " << Revision::versionMajor << "." << Revision::versionMinor << endl;
+ cout << "\tRevisions                    " << Revisions::versionMajor << "." << Revisions::versionMinor << endl;
+ cout << "\tRollback                     " << Rollback::versionMajor << "." << Rollback::versionMinor << endl;
+ cout << "\tSearch                       " << Search::versionMajor << "." << Search::versionMinor << endl;
+ cout << "\tSearchItem                   " << SearchItem::versionMajor << "." << SearchItem::versionMinor << endl;
+ cout << "\tTokens                       " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
+ cout << "\tWikimediaProject             " << WikimediaProject::versionMajor << "." << WikimediaProject::versionMinor << endl;
+ cout << "\tWikimediaProjects            " << WikimediaProjects::versionMajor << "." << WikimediaProjects::versionMinor << endl;
  cout << endl;
 }
 

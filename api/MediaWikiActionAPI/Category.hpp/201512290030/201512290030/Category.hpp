@@ -18,8 +18,8 @@ https://www.mediawiki.org/wiki/API:Categories
                         "timestamp": "2016-02-05T08:06:59Z"
                     }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <cstdlib>
@@ -32,7 +32,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class Category {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class Category : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -40,38 +43,29 @@ class Category {
 
   static const string versionMajor;
   static const string versionMinor;
-
- 
-  string errJson;
   
+  // Response
   long int ns = -1;
   string sortkey;
   string sortkeyprefix;
   string timestamp;
   string title;
 
-  Category() {}
-  
-  Category(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Category(const json11::Json& json) {
-   fromJson(json);
+  Category() : MediaWikiActionAPIParameters() {}  
+  Category(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
+  Category(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+
+  void clearRequest() {}
+
+  void clearResponse() {
+   ns=-1;
+   sortkey.clear();
+   sortkeyprefix.clear();
+   timestamp.clear();
+   title.clear();
   }
 
-  void clear() {
-   ns=-1;
-   sortkey="";
-   sortkeyprefix="";
-   timestamp="";
-   title="";
-  }
-  
-  void fromJsonString(const string& jsonString) {
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    ns = json["ns"].int_value();

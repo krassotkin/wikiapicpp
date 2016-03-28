@@ -180,8 +180,8 @@ https://ru.wikinews.org/w/api.php?action=query&list=allrevisions&arvlimit=5&arvg
     }
 }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <algorithm>
@@ -198,10 +198,11 @@ using namespace std;
 #include "json11.hpp"
 
 // api
+#include "MediaWikiActionAPIParameters.hpp"
 #include "Page.hpp"
 #include "Revision.hpp"
 
-class Revisions {
+class Revisions : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -211,9 +212,6 @@ class Revisions {
   static const string versionMinor;
 
   const long limitDefault = 10;
-
-  /* Servo */
-  string errJson;
 
   /*
    Request
@@ -263,15 +261,11 @@ class Revisions {
   string tag;                  /* Only list revisions tagged with this tag.  List all revisions haven't alias. */
   string titles;               /* Titles of pages for request. Conflict with pageids. List all revisions haven't alias. */
   string user;                 /* Only include revisions made by user. Type: string of user name. */
-                                  
-                                
-  // Response                   
-  string res;                  /* Last parsed string response. */
-                               
+               
+  // Response                
   string batchcomplete;        
   string continue_res;         /* continue->rvcontinue or continue->arvcontinue in API */
   string continue_2_res;       /* continue->continue in API */
-
   vector<Page> pages;          /* vector of all pages */
 
 
@@ -283,21 +277,9 @@ class Revisions {
   //map<string, Page> pagesByTitle;
   vector<Revision> revisions;
 
-  Revisions() {}
-  
-  Revisions(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Revisions(const json11::Json& json) {
-   fromJson(json);
-  }
-
-  void clear() {
-   errJson.clear();
-   clearRequest();
-   clearResponse();
-  }
+  Revisions() : MediaWikiActionAPIParameters() {}   
+  Revisions(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  Revisions(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
   void clearRequest() {
    contentformat.clear();
@@ -329,16 +311,13 @@ class Revisions {
    continue_res.clear();
    continue_2_res.clear();
    pages.clear();
+  }
+
+  void clearServo() {
    pagesById.clear();
    pagesByTitle.clear();
    pagesNormalizedTitles.clear();
    revisions.clear();
-  }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString;
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
   }
   
   void fromJson(const json11::Json& json) {
@@ -430,7 +409,7 @@ class Revisions {
   
   string toJson() {
    /* not implemented */
-   return "";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };

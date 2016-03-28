@@ -30,12 +30,10 @@ Second response:
     }
 }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
-#include <chrono>
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -44,7 +42,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class LoginInfo {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class LoginInfo : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -53,49 +54,39 @@ class LoginInfo {
   static const string versionMajor;
   static const string versionMinor;
 
-  // Servo
-  string errJson;
-
   // Request
   string lgname;
   string lgpassword;
   string site;
 
   // Response
-  string res;                  /* Last parsed string response. */
-
   string cookieprefix;
   long int lguserid=-1;
   string lgusername;
   string result;
   string sessionid;
 
-  LoginInfo() {}
+  LoginInfo() : MediaWikiActionAPIParameters() {}   
+  LoginInfo(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  LoginInfo(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
   LoginInfo(const string& site, const string& lgname, const string& lgpassword) : lgname(lgname), lgpassword(lgpassword), site(site) {}
-  
-  LoginInfo(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  LoginInfo(const json11::Json& json) {
-   fromJson(json);
-  }
 
-  void clear() {
-   errJson.clear();
-
+  void clearRequest() {
    lgname.clear();
    lgpassword.clear();
    site.clear();
-
-   res.clear();
+  }
+ 
+  void clearResponse() {
    cookieprefix.clear();
    lguserid=-1;
    lgusername.clear();
    result.clear();
    sessionid.clear();
   }
+
+  void clearServo() {}
 
   LoginInfo clone() {
    LoginInfo loginInfo = cloneAccount();
@@ -120,12 +111,6 @@ class LoginInfo {
 
   bool isSuccess() {
    return isLogin();
-  }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString;
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
   }
   
   void fromJson(const json11::Json& json) {

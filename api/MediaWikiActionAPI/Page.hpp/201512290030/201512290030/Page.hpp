@@ -48,8 +48,8 @@ https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krass
         }
 }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29
 */
 
 #include <chrono>
@@ -65,10 +65,11 @@ using namespace std;
 
 // api
 #include "Category.hpp"
-#include "Revision.hpp"
 #include "LogEvent.hpp"
+#include "MediaWikiActionAPIParameters.hpp"
+#include "Revision.hpp"
 
-class Page {
+class Page : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -77,47 +78,36 @@ class Page {
   static const string versionMajor;
   static const string versionMinor;
 
-  // Servo
-  string errJson;
-
   // Response
-  int ns=-1;
-  long int pageid=-1;
-  string title;
   vector<Category> categories;
   map<string, Category*> categoriesMap;
-  vector<Revision> revisions;
-  map<long int, Revision*> revisionsMap;
   vector<LogEvent> logEvents;
   map<long int, LogEvent*> logEventsMap;
+  int ns=-1;
+  long int pageid=-1;
+  vector<Revision> revisions;
+  map<long int, Revision*> revisionsMap;
+  string title;
 
-  Page() {}
-  
-  Page(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Page(const json11::Json& json) {
-   fromJson(json);
-  }
+  Page() : MediaWikiActionAPIParameters() {}   
+  Page(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  Page(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
-  void clear() {
+  void clearRequest() {}
+
+  void clearResponse() {
    categories.clear();
    categoriesMap.clear();
-   errJson.clear();
+   logEvents.clear();
+   logEventsMap.clear();
    ns = -1;
    pageid = -1;
    revisions.clear();
    revisionsMap.clear();
-   logEvents.clear();
-   logEventsMap.clear();
    title.clear();
   }
-  
-  void fromJsonString(const string& jsonString) {
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {  
    //cout << "[[Page::fromJson]]" << endl;  
@@ -161,7 +151,7 @@ class Page {
   
   string toJson() {
    /* not implemented */
-   return "{\"not implemented\":\"not implemented\"}";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };

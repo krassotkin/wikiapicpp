@@ -1,4 +1,4 @@
-# wikiapicpp toold building
+# For wikiapicpp building.
 #
 # versionMajor = 201512290030
 # versionMinor = 201512290030
@@ -7,7 +7,7 @@
 # make
 #
 # Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
-# since 2015-12-29
+# Since 2015-12-29.
 
 CC = g++
 CFLAGS = -c -Wall -std=c++11

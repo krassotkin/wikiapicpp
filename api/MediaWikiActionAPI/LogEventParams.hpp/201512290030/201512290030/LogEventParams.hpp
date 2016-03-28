@@ -5,14 +5,18 @@
 
  Processed by MediaWikiActionAPI.hpp revisions(...) method.
 
+ Help:
+https://www.mediawiki.org/wiki/API:Logevents
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Blogevents
+
  "params": {
                     "0": "427583",
                     "1": "0",
                     "2": "20160214022348"
                 },
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <cstdlib>
@@ -25,7 +29,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class LogEventParams {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class LogEventParams : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -33,9 +40,6 @@ class LogEventParams {
 
   static const string versionMajor;
   static const string versionMinor;
-
- 
-  string errJson;
   
   long int userid=-1;
   long int first=-1;
@@ -48,33 +52,27 @@ class LogEventParams {
   string newuser;
   long int edits=-1;
 
-  LogEventParams() {}
-  
-  LogEventParams(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  LogEventParams(const json11::Json& json) {
-   fromJson(json);
+  LogEventParams() : MediaWikiActionAPIParameters() {}   
+  LogEventParams(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  LogEventParams(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+
+  void clearRequest() {
   }
 
-  void clear() {
+  void clearResponse() {
    userid=-1;
    first=-1;
    second=-1;
    third=-1;
    curid=-1;
    previd=-1;
-   resauto="";
-   olduser="";
-   newuser="";
+   resauto.clear();
+   olduser.clear();
+   newuser.clear();
    edits=-1;
   }
-  
-  void fromJsonString(const string& jsonString) {
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    userid = json["userid"].int_value();

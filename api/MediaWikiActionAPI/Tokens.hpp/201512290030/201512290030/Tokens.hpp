@@ -20,8 +20,8 @@ https://ru.wikinews.org/w/api.php?action=query&meta=tokens&type=csrf&format=json
 response:
 {"batchcomplete":"","query":{"tokens":{"csrftoken":"b772ba1230aea7cb3fe762612e35fed65692930f+\\"}}}
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <chrono>
@@ -35,7 +35,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class Tokens {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class Tokens : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -50,8 +53,6 @@ class Tokens {
   string type;
   
   // Response
-  string res;
-
   string batchcomplete;
   string blocktoken;
   string centralauthtoken;  
@@ -72,21 +73,17 @@ class Tokens {
   string unblocktoken;
   string userrightstoken;
   string watchtoken;
-  string errJson;
 
-  Tokens() {}
-  
-  Tokens(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Tokens(const json11::Json& json) {
-   fromJson(json);
+  Tokens() : MediaWikiActionAPIParameters() {}   
+  Tokens(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  Tokens(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+
+  void clearRequest() {
+   type.clear();
   }
 
-  void clear() {
+  void clearResponse() {
    batchcomplete.clear();
-   errJson.clear();
    createaccounttoken.clear(); 
    csrftoken.clear();
    deletetoken.clear();
@@ -105,13 +102,8 @@ class Tokens {
    userrightstoken.clear();
    watchtoken.clear();
   }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString;
-   //cout << "\t\tTokens::fromJsonString res" << res << endl;
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
@@ -119,7 +111,6 @@ class Tokens {
    auto tokens = queryJson["tokens"].object_items();
    string csrftokenTmp = tokens["csrftoken"].string_value();
    string createaccounttokenTmp = tokens["createaccounttoken"].string_value();
-   //cout << "\t\tTokens::fromJson createaccounttokenTmp:" << createaccounttokenTmp << endl;
    string deletetokenTmp = tokens["deletetoken"].string_value();
    string deleteglobalaccounttokenTmp = tokens["deleteglobalaccounttoken"].string_value();
    string edittokenTmp = tokens["edittoken"].string_value();
@@ -137,7 +128,6 @@ class Tokens {
    string watchtokenTmp = tokens["watchtoken"].string_value();
    csrftoken = (csrftokenTmp.length()>0) ? csrftokenTmp : csrftoken;
    createaccounttoken = (createaccounttokenTmp.length()>0) ? createaccounttokenTmp : createaccounttoken;
-   //cout << "\t\tTokens::fromJson Createaccounttoken:" << createaccounttoken << endl;
    deletetoken = (deletetokenTmp.length()>0) ? deletetokenTmp : deletetoken;
    deleteglobalaccounttoken = (deleteglobalaccounttokenTmp.length()>0) ? deleteglobalaccounttokenTmp : deleteglobalaccounttoken;
    edittoken = (edittokenTmp.length()>0) ? edittokenTmp : edittoken;
@@ -157,7 +147,7 @@ class Tokens {
   
   string toJson() {
    /* not implemented */
-   return "{\"not implemented\":\"not implemented\"}";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };

@@ -52,8 +52,8 @@ https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User:Krass
                         "*": "{{\u0434\u0430\u0442\u0430|8 \u043d\u043e\u044f\u0431\u0440\u044f 2011}}\n{{\u041a\u0430\u043b\u0438\u0444\u043e\u0440\u043d\u0438\u044f}}\n[[\u0424\u0430\u0439\u043b:Michael-jackson-vector-2.jpg|... \u0b95\u0bbe\u0bb0\u0ba3\u0bae\u0bcd, \u0ba8\u0bc0\u0ba4\u0bbf\u0bae\u0ba9\u0bcd\u0bb1\u0bae\u0bcd \u0ba4\u0bc0\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bc1]]\n[[tr:Michael Jackson'un doktoru su\u00e7lu bulundu]]"
                     }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/)
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29
 */
 
 #include <cstdlib>
@@ -66,7 +66,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class Revision {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class Revision : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -75,6 +78,7 @@ class Revision {
   static const string versionMajor;
   static const string versionMinor;
 
+  // Response
   int anon = -1;
   string comment;
   string content; // *
@@ -96,17 +100,13 @@ class Revision {
   string user;
   long int userid = -1;
 
-  Revision() {}
-  
-  Revision(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Revision(const json11::Json& json) {
-   fromJson(json);
-  }
+  Revision() : MediaWikiActionAPIParameters() {}   
+  Revision(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  Revision(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
-  void clear() {
+  void clearRequest() {}
+
+  void clearResponse() {
    anon = -1;
    comment.clear();
    content.clear();
@@ -127,11 +127,8 @@ class Revision {
    user.clear();
    userid = -1;
   }
-  
-  void fromJsonString(const string& jsonString) {
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    comment = json["comment"].string_value();

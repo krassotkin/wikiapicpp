@@ -7,8 +7,8 @@
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bcategorymembers
 https://www.mediawiki.org/wiki/API:Categorymembers
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <cstdlib>
@@ -21,7 +21,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class CategoryMember {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class CategoryMember : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -29,37 +32,28 @@ class CategoryMember {
 
   static const string versionMajor;
   static const string versionMinor;
-
- 
-  string errJson;
   
+  // Response
   long int pageid = -1;
   long int ns = -1;
   string timestamp;
   string title;
 
-  CategoryMember() {}
-  
-  CategoryMember(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  CategoryMember(const json11::Json& json) {
-   fromJson(json);
+  CategoryMember() : MediaWikiActionAPIParameters() {}  
+  CategoryMember(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}
+  CategoryMember(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+
+  void clearRequest() {}
+
+  void clearResponse() {
+   ns=-1;
+   pageid = -1;
+   timestamp.clear();
+   title.clear();
   }
 
-  void clear() {
-   pageid = -1;
-   ns=-1;
-   timestamp="";
-   title="";
-  }
-  
-  void fromJsonString(const string& jsonString) {
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
-  
+  void clearServo() {}
+
   void fromJson(const json11::Json& json) {
    pageid = json["pageid"].int_value();
    ns = json["ns"].int_value();

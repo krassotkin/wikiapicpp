@@ -125,8 +125,8 @@ Response:
     }
 }
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <chrono>
@@ -142,9 +142,10 @@ using namespace std;
 
 // api
 #include "LogEvent.hpp"
+#include "MediaWikiActionAPIParameters.hpp"
 #include "Page.hpp"
 
-class LogEvents {
+class LogEvents : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -153,78 +154,57 @@ class LogEvents {
   static const string versionMajor;
   static const string versionMinor;
 
-  const long rvlimitDefault = 10;
-
-  // Servo
-  string errJson;
+  //const long rvlimitDefault = 10;
 
   // Request 
-  string leprop;       /* Which properties to get: ids Adds the ID of the log event. title Adds the title of the page for the log event.     type Adds the type of log event. user Adds the user responsible for the log event. userid Adds the user ID who was responsible for the log event. timestamp Adds the timestamp for the log event. comment Adds the comment of the log event. parsedcomment Adds the parsed comment of the log event. details Lists additional details about the log event. tags Lists tags for the log event. Values (separate with |): ids, title, type, user, userid, timestamp, comment, parsedcomment, details, tags Default: ids|title|type|user|timestamp|comment|details */   
-  string letype;       /* Filter log entries to only this type. One of the following values: Can be empty, or spamblacklist, titleblacklist, renameuser, massmessage, thanks, usermerge, block, protect, rights, delete, upload, move, import, patrol, merge, suppress, tag, managetags, contentmodel, review, stable, gblblock, globalauth, gblrights, gblrename, abusefilter, pagetriage-curation, pagetriage-deletion, institution, course, student, online, campus, instructor, newusers. */
-  string leaction;     /* Filter log actions to only this action. Overrides letype. In the list of possible values, values with the asterisk wildcard such as action/ can have different strings after the slash (/). One of the following values: usermerge/mergeuser, usermerge/deleteuser, review/approve, review/approve2, review/approve-i, review/approve2-i, review/approve-a, review/approve2-a, review/approve-ia, review/approve2-ia, review/unapprove, review/unapprove2, rights/erevoke, gblblock/gblock, gblblock/gblock2, gblblock/gunblock, gblblock/whitelist, gblblock/dwhitelist, gblblock/modify, globalauth/delete, globalauth/lock, globalauth/unlock, globalauth/hide, globalauth/unhide, globalauth/lockandhid, globalauth/setstatus, suppress/setstatus, suppress/cadelete, gblrights/usergroups, gblrights/groupperms, gblrights/groupprms2, gblrights/groupprms3, suppress/hide-afl, suppress/unhide-afl, spamblacklist/, titleblacklist/, renameuser/renameuser, massmessage/, massmessage/send, massmessage/failure, massmessage/skipoptout, massmessage/skipnouser, massmessage/skipbadns, gather/action, thanks/, block/block, block/reblock, block/unblock, contentmodel/change, delete/delete, delete/event, delete/restore, delete/revision, import/interwiki, import/upload, managetags/activate, managetags/create, managetags/deactivate, managetags/delete, merge/merge, move/move, move/move_redir, patrol/patrol, protect/modify, protect/move_prot, protect/protect, protect/unprotect, rights/autopromote, rights/rights, suppress/block, suppress/delete, suppress/event, suppress/reblock, suppress/revision, tag/update, upload/overwrite, upload/revert, upload/upload, stable/config, stable/modify, stable/reset, gblrights/grouprename, gblrename/rename, gblrename/promote, gblrename/merge, gblrights/newset, gblrights/setrename, gblrights/setnewtype, gblrights/setchange, gblrights/deleteset, abusefilter/modify, abusefilter/hit, pagetriage-curation/reviewed, pagetriage-curation/unreviewed, pagetriage-curation/tag, pagetriage-curation/delete, pagetriage-deletion/delete, institution/, course/, student/, student/add, student/remove, online/, online/add, online/remove, campus/, campus/add, campus/remove, instructor/, instructor/add, instructor/remove, eparticle/, delete/flow-delete-post, delete/flow-delete-topic, suppress/flow-suppress-post, suppress/flow-suppress-topic, lock/flow-lock-topic, delete/flow-restore-post, suppress/flow-restore-post, delete/flow-restore-topic, suppress/flow-restore-topic, lock/flow-restore-topic, import/lqt-to-flow-topic, newusers/newusers, newusers/create, newusers/create2, newusers/byemail, newusers/autocreate */
-  string lestart;        /* The timestamp to start enumerating from. Type: timestamp (allowed formats) */
-  string leend;          /* The timestamp to end enumerating. Type: timestamp (allowed formats) */
+  string leaction;      /* Filter log actions to only this action. Overrides letype. In the list of possible values, values with the asterisk wildcard such as action/ can have different strings after the slash (/). One of the following values: usermerge/mergeuser, usermerge/deleteuser, review/approve, review/approve2, review/approve-i, review/approve2-i, review/approve-a, review/approve2-a, review/approve-ia, review/approve2-ia, review/unapprove, review/unapprove2, rights/erevoke, gblblock/gblock, gblblock/gblock2, gblblock/gunblock, gblblock/whitelist, gblblock/dwhitelist, gblblock/modify, globalauth/delete, globalauth/lock, globalauth/unlock, globalauth/hide, globalauth/unhide, globalauth/lockandhid, globalauth/setstatus, suppress/setstatus, suppress/cadelete, gblrights/usergroups, gblrights/groupperms, gblrights/groupprms2, gblrights/groupprms3, suppress/hide-afl, suppress/unhide-afl, spamblacklist/, titleblacklist/, renameuser/renameuser, massmessage/, massmessage/send, massmessage/failure, massmessage/skipoptout, massmessage/skipnouser, massmessage/skipbadns, gather/action, thanks/, block/block, block/reblock, block/unblock, contentmodel/change, delete/delete, delete/event, delete/restore, delete/revision, import/interwiki, import/upload, managetags/activate, managetags/create, managetags/deactivate, managetags/delete, merge/merge, move/move, move/move_redir, patrol/patrol, protect/modify, protect/move_prot, protect/protect, protect/unprotect, rights/autopromote, rights/rights, suppress/block, suppress/delete, suppress/event, suppress/reblock, suppress/revision, tag/update, upload/overwrite, upload/revert, upload/upload, stable/config, stable/modify, stable/reset, gblrights/grouprename, gblrename/rename, gblrename/promote, gblrename/merge, gblrights/newset, gblrights/setrename, gblrights/setnewtype, gblrights/setchange, gblrights/deleteset, abusefilter/modify, abusefilter/hit, pagetriage-curation/reviewed, pagetriage-curation/unreviewed, pagetriage-curation/tag, pagetriage-curation/delete, pagetriage-deletion/delete, institution/, course/, student/, student/add, student/remove, online/, online/add, online/remove, campus/, campus/add, campus/remove, instructor/, instructor/add, instructor/remove, eparticle/, delete/flow-delete-post, delete/flow-delete-topic, suppress/flow-suppress-post, suppress/flow-suppress-topic, lock/flow-lock-topic, delete/flow-restore-post, suppress/flow-restore-post, delete/flow-restore-topic, suppress/flow-restore-topic, lock/flow-restore-topic, import/lqt-to-flow-topic, newusers/newusers, newusers/create, newusers/create2, newusers/byemail, newusers/autocreate */
+  string lecontinue;      
   string ledir;          /* In which direction to enumerate: newer List oldest first. Note: lestart has to be before leend. older List newest first (default). Note: lestart has to be later than leend. One of the following values: newer, older Default: older */
-  string leuser;         /* Filter entries to those made by the given user. Type: user name */
-  string letitle;        /* Filter entries to those related to a page. */
+  string leend;          /* The timestamp to end enumerating. Type: timestamp (allowed formats) */
+  long int lelimit;      /* How many total event entries to return. No more than 500 (5,000 for bots) allowed. Type: integer or max Default: 10 */
   long int lenamespace;  /* Filter entries to those in the given namespace. One of the following values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 100, 101, 108, 109, 118, 119, 446, 447, 710, 711, 828, 829, 2300, 2301, 2302, 2303, 2600 */
   string leprefix;       /* Disabled due to miser mode. */
+  string leprop;         /* Which properties to get: ids Adds the ID of the log event. title Adds the title of the page for the log event.     type Adds the type of log event. user Adds the user responsible for the log event. userid Adds the user ID who was responsible for the log event. timestamp Adds the timestamp for the log event. comment Adds the comment of the log event. parsedcomment Adds the parsed comment of the log event. details Lists additional details about the log event. tags Lists tags for the log event. Values (separate with |): ids, title, type, user, userid, timestamp, comment, parsedcomment, details, tags Default: ids|title|type|user|timestamp|comment|details */   
+  string lestart;        /* The timestamp to start enumerating from. Type: timestamp (allowed formats) */
   string letag;          /* Only list event entries tagged with this tag. */
-  long int lelimit;      /* How many total event entries to return. No more than 500 (5,000 for bots) allowed. Type: integer or max Default: 10 */
-  string lecontinue;
-
-/*
-  long int pageid = -1;
-  int ns = -1;
-*/
+  string letitle;        /* Filter entries to those related to a page. */
+  string letype;         /* Filter log entries to only this type. One of the following values: Can be empty, or spamblacklist, titleblacklist, renameuser, massmessage, thanks, usermerge, block, protect, rights, delete, upload, move, import, patrol, merge, suppress, tag, managetags, contentmodel, review, stable, gblblock, globalauth, gblrights, gblrename, abusefilter, pagetriage-curation, pagetriage-deletion, institution, course, student, online, campus, instructor, newusers. */             
+  string leuser;         /* Filter entries to those made by the given user. Type: user name */
  
   // Response
-  string batchcomplete;
-  vector <LogEvent> events;
-  string res;
   string clcontinue_res;
   string continue_res;
+  string batchcomplete;
+  vector <LogEvent> events;
 
-  LogEvents() {}
-  
-  LogEvents(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  LogEvents(const json11::Json& json) {
-   fromJson(json);
-  }
+  LogEvents() : MediaWikiActionAPIParameters() {}   
+  LogEvents(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  LogEvents(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
-  void clear() {
-   errJson = "";
-
-   leprop = "";
-   letype = "";
+  void clearResponse() {
    leaction = "";
-   lestart = "";
-   leend = "";
-   ledir = "";
-   leuser = "";
-   letitle = "";
-   lenamespace = -1.;
-   leprefix = "";
-   letag = "";
-   lelimit = -1;
    lecontinue = "";
-   //pageid = -1;
-   //ns = -1;
+   ledir = "";
+   leend = "";
+   lelimit = -1;
+   lenamespace = -1;
+   leprefix = "";
+   leprop = "";
+   lestart = "";
+   letag = "";
+   letitle = "";
+   letype = "";
+   leuser = "";
+  }
 
-   batchcomplete = "";
+  void clearRequest() {
+   batchcomplete.clear();
+   clcontinue_res.clear();
+   continue_res.clear();
    events.clear();
-   res = "";
-   continue_res = "";
   }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString; 
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
@@ -241,7 +221,7 @@ class LogEvents {
   
   string toJson() {
    /* not implemented */
-   return "";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };

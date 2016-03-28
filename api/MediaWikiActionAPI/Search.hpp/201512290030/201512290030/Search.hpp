@@ -9,8 +9,8 @@
 https://en.wikipedia.org/w/api.php?action=help&modules=query%2Bsearch
 https://www.mediawiki.org/wiki/API:Searchs
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
- since 2015-12-29
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
 */
 
 #include <chrono>
@@ -25,9 +25,10 @@ using namespace std;
 #include "json11.hpp"
 
 // api
+#include "MediaWikiActionAPIParameters.hpp"
 #include "SearchItem.hpp"
 
-class Search {
+class Search : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -36,65 +37,50 @@ class Search {
   static const string versionMajor;
   static const string versionMinor;
 
-  const long rvlimitDefault = 10;
-
-  // Servo
-  string errJson;
+  // const long rvlimitDefault = 10;
 
   // Request 
-  string srsearch;          /* Search for page titles or content matching this value. You can use the search string to invoke special search features, depending on what the wiki's search backend implements. This parameter is required.*/
+  int srenablerewrites = -1; /* Enable internal query rewriting. Some search backends can rewrite the query into one its thinks gives better results, such as correcting spelling errors. Type: boolean (details)*/
+  string srinfo;             /* Which metadata to return. Values (separate with |): totalhits, suggestion, rewrittenquery. Default: totalhits|suggestion|rewrittenquery*/            
+  int srinterwiki = -1;     /* Include interwiki results in the search, if available. Type: boolean (details).*/
+  long int srlimit = -1;    /* How many total pages to return. No more than 50 (500 for bots) allowed. Type: integer or max. Default: 10*/
   long int srnamespace=-1;  /* Search only within these namespaces. Values (separate with |): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 100, 101, 108, 109, 118, 119, 446, 447, 710, 711, 828, 829, 2300, 2301, 2302, 2303, 2600. Default: 0*/
-  string srwhat;            /* Which type of search to perform. One of the following values: title, text, nearmatch*/
-  string srinfo;            /* Which metadata to return. Values (separate with |): totalhits, suggestion, rewrittenquery. Default: totalhits|suggestion|rewrittenquery*/            
+  long int sroffset=-1;     /* When more results are available, use this to continue. Type: integer. Default: 0*/
   string srprop;            /* Which properties to return: size Adds the size of the page in bytes. wordcount Adds the word count of the page. timestamp Adds the timestamp of when the page was last edited. snippet Adds a parsed snippet of the page. titlesnippet Adds a parsed snippet of the page title. redirecttitle Adds the title of the matching redirect. redirectsnippet Adds a parsed snippet of the redirect title. sectiontitle Adds the title of the matching section. sectionsnippet Adds a parsed snippet of the matching section title. isfilematch Adds a boolean indicating if the search matched file content. categorysnippet Adds a parsed snippet of the matching category. Values (separate with |): size, wordcount, timestamp, snippet, titlesnippet, redirecttitle, redirectsnippet, sectiontitle, sectionsnippet, isfilematch, categorysnippet. Default: size|wordcount|timestamp|snippet.
-*/                            
-   long int sroffset=-1;    /* When more results are available, use this to continue. Type: integer. Default: 0*/
-   long int srlimit = -1;   /* How many total pages to return. No more than 50 (500 for bots) allowed. Type: integer or max. Default: 10*/
-   bool srinterwiki;        /* Include interwiki results in the search, if available. Type: boolean (details).*/
-   bool srenablerewrites;   /* Enable internal query rewriting. Some search backends can rewrite the query into one its thinks gives better results, such as correcting spelling errors. Type: boolean (details)*/
-
+*/                               
+  string srsearch;          /* Search for page titles or content matching this value. You can use the search string to invoke special search features, depending on what the wiki's search backend implements. This parameter is required.*/
+  string srwhat;            /* Which type of search to perform. One of the following values: title, text, nearmatch*/
+   
    // Response
   string batchcomplete;
-  vector <SearchItem> items;
-  string res;
   string continue_res;
+  vector <SearchItem> items;
   long int sroffset_res = -1;
 
-  Search() {}
-  
-  Search(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  Search(const json11::Json& json) {
-   fromJson(json);
-  }
+  Search() : MediaWikiActionAPIParameters() {}   
+  Search(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
+  Search(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
-  void clear() {
-   errJson = "";
-
-   srsearch = "";
-   srnamespace = -1;
-   srwhat = "";
-   srinfo = "";
-   srprop = "";
-   sroffset = -1;
+  void clearRequest() {
+   srenablerewrites = -1;
+   srinfo.clear();
+   srinterwiki = -1;
    srlimit = -1;
-   srinterwiki = false;
-   srenablerewrites = false;
+   srnamespace = -1;
+   sroffset = -1;
+   srprop.clear();
+   srsearch.clear();
+   srwhat.clear();
+  }
 
-   batchcomplete = "";
+  void clearResponse() {
+   batchcomplete.clear();
+   continue_res.clear();
    items.clear();
-   res = "";
-   continue_res = "";
    sroffset_res = -1;
   }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString; 
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
@@ -111,7 +97,7 @@ class Search {
   
   string toJson() {
    /* not implemented */
-   return "";
+   return MediaWikiActionAPIParameters::toJson();
   }
 
 };
