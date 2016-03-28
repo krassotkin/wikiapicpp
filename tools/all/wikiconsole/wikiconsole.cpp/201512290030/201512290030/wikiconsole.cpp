@@ -34,6 +34,7 @@ Examples:
 #include "Category.hpp"
 #include "CategoryMember.hpp"
 #include "CategoryMembers.hpp"
+#include "Compare.hpp"
 #include "CreateAccount.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
@@ -178,8 +179,45 @@ bool expectsCategoryMembers(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsCompare(const vector<string>& commandVector) {
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("compare")!=0 && commandVector[0].compare("diff")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"content\"." << endl;
+  return true;
+ }
+ if(commandVector.size() < 4) {
+  cout << "Very few arguments for compare..." << endl;
+  cout << "Compare format:" << endl;
+  cout << "\tcompare \"Type from: title, pageid, revid\" \"Diff, id, or revid of a page from\" \"Diff, id, or revid of a page to\"" << endl;
+  cout << "Examples:" << endl;
+  cout << "\tcompare title \"Apple\" \"Google\"" << endl;
+  cout << "\tcompare pageid 15852 18220" << endl;
+  cout << "\tcompare revid 75852 115230" << endl;
+  return true;
+ }
+ Compare compare;
+ if(commandVector[1].compare("title") == 0) {
+  compare.fromtitle=commandVector[2];
+  compare.totitle=commandVector[3];
+ } else if (commandVector[1].compare("pageid") == 0) {
+  compare.fromid=stol(commandVector[2]);
+  compare.toid=stol(commandVector[3]);
+ } else if (commandVector[1].compare("revid") == 0) {
+  compare.fromrev=stol(commandVector[2]);
+  compare.torev=stol(commandVector[3]);
+ }
+ mwaapi.compare(&loginInfo, &compare);
+ //cout << "[[wikiconsole::expectsCompare]] mwaapi.lastFullUrl: " << mwaapi.lastFullUrl << endl;
+ //cout << "[[wikiconsole::expectsCompare]] mwaapi.lastResponse:\n" << mwaapi.lastResponse << endl;
+ cout << "Response:\n" << compare.toJson() << endl;
+ return true;
+}
+
 bool expectsContent(const vector<string>& commandVector) {
- if(commandVector.size()<1 || commandVector[0].compare("content")!=0) return false;
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("content")!=0) return false;
  if(loginInfo.site.length()==0) {
   cout << "You are not logged in..." << endl;
   cout << "Use \"login\" (can be a failed) before \"content\"." << endl;
@@ -907,6 +945,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsCategories(commandVector)) return true;
  if(expectsCategoryMembers(commandVector)) return true;
  if(expectsContent(commandVector)) return true;
+ if(expectsCompare(commandVector)) return true;
  if(expectsCreate(commandVector)) return true;
  if(expectsCreateAccount(commandVector)) return true;
  if(expectsDownload(commandVector)) return true;
@@ -963,12 +1002,17 @@ void showHelp() {
  cout << "  content         Return content of a wikipage. Use after \"login\"." << endl;
  cout << "                  Format: content \"Name or id of a page\"" << endl;
  cout << "                  Example: content \"Main Page\"" << endl;
+ cout << "  compare         Return diff between to page. Use after \"login\"." << endl;
+ cout << "                  Format: compare \"Type from: title, pageid, revid\" \"Diff, id, or revid of a page from\" \"Diff, id, or revid of a page to\"" << endl;
+ cout << "                  Example: compare \"title\" \"Apple\" \"Google\"" << endl;
+ cout << "                  Aliase: diff." << endl;
  cout << "  create          Create a wikipage. Use after \"login\"." << endl;
  cout << "                  Format: create \"User:Wikiapicpp/test page\"" << endl;
  cout << "                  Example: content \"Main Page\"" << endl;
  cout << "  createaccount   Create a new user account." << endl;
  cout << "                  Format: createaccount username password email reason" << endl;
  cout << "                  Example: createaccount https://meta.wikimedia.org ExampleBot rte1EsB2 example.bot@gmail.ru \"For fun\"" << endl;
+ cout << "  diff            A aliase for \"compare\"." << endl;
  cout << "  download        Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
  cout << "                  Format: download \"Name or id of a page\" \"Path to file\"" << endl;
  cout << "                  Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
@@ -1023,6 +1067,7 @@ void showVersions() {
  cout << "\tCategories         " << Categories::versionMajor << "." << Categories::versionMinor << endl;
  cout << "\tCategoryMembers    " << CategoryMembers::versionMajor << "." << CategoryMembers::versionMinor << endl;
  cout << "\tCategoryMember     " << CategoryMember::versionMajor << "." << CategoryMember::versionMinor << endl;
+ cout << "\tCompare            " << Compare::versionMajor << "." << Compare::versionMinor << endl;
  cout << "\tCurlWrapper        " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
  cout << "\tEdit               " << Edit::versionMajor << "." << Edit::versionMinor << endl;
  cout << "\tLoginInfo          " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;

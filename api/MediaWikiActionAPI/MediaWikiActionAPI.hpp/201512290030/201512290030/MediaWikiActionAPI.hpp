@@ -28,6 +28,7 @@ using namespace std;
 #include "Category.hpp"
 #include "CategoryMembers.hpp"
 #include "CategoryMember.hpp"
+#include "Compare.hpp"
 #include "CreateAccount.hpp"
 #include "Edit.hpp"
 #include "LoginInfo.hpp"
@@ -222,6 +223,33 @@ https://www.mediawiki.org/wiki/API:Categorymembers
    lastResponse = res;
    //cout << "\t\tmwaapi::categoryMembers res:" << res << endl;
    categoryMembers->fromJsonString(res);
+  }
+  
+/*
+ Compare:
+  
+ Get the difference between 2 pages by titles, page ID, or revision number.
+  
+ A revision number, a page title, or a page ID for both "from" and "to" must be passed. 
+  
+ https://en.wikipedia.org/w/api.php?action=help&modules=compare
+*/
+  void compare(LoginInfo* loginInfo, Compare* compare) {
+   if(loginInfo->site.length() == 0) return;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=compare"
+                    + (compare->fromid > -1 ? "&fromid=" + to_string(compare->fromid) : "")
+                    + (compare->fromrev > -1 ? "&fromrev=" + to_string(compare->fromrev) : "")
+                    + (compare->fromtitle.length() > 0 ? "&fromtitle=" + compare->fromtitle : "")
+                    + (compare->toid > -1 ? "&toid=" + to_string(compare->toid) : "")
+                    + (compare->torev > -1 ? "&torev=" + to_string(compare->torev) : "")
+                    + (compare->totitle.length() > 0 ? "&totitle=" + compare->totitle : "")
+                    + formatPart;
+   lastFullUrl = fullUrl;
+   lastPostFields = "";
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
+   compare->fromJsonString(res);
   }
   
 /*
