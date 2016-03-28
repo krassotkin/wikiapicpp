@@ -212,6 +212,15 @@ bool expectsCompare(const vector<string>& commandVector) {
  //cout << "[[wikiconsole::expectsCompare]] mwaapi.lastFullUrl: " << mwaapi.lastFullUrl << endl;
  //cout << "[[wikiconsole::expectsCompare]] mwaapi.lastResponse:\n" << mwaapi.lastResponse << endl;
  cout << "Response:\n" << compare.toJson() << endl;
+ //cout << endl << endl;
+ //cout << "[[wikiconsole::expectsCompare]] compare.fromrev:" << compare.fromrev << "; compare.torev:" << compare.torev << endl;
+ //cout << "[[wikiconsole::expectsCompare]] compare.res:\n" << compare.res << endl;
+ //cout << "[[wikiconsole::expectsCompare]] compare.errJson:" << compare.errJson << endl;
+ //compare.clear();
+ //cout << "[[wikiconsole::expectsCompare]] compare.fromrev:" << compare.fromrev << "; compare.torev:" << compare.torev << endl;
+ //cout << "[[wikiconsole::expectsCompare]] (after clear) compare.res:\n" << compare.res << endl;
+ //cout << "[[wikiconsole::expectsCompare]] (after clear) compare.errJson:" << compare.errJson << endl;
+ //cout << "[[wikiconsole::expectsCompare]] (after clear) Response:\n" << compare.toJson() << endl;
  return true;
 }
 

@@ -68,7 +68,10 @@ using namespace std;
 // shared
 #include "json11.hpp"
 
-class Compare {
+// api
+#include "MediaWikiActionAPIParameters.hpp"
+
+class Compare : public MediaWikiActionAPIParameters {
 
  private:
 
@@ -77,45 +80,28 @@ class Compare {
   static const string versionMajor;
   static const string versionMinor;
 
-  const long limitDefault = 10;
-
-  /* Servo */
-  string errJson;
-
   /* Request */
-  long int fromid = -1;  /* First page ID to compare.  */
-  long int fromrev = -1; /* First revision to compare. */ 
-  string fromtitle;      /* First title to compare. */
-  long int toid = -1;    /* Second page ID to compare. */
-  long int torev = -1;   /* Second revision to compare. */
-  string totitle;        /* Second title to compare. */
+  long int fromid = -1;     /* First page ID to compare.  */
+  long int fromrev = -1;    /* First revision to compare. */ 
+  string fromtitle;         /* First title to compare. */
+  long int toid = -1;       /* Second page ID to compare. */
+  long int torev = -1;      /* Second revision to compare. */
+  string totitle;           /* Second title to compare. */
   
   /* Response */
   string content;            /* Same that "*" in response. */
   long int fromid_res = -1;  /* First page ID to compare.  */
   long int fromrev_res = -1; /* First revision to compare. */ 
   string fromtitle_res;      /* First title to compare. */
-  string res;                /* Response string. */
   long int toid_res = -1;    /* Second page ID to compare. */
   long int torev_res = -1;   /* Second revision to compare. */
   string totitle_res;        /* Second title to compare. */
 
-
-  Compare() {}
+  Compare() : MediaWikiActionAPIParameters() {}
   
-  Compare(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
+  Compare(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}
   
-  Compare(const json11::Json& json) {
-   fromJson(json);
-  }
-
-  void clear() {
-   errJson.clear();
-   clearRequest();
-   clearResponse();
-  }
+  Compare(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
 
   void clearRequest() {
    fromid = -1;
@@ -130,18 +116,13 @@ class Compare {
    content.clear();         
    fromid_res = -1; 
    fromrev_res = -1;
-   fromtitle_res.clear(); 
-   res.clear();           
+   fromtitle_res.clear();          
    toid_res = -1; 
    torev_res = -1;
    totitle_res.clear();
   }
-  
-  void fromJsonString(const string& jsonString) {
-   res = jsonString;
-   auto json = json11::Json::parse(jsonString, errJson);
-   fromJson(json);
-  }
+
+  void clearServo() {}
   
   void fromJson(const json11::Json& json) {
    auto compareJson = json["compare"].object_items();
