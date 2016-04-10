@@ -24,6 +24,7 @@ using namespace std;
 #include "json11.hpp"
 
 // api
+#include "AllPages.hpp"
 #include "Categories.hpp"
 #include "Category.hpp"
 #include "CategoryMembers.hpp"
@@ -76,7 +77,46 @@ class MediaWikiActionAPI {
 /***************************************************************************
 *                              API                                         *
 ***************************************************************************/
-  
+/*
+Allpages
+
+https://en.wikipedia.org/w/api.php?action=help&modules=query%2Ballpages
+https://www.mediawiki.org/wiki/API:Allpages
+
+
+Enumerate all pages sequentially in a given namespace.  
+*/
+  void allpages(LoginInfo* loginInfo, AllPages* allPage) {
+   if(loginInfo->site.length() == 0) return;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=query"
+                    + "&list=allpages"
+                    + allPage->getSuperParameters();
+   lastFullUrl = fullUrl;
+   cout << "\t\tmwaapi::allPage fullUrl: " << fullUrl << endl;
+   string postFields = (allPage->apfrom.length() == 0 ? "" : "&apfrom=" + allPage->apfrom)
+                       + (allPage->apcontinue.length() == 0 ? "" : "&apcontinue=" + allPage->apcontinue)
+                       + (allPage->apto.length() == 0 ? "" : "&apto=" + allPage->apto)
+                       + (allPage->apprefix.length() == 0 ? "" : "&apprefix=" + allPage->apprefix)
+                       + (allPage->apnamespace.length() == 0 ? "" : "&apnamespace=" + allPage->apnamespace)
+                       + (allPage->apfilterredir.length() == 0  ? "" : "&apfilterredir=" + allPage->apfilterredir)
+                       + (allPage->apminsize.length() == 0 ? "" : "&apminsize=" + allPage->apminsize)
+                       + (allPage->apmaxsize.length() == 0 ? "" : "&apmaxsize=" + allPage->apmaxsize)
+                       + (allPage->apprtype.length() == 0 ? "" : "&apprtype=" + allPage->apprtype)
+                       + (allPage->apprlevel.length() == 0 ? "" : "&apprlevel=" + allPage->apprlevel)
+                       + (allPage->apprfiltercascade.length() == 0 ? "" : "&apprfiltercascade=" + allPage->apprfiltercascade)
+                       + (allPage->aplimit.length() == 0 ? "" : "&aplimit=" + allPage->aplimit)
+                       + (allPage->apdir.length() == 0 ? "" : "&apdir=" + allPage->apdir)
+                       + (allPage->apfilterlanglinks.length() == 0 ? "" : "&apfilterlanglinks=" + allPage->apfilterlanglinks)
+                       + (allPage->apprexpiry.length() == 0 ? "" : "&apprexpiry=" + allPage->apprexpiry);
+   cout << "\t\tmwaapi::allPage postFields: " << postFields << endl;
+   lastPostFields = "";
+   string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
+   lastResponse = res;
+   cout << "\t\tmwaapi::allPage res:" << res << endl;
+   allPage->fromJsonString(res);
+  } 
+ 
 /*
 List all revisions
 
@@ -137,8 +177,8 @@ List all categories the pages belong to.
                     + categories->getSuperParameters();
    lastFullUrl = fullUrl;
    //cout << "\t\tmwaapi::categories fullUrl: " << fullUrl << endl;
-   string postFields = (categories->titles.length() == 0 ? "" : "titles=" + categories->titles)
-                       + (categories->pageids.length() == 0 ? "" : "pageids=" + categories->pageids)
+   string postFields = (categories->titles.length() == 0 ? "" : "&titles=" + categories->titles)
+                       + (categories->pageids.length() == 0 ? "" : "&pageids=" + categories->pageids)
                        + (categories->clprop.length() == 0 ? "" : "&clprop=" + categories->clprop)
                        + (categories->clshow.length() == 0 ? "" : "&clshow=" + categories->clshow)
                        + (categories->cllimit == -1 ? "" : "&cllimit=" + to_string(categories->cllimit))

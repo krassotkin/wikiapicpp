@@ -106,6 +106,65 @@ vector<string> getCommandVector() {
  return commandVector;
 }
 
+bool expectsAllPages(const vector<string>& commandVector){
+ if(commandVector[0].compare("allpages") !=0) return false;
+ if (commandVector.size() < 3) {
+  cout << "Very few arguments to rallback..." << endl;
+  cout << "AllPages format:" << endl;
+  cout << "\tallpages namespace limit direction" << endl;
+  cout << "Example:" << endl;
+  cout << "\tallpages 0/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15 10 descending/ascending" << endl;
+  return true;
+ }
+ AllPages allpages;
+ cout << "wikiconsole:: expectsAlPages:allpages.apcontinue_res: "<<allpages.apcontinue_res << endl<<endl;
+ allpages.apnamespace=commandVector[1];
+ allpages.aplimit=commandVector[2];
+ allpages.apdir=commandVector[3];
+ mwaapi.allpages(&loginInfo, &allpages);
+ if(allpages.pages.size()==0) {
+  cout << "Not found..." << endl << "Read server response:" <<  endl << allpages.res << endl;
+  return true;
+ }
+ cout<< "We've found " << allpages.pages.size() << " items in namespace:" << endl;
+ for(Page p : allpages.pages) cout << "• " << p.title << endl;
+ cout<< "If you want see more press Next"<<endl;
+ string choice;
+ cin>>choice;
+ int i=1;
+ vector<string> continuos;
+ continuos.push_back(allpages.apcontinue_res);
+ cout << "check0\n";
+ while((choice=="Next") or (choice=="Prex")){  
+  if(choice=="Next") allpages.apcontinue=continuos[i-1];
+  cout << "check1\n";
+  allpages.apnamespace=commandVector[1];
+  allpages.aplimit=commandVector[2];
+  allpages.apdir=commandVector[3];
+  mwaapi.allpages(&loginInfo, &allpages);
+  if(allpages.pages.size()==0) {
+   cout << "Not found..." << endl << "Read server response:" <<  endl << allpages.res << endl;
+   return true;
+  }
+  cout << "check2\n";
+  cout<< "We've found " << allpages.aplimit << " items in namespace:" << endl;
+  cout << allpages.aplimit << endl;
+  int j=0;
+  for(Page p : allpages.pages) {
+   if((j>=i*stoi(allpages.aplimit)-stoi(allpages.aplimit)) && (j<i*stoi(allpages.aplimit))) cout << "• " << p.title << endl;
+   j+=1;
+  }
+  cout << "check5\n";
+  cout<< "If you want see more press Next or Prex"<<endl;
+  cin>>choice;
+  if(choice == "Next")i+=1;
+  if(choice == "Prex")i-=1;
+  continuos.push_back(allpages.apcontinue_res);
+  cout<<"i " << i << endl; 
+ }     
+ return true;
+}
+
 bool expectsCategories(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("categories")!=0) return false;
  if(loginInfo.site.length()==0) {
@@ -955,6 +1014,7 @@ bool expectsVersions(const vector<string>& commandVector) {
 
 bool parseCommandLine(const vector<string>& commandVector) {
  if(commandVector.size() == 0) return false;
+ if(expectsAllPages(commandVector)) return true;
  if(expectsCategories(commandVector)) return true;
  if(expectsCategoryMembers(commandVector)) return true;
  if(expectsContent(commandVector)) return true;
@@ -1005,7 +1065,25 @@ void showHelp() {
  cout << endl << "Without command and options run console." << endl;
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
+ cout << "\t\t Namespaces" << endl;
+ cout << "\t0-content/articles"<<endl;
+ cout << "\t1-talk"<<endl;
+ cout << "\t2-User pages"<<endl;
+ cout << "\t3-User talk"<<endl;
+ cout << "\t4-Project"<<endl;
+ cout << "\t5-Project talk"<<endl;
+ cout << "\t6-File"<<endl;
+ cout << "\t7-File talk"<<endl;
+ cout << "\t8-MediaWiki"<<endl;
+ cout << "\t9-MediaWiki talk"<<endl;
+ cout << "\t10-Template"<<endl;
+ cout << "\t11-Template talk"<<endl;
+ cout << "\t12-Help"<<endl;
+ cout << "\t13-Help talk"<<endl;
+ cout << "\t14-Category"<<endl;
+ cout << "\t15-Category talk\n"<<endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
+ cout << " allpages         Enumerate all pages sequentially in a given namespace.";
  cout << "  categories      List all categories the pages belong to." << endl;
  cout << "                  Format: categories \"Name or id of a page\"" << endl;
  cout << "                  Example: categories \"Category:Google\"" << endl;
