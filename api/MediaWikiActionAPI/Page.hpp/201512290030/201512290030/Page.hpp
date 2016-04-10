@@ -89,14 +89,6 @@ class Page : public MediaWikiActionAPIParameters {
   map<long int, Revision*> revisionsMap;
   string title;
 
-  /*
-  Page() : MediaWikiActionAPIParameters() {}   
-  Page(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Page(const json11::Json& json) : MediaWikiActionAPIParameters(json) {
-   fromJson(json);
-  }
-  */
-
   void clearRequest() {}
 
   void clearResponse() {
