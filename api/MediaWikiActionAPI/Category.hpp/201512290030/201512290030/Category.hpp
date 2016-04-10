@@ -51,9 +51,11 @@ class Category : public MediaWikiActionAPIParameters {
   string timestamp;
   string title;
 
+/*
   Category() : MediaWikiActionAPIParameters() {}  
   Category(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
   Category(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {}
 
@@ -67,7 +69,7 @@ class Category : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    ns = json["ns"].int_value();
    sortkey = json["sortkey"].string_value();
    sortkeyprefix = json["sortkeyprefix"].string_value();

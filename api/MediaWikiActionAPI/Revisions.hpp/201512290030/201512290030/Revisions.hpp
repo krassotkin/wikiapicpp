@@ -277,9 +277,11 @@ class Revisions : public MediaWikiActionAPIParameters {
   //map<string, Page> pagesByTitle;
   vector<Revision> revisions;
 
+/*
   Revisions() : MediaWikiActionAPIParameters() {}   
   Revisions(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   Revisions(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    contentformat.clear();
@@ -320,7 +322,8 @@ class Revisions : public MediaWikiActionAPIParameters {
    revisions.clear();
   }
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
+   //cout << "[[Revisions::fromJson]]..." << endl;
    batchcomplete = json["batchcomplete"].string_value();
    continue_res.clear();
    continue_2_res.clear();
@@ -343,10 +346,12 @@ class Revisions : public MediaWikiActionAPIParameters {
    }
 
    map<string, json11::Json> pagesJsonObjects = queryJson["pages"].object_items();
-   //cout << "[[Revisions::fromJson]] pagesJsonObjects.size(): " << pagesJsonObjects.size() << endl
+   //cout << "[[Revisions::fromJson]] pagesJsonObjects.size(): " << pagesJsonObjects.size() << endl;
    for(auto ipro : pagesJsonObjects) {
     if(pagesById.find(stol(ipro.first)) == pagesById.end()) {
-     Page page(ipro.second);
+     //Page page(ipro.second);
+     Page page;
+     page.fromJson(ipro.second);
      pages.push_back(page);
      //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
      Page* pagePointer = &pages[pages.size()-1];
@@ -369,7 +374,9 @@ class Revisions : public MediaWikiActionAPIParameters {
    vector<json11::Json> pagesJsonArray = queryJson["allrevisions"].array_items();;
    //cout << "[[Revisions::fromJson]] pagesJsonArray.size(): " << pagesJsonArray.size() << endl;
    for(auto ipra : pagesJsonArray) {
-    Page page(ipra);
+    //Page page(ipra);
+    Page page;
+    page.fromJson(ipra);
     //cout << "[[Revisions::fromJson]] page.pageid: " << page.pageid << endl;
     if(pagesById.find(page.pageid) == pagesById.end()) {
      pages.push_back(page);

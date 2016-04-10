@@ -63,10 +63,11 @@ class CreateAccount : public MediaWikiActionAPIParameters {
   string resName;
   string resToken;
   string result;
-  
+/*  
   CreateAccount() : MediaWikiActionAPIParameters() {} 
   CreateAccount(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   CreateAccount(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    captchaid.clear();
@@ -98,7 +99,7 @@ class CreateAccount : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
 
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    auto createAccountJson = json["createaccount"].object_items();
    result = createAccountJson["result"].string_value();
    auto captcha = createAccountJson["captcha"].object_items();

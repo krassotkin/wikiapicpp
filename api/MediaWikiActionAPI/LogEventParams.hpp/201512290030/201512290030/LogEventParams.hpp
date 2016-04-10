@@ -51,11 +51,11 @@ class LogEventParams : public MediaWikiActionAPIParameters {
   string olduser;
   string newuser;
   long int edits=-1;
-
+/*
   LogEventParams() : MediaWikiActionAPIParameters() {}   
   LogEventParams(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   LogEventParams(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-
+*/
   void clearRequest() {
   }
 
@@ -74,7 +74,7 @@ class LogEventParams : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    userid = json["userid"].int_value();
    first = json["first"].int_value();
    second = json["second"].int_value();

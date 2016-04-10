@@ -53,9 +53,11 @@ class Purge : public MediaWikiActionAPIParameters {
   string batchcomplete;  
   string purged;
 
+/*
   Purge() : MediaWikiActionAPIParameters() {}   
   Purge(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   Purge(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    continueP.clear();
@@ -76,7 +78,7 @@ class Purge : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto purge = json["purge"].object_items();
    purged = purge["purged"].string_value();

@@ -49,10 +49,11 @@ class SearchItem : public MediaWikiActionAPIParameters {
   string title;
   string titlesnippet;
   long int wordcount=-1;
-
+/*
   SearchItem() : MediaWikiActionAPIParameters() {}   
   SearchItem(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   SearchItem(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {}
 
@@ -74,7 +75,7 @@ class SearchItem : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    ns = json["ns"].int_value();
    title = json["title"].string_value();
    size = json["size"].int_value();

@@ -28,6 +28,9 @@ using namespace std;
 const string versionMajor = "201512290030";
 const string versionMinor = "201512290030";
 
+const string SETTING_PAGE_DEFAULT = "User:Wikiapicpp/Settings/RevisionsTracker";
+const string SITE_DEFAULT = "https://ru.wikinews.org/";
+
 string showDescription() {
  return "revisiontracker is a console script for run tracking of all new wikinews revisions and processing of certain events.";
 }
@@ -39,9 +42,9 @@ string showUsage() {
          + "\tShow versions:\n"
          + "\t\t./revisiontracker --versions\n"
          + "\tRun for the last revisions:\n"
-         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of settings page> <count of last revisions or date from>\n"
+         + "\t\t./revisiontracker <botusername> <botuserpassword> <Name of settings page> <count of last revisions or date from>\n"
          + "\tRun as daemon:\n"
-         + "\t\t./revisiontracker <site> <botusername> <botuserpassword> <Name of settings page>\n"
+         + "\t\t./revisiontracker <botusername> <botuserpassword> <Name of settings page>\n"
          + "Example of settings page:\n"
          + "\tUser:Wikiapicpp/Settings/RevisionsTracker on RuWikinews (https://ru.wikinews.org/wiki/User:Wikiapicpp/Settings/RevisionsTracker)");
 }
@@ -76,7 +79,7 @@ int main(int argc, char *argv[]) {
    cout << showVersions() << endl;
    return 0;
   }
- } else if(argc < 5) {
+ } else if(argc < 4) {
   cout << "Very few arguments..." << endl;
   cout << showUsage() << endl;
   cout << "Nothing to do. Stopped." << endl;
@@ -84,21 +87,24 @@ int main(int argc, char *argv[]) {
  }
 
  MediaWikiActionAPI mwaapi;
- LoginInfo loginInfo(argv[1], argv[2], argv[3]);
+ LoginInfo loginInfo(SITE_DEFAULT, argv[1], argv[2]);
+ cout << "[revisionstracker] LoginInfo inited..." << endl;
  Tokens tokens;
+ cout << "[revisionstracker] Tokens inited..." << endl;
 
- RevisionsTracker revisionsTracker(&mwaapi, &loginInfo, &tokens, argv[4]);
+ RevisionsTracker revisionsTracker(&mwaapi, &loginInfo, &tokens, argv[3]);
+ cout << "[revisionstracker] RevisionsTracker inited..." << endl;
 
- if(argc == 5) {
+ if(argc == 4) {
   revisionsTracker.runAsDaemon();
- } else if(argc == 6) {
-  string argv5(argv[5]);
-  cout << "[revisionstracker] argv5:" << argv5 << endl;
+ } else if(argc == 5) {
+  string argv4(argv[4]);
+  cout << "[revisionstracker] argv4:" << argv4 << endl;
   try {
-   int cnt = stoi(argv5);
+   int cnt = stoi(argv4);
    revisionsTracker.processLastRevisions(cnt);
   } catch(...) {
-   revisionsTracker.processLastRevisions(argv5);
+   revisionsTracker.processLastRevisions(argv4);
   }
  }
 

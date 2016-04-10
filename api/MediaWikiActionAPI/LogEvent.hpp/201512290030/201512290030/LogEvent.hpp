@@ -77,10 +77,11 @@ class LogEvent : public MediaWikiActionAPIParameters {
   string comment;
   string parsedcomment;
   vector<string> tags;
-
+/*
   LogEvent() : MediaWikiActionAPIParameters() {}   
   LogEvent(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   LogEvent(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    logid=-1;
@@ -114,7 +115,7 @@ class LogEvent : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    logid = json["logid"].int_value();
    ns = json["ns"].int_value();
    title = json["title"].string_value();

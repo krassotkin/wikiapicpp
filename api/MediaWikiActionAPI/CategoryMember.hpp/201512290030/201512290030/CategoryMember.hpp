@@ -39,9 +39,11 @@ class CategoryMember : public MediaWikiActionAPIParameters {
   string timestamp;
   string title;
 
+/*
   CategoryMember() : MediaWikiActionAPIParameters() {}  
   CategoryMember(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}
   CategoryMember(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {}
 
@@ -54,7 +56,7 @@ class CategoryMember : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
 
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    pageid = json["pageid"].int_value();
    ns = json["ns"].int_value();
    timestamp = json["timestamp"].string_value();

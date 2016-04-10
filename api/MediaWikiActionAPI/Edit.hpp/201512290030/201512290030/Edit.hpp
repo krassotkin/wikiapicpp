@@ -75,10 +75,11 @@ class Edit : public MediaWikiActionAPIParameters {
   long int pageidres = -1;
   string result;
   string titleres;
-
+/*
   Edit() : MediaWikiActionAPIParameters() {}   
   Edit(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   Edit(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    appendtext.clear();
@@ -122,7 +123,7 @@ class Edit : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    auto editJson = json["edit"].object_items();
    result = editJson["result"].string_value();
    pageidres = editJson["pageid"].int_value();

@@ -50,10 +50,11 @@ class Rollback : public MediaWikiActionAPIParameters {
   string revid;
   string summaryres;
   string titleres;
-
+/*
   Rollback() : MediaWikiActionAPIParameters() {}   
   Rollback(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   Rollback(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    markbot=-1;
@@ -75,7 +76,7 @@ class Rollback : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    auto rollbackJson = json["rollback"].object_items();
    pageidres = rollbackJson["pageid"].int_value();
    titleres = rollbackJson["title"].string_value();

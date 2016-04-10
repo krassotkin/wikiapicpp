@@ -73,10 +73,11 @@ class Tokens : public MediaWikiActionAPIParameters {
   string unblocktoken;
   string userrightstoken;
   string watchtoken;
-
+/*
   Tokens() : MediaWikiActionAPIParameters() {}   
   Tokens(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   Tokens(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    type.clear();
@@ -105,7 +106,7 @@ class Tokens : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto queryJson = json["query"].object_items();
    auto tokens = queryJson["tokens"].object_items();

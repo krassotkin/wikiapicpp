@@ -61,9 +61,11 @@ class CategoryMembers : public MediaWikiActionAPIParameters {
   string continue_res;
   vector <CategoryMember> items;
 
+/*
   CategoryMembers() : MediaWikiActionAPIParameters() {} 
   CategoryMembers(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
   CategoryMembers(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    cmcontinue.clear();
@@ -92,7 +94,7 @@ class CategoryMembers : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto firstContinueJson = json["continue"].object_items();
    cmcontinue_res = firstContinueJson["cmcontinue"].string_value();
@@ -100,7 +102,9 @@ class CategoryMembers : public MediaWikiActionAPIParameters {
    auto queryJson = json["query"].object_items();
    auto CategoryMembersJson = queryJson["categorymembers"].array_items();
    for(auto ipr : CategoryMembersJson) {
-    CategoryMember itemCategoryMembers(ipr);
+    //CategoryMember itemCategoryMembers(ipr);
+    CategoryMember itemCategoryMembers;
+    itemCategoryMembers.fromJson(ipr);
     items.push_back(itemCategoryMembers);
    }
   }

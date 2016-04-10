@@ -176,10 +176,11 @@ class LogEvents : public MediaWikiActionAPIParameters {
   string continue_res;
   string batchcomplete;
   vector <LogEvent> events;
-
+/*
   LogEvents() : MediaWikiActionAPIParameters() {}   
   LogEvents(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   LogEvents(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearResponse() {
    leaction = "";
@@ -206,7 +207,7 @@ class LogEvents : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto firstContinueJson = json["continue"].object_items();
    clcontinue_res = firstContinueJson["clcontinue"].string_value();
@@ -214,7 +215,9 @@ class LogEvents : public MediaWikiActionAPIParameters {
    auto queryJson = json["query"].object_items();
    auto logeventsJson = queryJson["logevents"].array_items();
    for(auto ile : logeventsJson) {
-    LogEvent logEvent(ile);
+    //LogEvent logEvent(ile);
+    LogEvent logEvent;
+    logEvent.fromJson(ile);
     events.push_back(logEvent);
    }
   }

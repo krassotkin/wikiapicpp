@@ -89,9 +89,13 @@ class Page : public MediaWikiActionAPIParameters {
   map<long int, Revision*> revisionsMap;
   string title;
 
+  /*
   Page() : MediaWikiActionAPIParameters() {}   
   Page(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Page(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+  Page(const json11::Json& json) : MediaWikiActionAPIParameters(json) {
+   fromJson(json);
+  }
+  */
 
   void clearRequest() {}
 
@@ -109,8 +113,8 @@ class Page : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {  
-   //cout << "[[Page::fromJson]]" << endl;  
+  void fromJsonSub(const json11::Json& json) {  
+   //cout << "[[Page::fromJson]]..." << endl;  
    long n_pageid = json["pageid"].int_value();
    //cout << "[[Page::fromJson]] n_pageid: " << n_pageid << endl; 
    if(pageid == -1) pageid = n_pageid;
@@ -128,7 +132,9 @@ class Page : public MediaWikiActionAPIParameters {
 
    auto revisionsJson = json["revisions"].array_items();
    for(auto itr : revisionsJson) {
-    Revision revision(itr);
+    //Revision revision(itr);
+    Revision revision;
+    revision.fromJson(itr);
     //cout << "[[Page::fromJson]] revision.revid: " << revision.revid << endl;
     if(revisionsMap.find(revision.revid) != revisionsMap.end()) continue;
     //cout << "[[Page::fromJson]] new revision" << endl;
@@ -142,7 +148,9 @@ class Page : public MediaWikiActionAPIParameters {
 
    auto categoriesJson = json["categories"].array_items();
    for(auto ipr : categoriesJson) {
-    Category category(ipr);
+    //Category category(ipr);
+    Category category;
+    category.fromJson(ipr);
     if(categoriesMap.find(category.title) != categoriesMap.end()) continue;
     categories.push_back(category);
     categoriesMap[category.title] = &categories[categories.size()-1];

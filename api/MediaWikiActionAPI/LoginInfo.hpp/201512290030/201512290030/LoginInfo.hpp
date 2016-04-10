@@ -65,11 +65,12 @@ class LoginInfo : public MediaWikiActionAPIParameters {
   string lgusername;
   string result;
   string sessionid;
-
-  LoginInfo() : MediaWikiActionAPIParameters() {}   
+/* 
   LoginInfo(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   LoginInfo(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
+  LoginInfo() : MediaWikiActionAPIParameters() {}  
   LoginInfo(const string& site, const string& lgname, const string& lgpassword) : lgname(lgname), lgpassword(lgpassword), site(site) {}
 
   void clearRequest() {
@@ -113,7 +114,7 @@ class LoginInfo : public MediaWikiActionAPIParameters {
    return isLogin();
   }
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    json11::Json::object login = json["login"].object_items();
    string tmpCooprefix = login["cookieprefix"].string_value();
    cookieprefix = (tmpCooprefix.length()>0) ? tmpCooprefix : cookieprefix;

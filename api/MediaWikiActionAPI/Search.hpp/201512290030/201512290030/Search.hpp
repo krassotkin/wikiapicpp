@@ -56,10 +56,11 @@ class Search : public MediaWikiActionAPIParameters {
   string continue_res;
   vector <SearchItem> items;
   long int sroffset_res = -1;
-
+/*
   Search() : MediaWikiActionAPIParameters() {}   
   Search(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
   Search(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    srenablerewrites = -1;
@@ -82,7 +83,7 @@ class Search : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto firstContinueJson = json["continue"].object_items();
    sroffset_res = firstContinueJson["sroffset"].int_value();
@@ -90,7 +91,9 @@ class Search : public MediaWikiActionAPIParameters {
    auto queryJson = json["query"].object_items();
    auto searchJson = queryJson["search"].array_items();
    for(auto ipr : searchJson) {
-    SearchItem itemSearch(ipr);
+    //SearchItem itemSearch(ipr);
+    SearchItem itemSearch;
+    itemSearch.fromJson(ipr);
     items.push_back(itemSearch);
    }
   }

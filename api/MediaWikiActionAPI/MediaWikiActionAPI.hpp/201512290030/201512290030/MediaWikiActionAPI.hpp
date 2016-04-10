@@ -395,8 +395,7 @@ https://www.mediawiki.org/wiki/API:Logout
   Purge:  
 https://en.wikipedia.org/w/api.php?action=help&modules=purge
 https://www.mediawiki.org/wiki/API:Purge
-*/
-  
+*/  
   void purge(LoginInfo* loginInfo, Purge* purge) {
    if(loginInfo->site.length() == 0) return;
    string fullUrl = loginInfo->site+endpointPart+"?"

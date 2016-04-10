@@ -97,10 +97,11 @@ class Compare : public MediaWikiActionAPIParameters {
   long int torev_res = -1;   /* Second revision to compare. */
   string totitle_res;        /* Second title to compare. */
 
+/*
   Compare() : MediaWikiActionAPIParameters() {}  
   Compare(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
   Compare(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-
+*/
   void clearRequest() {
    fromid = -1;
    fromrev = -1;
@@ -122,7 +123,7 @@ class Compare : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    auto compareJson = json["compare"].object_items();
    content = compareJson["*"].string_value();        
    fromid_res = compareJson["fromid"].number_value();  

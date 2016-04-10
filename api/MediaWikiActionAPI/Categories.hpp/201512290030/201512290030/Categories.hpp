@@ -89,9 +89,11 @@ class Categories : public MediaWikiActionAPIParameters {
   string batchcomplete;
   vector <Page> pages;
 
+/*
   Categories() : MediaWikiActionAPIParameters() {}  
   Categories(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
   Categories(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
+*/
 
   void clearRequest() {
    clprop.clear();
@@ -112,7 +114,7 @@ class Categories : public MediaWikiActionAPIParameters {
 
   void clearServo() {}
   
-  void fromJson(const json11::Json& json) {
+  void fromJsonSub(const json11::Json& json) {
    batchcomplete = json["batchcomplete"].string_value();
    auto firstContinueJson = json["continue"].object_items();
    clcontinue_res = firstContinueJson["clcontinue"].string_value();
@@ -120,8 +122,10 @@ class Categories : public MediaWikiActionAPIParameters {
    auto queryJson = json["query"].object_items();
    auto pagesJson = queryJson["pages"].object_items();
    for(auto ipro : pagesJson) {
-    Page pageRevisions(ipro.second);
-    pages.push_back(pageRevisions);
+    //Page pageRevisions(ipro.second);
+    Page page;
+    page.fromJson(ipro.second);
+    pages.push_back(page);
    }
   }
   

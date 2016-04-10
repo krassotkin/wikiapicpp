@@ -47,27 +47,31 @@ class MediaWikiActionAPIParameters {
   /* Response */            
   string res;               /* RAW response string. */
   string requestid_res;
-
-  MediaWikiActionAPIParameters() {}
   
+  MediaWikiActionAPIParameters() {}
+
+  /*
   MediaWikiActionAPIParameters(const string& jsonString) {
    fromJsonString(jsonString);
   }
   
   MediaWikiActionAPIParameters(const json11::Json& json) {
-   fromJsonAll(json);
+   fromJsonThis(json);
   }
+  */
 
   void clear() {
-   clearServoThis();
+   clearServoSup();
    clearServo();
-   clearRequestThis();
+   clearRequestSup();
    clearRequest();
-   clearResponseThis();
+   clearResponseSup();
    clearResponse();
   }
 
-  void clearRequestThis() { 
+  virtual void clearRequest() = 0;
+
+  void clearRequestSup() { 
    assert.clear();
    centralauthtoken.clear();
    curtimestamp = -1;
@@ -81,37 +85,38 @@ class MediaWikiActionAPIParameters {
    uselang.clear();
   }
 
-  virtual void clearRequest() = 0;
+  virtual void clearResponse() = 0;
 
-  void clearResponseThis() {
+  void clearResponseSup() {
    requestid_res.clear();
    res.clear();
   }
 
-  virtual void clearResponse() = 0;
+  virtual void clearServo() = 0;
 
-  void clearServoThis() {
+  void clearServoSup() {
    errJson.clear();
   }
 
-  virtual void clearServo() = 0;
+  void fromJson(const json11::Json& json) { 
+   //cout << "[[MediaWikiActionAPIParameters::fromJson]]..." << endl;
+   fromJsonSuper(json);
+   fromJsonSub(json);
+  }
   
   void fromJsonString(const string& jsonString) {
+   //cout << "[[MediaWikiActionAPIParameters::fromJsonString]]..." << endl;
    res = jsonString;
    auto json = json11::Json::parse(jsonString, errJson);
-   fromJsonAll(json);
-  }
-
-  void fromJsonAll(const json11::Json& json) {
-   fromJsonThis(json);
    fromJson(json);
   }
+  
+  virtual void fromJsonSub(const json11::Json& json) = 0;
 
-  void fromJsonThis(const json11::Json& json) {
+  void fromJsonSuper(const json11::Json& json) {
+   //cout << "[[MediaWikiActionAPIParameters::fromJsonThis]]..." << endl;
    requestid_res = json["requestid"].string_value();      
   }
-  
-  virtual void fromJson(const json11::Json& json) = 0;
 
   string getSuperParameters() {
    return (assert.length() > 0 ? "&assert=" + assert : "")
