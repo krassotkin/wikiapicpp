@@ -55,7 +55,8 @@ string showVersions() {
          + "\tLoginInfo          " + LoginInfo::versionMajor + "." + LoginInfo::versionMinor + "\n"
          + "\tMediaWikiActionAPI " + MediaWikiActionAPI::versionMajor + "." + MediaWikiActionAPI::versionMinor + "\n"
          + "\tTokens             " + Tokens::versionMajor + "." + Tokens::versionMinor + "\n"
-         + "\tRevisionsTracker   " + RevisionsTracker::versionMajor + "." + RevisionsTracker::versionMinor);
+         + "\tRevisionsTracker   " + RevisionsTracker::versionMajor + "." + RevisionsTracker::versionMinor + "\n"
+         + "\tWelcome            " + Welcome::versionMajor + "." + Welcome::versionMinor);
 }
 
 int main(int argc, char *argv[]) {

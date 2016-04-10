@@ -1,0 +1,28 @@
+/*
+ commons.css for html files of wikiapicpp project.
+ <!--«•—©฿»-->
+
+ versionMajor = 201512290030
+ versionMinor = 201512290030
+
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin.
+ Since 2015-12-29.
+*/
+
+article {
+ padding: 1em;
+}
+h1 {
+ text-align: center;
+}
+p {
+ text-align:justify;
+ text-indent:2em;
+}
+.selectedText {
+ background-color:#E3E3E3;
+ font-size:1em;
+ padding-left:0.5em;
+ padding-right:0.5em;
+}
+

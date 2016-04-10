@@ -29,6 +29,7 @@ using namespace std;
 #include "MediaWikiActionAPI.hpp"
 #include "Revisions.hpp"
 #include "Tokens.hpp"
+#include "Welcome.hpp"
 
 class RevisionsTracker {
 
@@ -102,6 +103,7 @@ class RevisionsTracker {
   }
 
   void processLastRevisions(const int& lastChangesCount) {
+   cout << "[RevisionsTracker::processLastRevisions (int)]..." << endl;
    if(switchStatus!=1) return;
    Revisions revisions;
    revisions.prop = revisions.PROP_ARV_ALL;
@@ -110,6 +112,7 @@ class RevisionsTracker {
   }
 
   void processLastRevisions(const string& lastChangesFromDateTime) {
+   cout << "[RevisionsTracker::processLastRevisions (string)]..." << endl;
    if(switchStatus!=1) return;
    Revisions revisions;
    revisions.prop = revisions.PROP_ARV_ALL;
@@ -119,6 +122,7 @@ class RevisionsTracker {
 
   void processRevisions(Revisions* revisions) {
    mwaapi->allrevisions(loginInfo, revisions);
+   cout << "[RevisionsTracker::processRevisions] revisions->revisions.size(): " << revisions->revisions.size() << endl;
    if(revisions->revisions.size() == 0) {
     cout << "[RevisionsTracker::processRevisions] Revisions not found." << endl;
     return;
@@ -126,7 +130,8 @@ class RevisionsTracker {
   }
 
   void runAsDaemon() {
-   testSwitch();
+   cout << "[RevisionsTracker::runAsDaemon]..." << endl;
+   if(switchStatus!=1) return;
    processLastRevisions(COUNT_OF_LAST_CHANGES);
    while(switchStatus) {
     testSwitch();
