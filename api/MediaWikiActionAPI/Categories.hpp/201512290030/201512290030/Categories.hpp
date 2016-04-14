@@ -89,12 +89,6 @@ class Categories : public MediaWikiActionAPIParameters {
   string batchcomplete;
   vector <Page> pages;
 
-/*
-  Categories() : MediaWikiActionAPIParameters() {}  
-  Categories(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
-  Categories(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
-
   void clearRequest() {
    clprop.clear();
    clshow.clear();

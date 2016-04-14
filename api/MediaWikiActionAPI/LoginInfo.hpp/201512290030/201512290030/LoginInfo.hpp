@@ -65,10 +65,6 @@ class LoginInfo : public MediaWikiActionAPIParameters {
   string lgusername;
   string result;
   string sessionid;
-/* 
-  LoginInfo(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  LoginInfo(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   LoginInfo() : MediaWikiActionAPIParameters() {}  
   LoginInfo(const string& site, const string& lgname, const string& lgpassword) : lgname(lgname), lgpassword(lgpassword), site(site) {}

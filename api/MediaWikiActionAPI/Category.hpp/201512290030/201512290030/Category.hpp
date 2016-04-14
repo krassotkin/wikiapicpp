@@ -51,12 +51,6 @@ class Category : public MediaWikiActionAPIParameters {
   string timestamp;
   string title;
 
-/*
-  Category() : MediaWikiActionAPIParameters() {}  
-  Category(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
-  Category(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
-
   void clearRequest() {}
 
   void clearResponse() {

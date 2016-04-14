@@ -99,11 +99,6 @@ class Revision : public MediaWikiActionAPIParameters {
   string title;
   string user;
   long int userid = -1;
-/*
-  Revision() : MediaWikiActionAPIParameters() {}   
-  Revision(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Revision(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearRequest() {}
 

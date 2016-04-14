@@ -50,11 +50,6 @@ class Rollback : public MediaWikiActionAPIParameters {
   string revid;
   string summaryres;
   string titleres;
-/*
-  Rollback() : MediaWikiActionAPIParameters() {}   
-  Rollback(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Rollback(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearRequest() {
    markbot=-1;

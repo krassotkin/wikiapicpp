@@ -53,12 +53,6 @@ class Purge : public MediaWikiActionAPIParameters {
   string batchcomplete;  
   string purged;
 
-/*
-  Purge() : MediaWikiActionAPIParameters() {}   
-  Purge(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Purge(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
-
   void clearRequest() {
    continueP.clear();
    converttitles = -1;

@@ -93,27 +93,27 @@ Enumerate all pages sequentially in a given namespace.
                     + "&list=allpages"
                     + allPage->getSuperParameters();
    lastFullUrl = fullUrl;
-   cout << "\t\tmwaapi::allPage fullUrl: " << fullUrl << endl;
-   string postFields = (allPage->apfrom.length() == 0 ? "" : "&apfrom=" + allPage->apfrom)
-                       + (allPage->apcontinue.length() == 0 ? "" : "&apcontinue=" + allPage->apcontinue)
-                       + (allPage->apto.length() == 0 ? "" : "&apto=" + allPage->apto)
-                       + (allPage->apprefix.length() == 0 ? "" : "&apprefix=" + allPage->apprefix)
-                       + (allPage->apnamespace.length() == 0 ? "" : "&apnamespace=" + allPage->apnamespace)
-                       + (allPage->apfilterredir.length() == 0  ? "" : "&apfilterredir=" + allPage->apfilterredir)
-                       + (allPage->apminsize.length() == 0 ? "" : "&apminsize=" + allPage->apminsize)
-                       + (allPage->apmaxsize.length() == 0 ? "" : "&apmaxsize=" + allPage->apmaxsize)
-                       + (allPage->apprtype.length() == 0 ? "" : "&apprtype=" + allPage->apprtype)
-                       + (allPage->apprlevel.length() == 0 ? "" : "&apprlevel=" + allPage->apprlevel)
-                       + (allPage->apprfiltercascade.length() == 0 ? "" : "&apprfiltercascade=" + allPage->apprfiltercascade)
-                       + (allPage->aplimit.length() == 0 ? "" : "&aplimit=" + allPage->aplimit)
+   //cout << "\t\tmwaapi::allPage fullUrl: " << fullUrl << endl;
+   string postFields = (allPage->apcontinue.length() == 0 ? "" : "&apcontinue=" + allPage->apcontinue)
                        + (allPage->apdir.length() == 0 ? "" : "&apdir=" + allPage->apdir)
+                       + (allPage->apprfiltercascade.length() == 0 ? "" : "&apprfiltercascade=" + allPage->apprfiltercascade)
                        + (allPage->apfilterlanglinks.length() == 0 ? "" : "&apfilterlanglinks=" + allPage->apfilterlanglinks)
-                       + (allPage->apprexpiry.length() == 0 ? "" : "&apprexpiry=" + allPage->apprexpiry);
-   cout << "\t\tmwaapi::allPage postFields: " << postFields << endl;
+                       + (allPage->apfilterredir.length() == 0  ? "" : "&apfilterredir=" + allPage->apfilterredir)
+                       + (allPage->apfrom.length() == 0 ? "" : "&apfrom=" + allPage->apfrom)
+                       + (allPage->aplimit == -1 ? "" : "&aplimit=" + to_string(allPage->aplimit))
+                       + (allPage->apmaxsize == -1 ? "" : "&apmaxsize=" + to_string(allPage->apmaxsize))
+                       + (allPage->apminsize == -1 ? "" : "&apminsize=" + to_string(allPage->apminsize))
+                       + (allPage->apnamespace == -1 ? "" : "&apnamespace=" + to_string(allPage->apnamespace))
+                       + (allPage->apprefix.length() == 0 ? "" : "&apprefix=" + allPage->apprefix)
+                       + (allPage->apprexpiry.length() == 0 ? "" : "&apprexpiry=" + allPage->apprexpiry)
+                       + (allPage->apprlevel.length() == 0 ? "" : "&apprlevel=" + allPage->apprlevel)
+                       + (allPage->apprtype.length() == 0 ? "" : "&apprtype=" + allPage->apprtype)
+                       + (allPage->apto.length() == 0 ? "" : "&apto=" + allPage->apto);
+   //cout << "\t\tmwaapi::allPage postFields: " << postFields << endl;
    lastPostFields = "";
    string res=curlWrapper.getFirstPagePost(fullUrl, postFields);
    lastResponse = res;
-   cout << "\t\tmwaapi::allPage res:" << res << endl;
+   //cout << "\t\tmwaapi::allPage res:" << res << endl;
    allPage->fromJsonString(res);
   } 
  

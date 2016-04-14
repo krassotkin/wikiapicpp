@@ -176,11 +176,6 @@ class LogEvents : public MediaWikiActionAPIParameters {
   string continue_res;
   string batchcomplete;
   vector <LogEvent> events;
-/*
-  LogEvents() : MediaWikiActionAPIParameters() {}   
-  LogEvents(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  LogEvents(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearResponse() {
    leaction = "";

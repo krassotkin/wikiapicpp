@@ -50,16 +50,6 @@ class MediaWikiActionAPIParameters {
   
   MediaWikiActionAPIParameters() {}
 
-  /*
-  MediaWikiActionAPIParameters(const string& jsonString) {
-   fromJsonString(jsonString);
-  }
-  
-  MediaWikiActionAPIParameters(const json11::Json& json) {
-   fromJsonThis(json);
-  }
-  */
-
   void clear() {
    clearServoSup();
    clearServo();

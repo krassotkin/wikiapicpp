@@ -75,11 +75,6 @@ class Edit : public MediaWikiActionAPIParameters {
   long int pageidres = -1;
   string result;
   string titleres;
-/*
-  Edit() : MediaWikiActionAPIParameters() {}   
-  Edit(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Edit(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearRequest() {
    appendtext.clear();

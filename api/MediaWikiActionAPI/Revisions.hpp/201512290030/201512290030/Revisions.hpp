@@ -277,12 +277,6 @@ class Revisions : public MediaWikiActionAPIParameters {
   //map<string, Page> pagesByTitle;
   vector<Revision> revisions;
 
-/*
-  Revisions() : MediaWikiActionAPIParameters() {}   
-  Revisions(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Revisions(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
-
   void clearRequest() {
    contentformat.clear();
    continue_req.clear();

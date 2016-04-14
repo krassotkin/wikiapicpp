@@ -77,11 +77,6 @@ class LogEvent : public MediaWikiActionAPIParameters {
   string comment;
   string parsedcomment;
   vector<string> tags;
-/*
-  LogEvent() : MediaWikiActionAPIParameters() {}   
-  LogEvent(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  LogEvent(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearRequest() {
    logid=-1;

@@ -74,7 +74,9 @@ void showVersions();
 
 vector<string> getCommandVector() {
  string commandLine;
+ //while(commandLine.length()==0) {
  getline(cin, commandLine);
+ //}
  //cout << "\tcommandLine (" << commandLine.length() << "): " << commandLine << endl;
  vector<string> commandVector;
  if(commandLine.length() == 0) return commandVector;
@@ -107,61 +109,114 @@ vector<string> getCommandVector() {
 }
 
 bool expectsAllPages(const vector<string>& commandVector){
- if(commandVector[0].compare("allpages") !=0) return false;
- if (commandVector.size() < 3) {
-  cout << "Very few arguments to rallback..." << endl;
+ if(commandVector[0].compare("allpages") != 0) return false;
+ //cout << "[[wikiconsole::expectsAllPages]] commandVector.size(): " << commandVector.size() << endl;
+ bool expectsCommandHelp = (commandVector.size() >= 2 
+                            && (commandVector[1].compare("help") == 0
+                                || commandVector[1].compare("h") == 0
+                               )
+                           );
+ //cout << "[[wikiconsole::expectsAllPages]] expectsHelp: " << expectsCommandHelp << endl;
+ if (commandVector.size() < 2 || expectsCommandHelp) {
+  if(commandVector.size() < 2) cout << "Very few arguments to allpages..." << endl;
   cout << "AllPages format:" << endl;
-  cout << "\tallpages namespace limit direction" << endl;
-  cout << "Example:" << endl;
-  cout << "\tallpages 0/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15 10 descending/ascending" << endl;
+  cout << "\tallpages namespace <limit> <direction>" << endl;
+  cout << "Direction:" << endl;
+  cout << "\tdes<cending> or asc<ending>" << endl;
+  cout << "Namespaces" << endl;
+  cout << "\t0-content/articles"<<endl;
+  cout << "\t1-talk"<<endl;
+  cout << "\t2-User pages"<<endl;
+  cout << "\t3-User talk"<<endl;
+  cout << "\t4-Project"<<endl;
+  cout << "\t5-Project talk"<<endl;
+  cout << "\t6-File"<<endl;
+  cout << "\t7-File talk"<<endl;
+  cout << "\t8-MediaWiki"<<endl;
+  cout << "\t9-MediaWiki talk"<<endl;
+  cout << "\t10-Template"<<endl;
+  cout << "\t11-Template talk"<<endl;
+  cout << "\t12-Help"<<endl;
+  cout << "\t13-Help talk"<<endl;
+  cout << "\t14-Category"<<endl;
+  cout << "\t15-Category talk"<<endl;
+  cout << "Examples:" << endl;
+  cout << "\tallpages 0" << endl;
+  cout << "\tallpages 2 10" << endl;
+  cout << "\tallpages 14 10 des" << endl;
+  return true;
+ }
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"content\"." << endl;
   return true;
  }
  AllPages allpages;
- cout << "wikiconsole:: expectsAlPages:allpages.apcontinue_res: "<<allpages.apcontinue_res << endl<<endl;
- allpages.apnamespace=commandVector[1];
- allpages.aplimit=commandVector[2];
- allpages.apdir=commandVector[3];
- mwaapi.allpages(&loginInfo, &allpages);
- if(allpages.pages.size()==0) {
-  cout << "Not found..." << endl << "Read server response:" <<  endl << allpages.res << endl;
-  return true;
+ allpages.apfilterredir = "nonredirects";
+ //cout << "wikiconsole::expectsAllPages allpages.apcontinue_res: "<< allpages.apcontinue_res << endl<<endl;
+ allpages.apnamespace= stol((string)commandVector[1]);
+ unsigned int pagesLimit = 10;
+ if(commandVector.size() > 2) {
+  //cout << "[[wikiconsole::expectsAllPages]] commandVector[2]: " << commandVector[2] << endl;
+  pagesLimit = stol((string)commandVector[2]);
+  if(commandVector.size() > 3) {
+   //cout << "[[wikiconsole::expectsAllPages]] commandVector[3]: " << commandVector[3] << endl;
+   allpages.apdir=commandVector[3].length() > 3 ? commandVector[3] : (commandVector[3].compare("des") == 0 ? "descending" : "ascending");
+  }
  }
- cout<< "We've found " << allpages.pages.size() << " items in namespace:" << endl;
- for(Page p : allpages.pages) cout << "• " << p.title << endl;
- cout<< "If you want see more press Next"<<endl;
- string choice;
- cin>>choice;
- int i=1;
+ allpages.aplimit = pagesLimit;
+ //cout << "[[wikiconsole::expectsAllPages]] allpages.apdir: " << allpages.apdir << endl;
+ //cout << "[[wikiconsole::expectsAllPages]] allpages.apfilterredir: " << allpages.apfilterredir << endl;
+ //cout << "[[wikiconsole::expectsAllPages]] allpages.aplimit: " << allpages.aplimit << endl;
+ //cout << "[[wikiconsole::expectsAllPages]] allpages.apnamespace: " << allpages.apnamespace << endl;
+ string choice = "-";
+ unsigned int pageIndex=0;
  vector<string> continuos;
- continuos.push_back(allpages.apcontinue_res);
- cout << "check0\n";
- while((choice=="Next") or (choice=="Prex")){  
-  if(choice=="Next") allpages.apcontinue=continuos[i-1];
-  cout << "check1\n";
-  allpages.apnamespace=commandVector[1];
-  allpages.aplimit=commandVector[2];
-  allpages.apdir=commandVector[3];
-  mwaapi.allpages(&loginInfo, &allpages);
-  if(allpages.pages.size()==0) {
-   cout << "Not found..." << endl << "Read server response:" <<  endl << allpages.res << endl;
-   return true;
+ //for(Page p : allpages.pages) cout << "• " << p.title << endl
+ while(choice[0]=='N' || choice[0]=='n' || choice[0]=='P' || choice[0]=='p' || choice[0]=='-') { 
+  //cout << "[[wikiconsole::expectsAllPages]] choice (in): " << choice << endl;
+  //cout << "[[wikiconsole::expectsAllPages]] pageIndex: " << pageIndex << endl;
+  if(choice[0] == 'P' || choice[0] == 'p') {
+   if(pageIndex <= 1) {
+    cout << "This is the first page." << endl;
+   } else {
+    pageIndex--;
+   }
+  } else if(choice[0]=='N' || choice[0]=='n') {
+   if(pageIndex == continuos.size()) {
+    if(continuos[continuos.size()-1].length() == 0) {
+     cout << "This is the last page." << endl;
+    } else {
+     allpages.apcontinue = allpages.apcontinue_res;
+     mwaapi.allpages(&loginInfo, &allpages);
+     continuos.push_back(allpages.apcontinue_res);
+    }
+   }
+   pageIndex++;
+  } else if(choice[0]=='-') {
+   mwaapi.allpages(&loginInfo, &allpages);
+   continuos.push_back(allpages.apcontinue_res);
+   if(allpages.pages.size()==0) {
+    cout << "Not found..." << endl << "Read server response:" <<  endl << allpages.res << endl;
+    return true;
+   }
+   pageIndex++;
   }
-  cout << "check2\n";
-  cout<< "We've found " << allpages.aplimit << " items in namespace:" << endl;
-  cout << allpages.aplimit << endl;
-  int j=0;
-  for(Page p : allpages.pages) {
-   if((j>=i*stoi(allpages.aplimit)-stoi(allpages.aplimit)) && (j<i*stoi(allpages.aplimit))) cout << "• " << p.title << endl;
-   j+=1;
-  }
-  cout << "check5\n";
-  cout<< "If you want see more press Next or Prex"<<endl;
-  cin>>choice;
-  if(choice == "Next")i+=1;
-  if(choice == "Prex")i-=1;
-  continuos.push_back(allpages.apcontinue_res);
-  cout<<"i " << i << endl; 
- }     
+  cout<< "Page " << pageIndex << " from prepared " << continuos.size() << endl;
+  for(unsigned int ip = (pageIndex-1)*pagesLimit; ip < pageIndex*pagesLimit; ++ip) cout << "• " << allpages.pages[ip].title << endl; 
+  cout<< "Please press:" << endl; 
+  if(continuos[continuos.size()-1].length() != 0) cout<< "• N or n for next;" << endl;
+  if(pageIndex > 1) cout << "• P or p for previous;" << endl;
+  cout << "• Q or q for quit." << endl;
+  //while(choice!='N' || choice!='n' || choice!='P' || choice!='p' || choice!='Q' || choice!='q') {
+  //cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  //do {cin.get(choice);} while(choice=='\n'); 
+  getline(cin, choice);
+  //fflush(stdin);
+  //cout << "[[wikiconsole::expectsAllPages]] choice (out): " << choice << endl;
+  //} 
+ }
+    
  return true;
 }
 
@@ -1065,25 +1120,9 @@ void showHelp() {
  cout << endl << "Without command and options run console." << endl;
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
- cout << "\t\t Namespaces" << endl;
- cout << "\t0-content/articles"<<endl;
- cout << "\t1-talk"<<endl;
- cout << "\t2-User pages"<<endl;
- cout << "\t3-User talk"<<endl;
- cout << "\t4-Project"<<endl;
- cout << "\t5-Project talk"<<endl;
- cout << "\t6-File"<<endl;
- cout << "\t7-File talk"<<endl;
- cout << "\t8-MediaWiki"<<endl;
- cout << "\t9-MediaWiki talk"<<endl;
- cout << "\t10-Template"<<endl;
- cout << "\t11-Template talk"<<endl;
- cout << "\t12-Help"<<endl;
- cout << "\t13-Help talk"<<endl;
- cout << "\t14-Category"<<endl;
- cout << "\t15-Category talk\n"<<endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
- cout << " allpages         Enumerate all pages sequentially in a given namespace.";
+ cout << "  allpages        Enumerate all pages sequentially in a given namespace (without redirects)." << endl;
+ cout << "                  Examples: allpages 0" << endl;
  cout << "  categories      List all categories the pages belong to." << endl;
  cout << "                  Format: categories \"Name or id of a page\"" << endl;
  cout << "                  Example: categories \"Category:Google\"" << endl;
@@ -1155,12 +1194,18 @@ void showHelp() {
 void showVersions() {
  cout << endl << "Versions of wikiconsole and components (major.minor):" << endl << endl;
  cout << "\twikiconsole                  " << versionMajor << "." << versionMinor << endl << endl;
+ cout << "\tAllPages                     " << AllPages::versionMajor << "." << AllPages::versionMinor << endl;
  cout << "\tCategories                   " << Categories::versionMajor << "." << Categories::versionMinor << endl;
- cout << "\tCategoryMembers              " << CategoryMembers::versionMajor << "." << CategoryMembers::versionMinor << endl;
+ cout << "\tCategory                     " << Category::versionMajor << "." << Category::versionMinor << endl;
  cout << "\tCategoryMember               " << CategoryMember::versionMajor << "." << CategoryMember::versionMinor << endl;
+ cout << "\tCategoryMembers              " << CategoryMembers::versionMajor << "." << CategoryMembers::versionMinor << endl;
  cout << "\tCompare                      " << Compare::versionMajor << "." << Compare::versionMinor << endl;
+ cout << "\tCreateAccount                " << CreateAccount::versionMajor << "." << CreateAccount::versionMinor << endl;
  cout << "\tCurlWrapper                  " << CurlWrapper::versionMajor << "." << CurlWrapper::versionMinor << endl;
  cout << "\tEdit                         " << Edit::versionMajor << "." << Edit::versionMinor << endl;
+ cout << "\tLogEvent                     " << LogEvent::versionMajor << "." << LogEvent::versionMinor << endl;
+ cout << "\tLogEventParams               " << LogEventParams::versionMajor << "." << LogEventParams::versionMinor << endl;
+ cout << "\tLogEvents                    " << LogEvents::versionMajor << "." << LogEvents::versionMinor << endl;
  cout << "\tLoginInfo                    " << LoginInfo::versionMajor << "." << LoginInfo::versionMinor << endl;
  cout << "\tMediaWikiActionAPI           " << MediaWikiActionAPI::versionMajor << "." << MediaWikiActionAPI::versionMinor << endl;
  cout << "\tMediaWikiActionAPIParameters " << MediaWikiActionAPIParameters::versionMajor << "." << MediaWikiActionAPIParameters::versionMinor << endl;

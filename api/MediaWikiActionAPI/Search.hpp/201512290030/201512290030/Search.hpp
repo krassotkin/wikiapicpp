@@ -56,11 +56,6 @@ class Search : public MediaWikiActionAPIParameters {
   string continue_res;
   vector <SearchItem> items;
   long int sroffset_res = -1;
-/*
-  Search() : MediaWikiActionAPIParameters() {}   
-  Search(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Search(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearRequest() {
    srenablerewrites = -1;

@@ -61,12 +61,6 @@ class CategoryMembers : public MediaWikiActionAPIParameters {
   string continue_res;
   vector <CategoryMember> items;
 
-/*
-  CategoryMembers() : MediaWikiActionAPIParameters() {} 
-  CategoryMembers(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {}  
-  CategoryMembers(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
-
   void clearRequest() {
    cmcontinue.clear();
    cmdir.clear();

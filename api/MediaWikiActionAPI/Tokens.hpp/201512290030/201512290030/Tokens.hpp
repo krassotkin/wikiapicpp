@@ -73,11 +73,6 @@ class Tokens : public MediaWikiActionAPIParameters {
   string unblocktoken;
   string userrightstoken;
   string watchtoken;
-/*
-  Tokens() : MediaWikiActionAPIParameters() {}   
-  Tokens(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  Tokens(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
 
   void clearRequest() {
    type.clear();

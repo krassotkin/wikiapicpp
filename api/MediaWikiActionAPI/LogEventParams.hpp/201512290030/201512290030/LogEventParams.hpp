@@ -51,13 +51,8 @@ class LogEventParams : public MediaWikiActionAPIParameters {
   string olduser;
   string newuser;
   long int edits=-1;
-/*
-  LogEventParams() : MediaWikiActionAPIParameters() {}   
-  LogEventParams(const string& jsonString) : MediaWikiActionAPIParameters(jsonString) {} 
-  LogEventParams(const json11::Json& json) : MediaWikiActionAPIParameters(json) {}
-*/
-  void clearRequest() {
-  }
+
+  void clearRequest() {}
 
   void clearResponse() {
    userid=-1;
