@@ -94,11 +94,12 @@ class NewsWikiRu {
     revisions.titles="";
     mwaapi.revisions(&loginInfo, &revisions);
     if(revisions.pages.size()==0) {
-     cout << "Page not found..." << endl;
+     cout << "Page not found..." << 
+     endl;
      exit(EXIT_FAILURE);
     }
    }
-   if(revisions.pages[0]->revisions.size()==0) {
+   if(revisions.pages[0].revisions.size()==0) {
      cout << "Content not found." << endl;
      exit(EXIT_FAILURE);
    }
@@ -106,7 +107,7 @@ class NewsWikiRu {
    if(revisions.titles.length()>0) title = revisions.titles;
    else if(revisions.pageids.length()>0) id = stol(revisions.pageids);
  
-   content = revisions.pages[0]->revisions[0]->content;
+   content = revisions.pages[0].revisions[0].content;
 
    return true;
  }

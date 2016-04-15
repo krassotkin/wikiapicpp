@@ -174,11 +174,11 @@ int main(int argc, char *argv[]) {
   cout << "Page not found..." << endl;
   return true;
  }
- if(revisions.pages[0]->revisions.size()==0) {
+ if(revisions.pages[0].revisions.size()==0) {
   cout << "Content not found." << endl;
   return true;
  }
- string pageContent = revisions.pages[0]->revisions[0]->content;
+ string pageContent = revisions.pages[0].revisions[0].content;
  
  cout << "[sortcategories] pageContent: \n" << pageContent << endl;
 

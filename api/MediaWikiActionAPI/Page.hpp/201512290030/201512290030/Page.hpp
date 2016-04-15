@@ -85,7 +85,7 @@ class Page : public MediaWikiActionAPIParameters {
   map<long int, LogEvent*> logEventsMap;
   int ns=-1;
   long int pageid=-1;
-  vector<Revision*> revisions;
+  vector<Revision> revisions;
   map<long int, Revision*> revisionsMap;
   string title;
 
@@ -106,19 +106,19 @@ class Page : public MediaWikiActionAPIParameters {
   void clearServo() {}
   
   void fromJsonSub(const json11::Json& json) {  
-   cout << "[[Page::fromJsonSub]]..." << endl;  
+   //cout << "[[Page::fromJson]]..." << endl;  
    long n_pageid = json["pageid"].int_value();
-   cout << "[[Page::fromJsonSub]] n_pageid: " << n_pageid << endl; 
+   //cout << "[[Page::fromJson]] n_pageid: " << n_pageid << endl; 
    if(pageid == -1) pageid = n_pageid;
    else if(pageid!=n_pageid) return; // serious error in logic
 
    int n_ns = json["ns"].int_value();
-   cout << "[[Page::fromJsonSub]] n_ns: " << n_ns << endl;
+   //cout << "[[Page::fromJson]] n_ns: " << n_ns << endl;
    if(ns==-1) ns = n_ns;
    else if(ns!=n_ns) return; // serious error in logic
 
    string n_title = json["title"].string_value();
-   cout << "[[Page::fromJsonSub]] n_title: " << n_title << endl;
+   //cout << "[[Page::fromJson]] n_title: " << n_title << endl;
    if(title.length() == 0) title = n_title;
    else if(title.compare(n_title) != 0) return; // serious error in logic
 
@@ -127,16 +127,15 @@ class Page : public MediaWikiActionAPIParameters {
     //Revision revision(itr);
     Revision revision;
     revision.fromJson(itr);
-    cout << "[[Page::fromJsonSub]] revision.revid: " << revision.revid << endl;
+    //cout << "[[Page::fromJson]] revision.revid: " << revision.revid << endl;
     if(revisionsMap.find(revision.revid) != revisionsMap.end()) continue;
-    cout << "[[Page::fromJsonSub]] new revision" << endl;
+    //cout << "[[Page::fromJson]] new revision" << endl;
     revision.ns = ns;
     revision.pageid = pageid;
     revision.title = title;
-    cout << "[[Page::fromJsonSub]] (revisionsMap.find(revision.revid) == revisionsMap.end()): " << (revisionsMap.find(revision.revid) == revisionsMap.end()) << endl;
-    Revision* r = &revision;
-    revisions.push_back(r);
-    revisionsMap[r->revid] = r;
+    //cout << "[[Page::fromJson]] (revisionsMap.find(revision.revid) == revisionsMap.end()): " << (revisionsMap.find(revision.revid) == revisionsMap.end()) << endl;
+    revisions.push_back(revision);
+    revisionsMap[revision.revid] = &revisions[revisions.size()-1];
    }
 
    auto categoriesJson = json["categories"].array_items();
