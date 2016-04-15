@@ -32,7 +32,7 @@ using namespace std;
 
 struct WelcomeTask {
  //int n=0;
- LoginInfo loginInfo;
+ LoginInfo* loginInfo;
  map<long int, bool> processedRevisions;
  map<string, bool> processedUsers;
  string project;
@@ -93,9 +93,9 @@ class Welcome {
    revisions.prop="content";
    mwaapi->revisions(loginInfo, &revisions);
    if(revisions.pages.size()==0) return;
-   if(revisions.pages[0].revisions.size()==0) return;
-   tasksPage = revisions.pages[0].revisions[0].content;
-   cout << "[Welcome::loadTasksPage] tasksPage:" << endl << tasksPage << endl;
+   if(revisions.pages[0]->revisions.size()==0) return;
+   tasksPage = revisions.pages[0]->revisions[0]->content;
+   //cout << "[Welcome::loadTasksPage] tasksPage:" << endl << tasksPage << endl;
   }
 
   void parseTasks() {
@@ -109,9 +109,23 @@ class Welcome {
     cout << "[Welcome::parseTasks] tio.size(): " << tio.size() << endl;
     WelcomeTask task;
     task.project = tio["project"].string_value();
-    task.loginInfo.update(tio["site"].string_value(), loginInfo->lgname, loginInfo->lgpassword);
-    mwaapi->login(&task.loginInfo, &task.tokens);
-    cout << (task.loginInfo.isSuccess() ? "Success logined to " : "Login failed to ") << task.loginInfo.site << endl;
+    cout << "[Welcome::parseTasks] task.project: " << task.project << endl;
+    cout << "[Welcome::parseTasks] loginInfo->site: " << loginInfo->site << endl;
+    string tioSite = tio["site"].string_value();
+    cout << "[Welcome::parseTasks] tioSite: " << tioSite << endl;
+    if(tioSite.compare(loginInfo->site) == 0) {
+     cout << "[Welcome::parseTasks] Root site found: " << loginInfo->site << endl;
+     task.loginInfo = loginInfo;
+    } else {
+     cout << "[Welcome::parseTasks] New site found: " << tioSite << endl;
+     task.loginInfo->update(tioSite, loginInfo->lgname, loginInfo->lgpassword);
+     //mwaapi->login(task.loginInfo, &task.tokens);
+    }
+    cout << "[Welcome::parseTasks] (before) " << (task.loginInfo->isSuccess() ? "Success logined to " : "Login failed to ") << task.loginInfo->site << endl;
+    if(!task.loginInfo->isSuccess()) {
+     mwaapi->login(task.loginInfo, &task.tokens);
+     cout << (task.loginInfo->isSuccess() ? "Success logined to " : "Login failed to ") << task.loginInfo->site << endl;
+    }
     task.temp = tio["template"].string_value();
     task.summary = tio["summary"].string_value();
     vector<tuple<string,string>> usersVector;
@@ -125,7 +139,7 @@ class Welcome {
     tasksVector.push_back(task);
     //cout << "[Welcome::parseTasks] vector added"<< endl;
     //siteTaskMap[task.loginInfo.site] = &task;
-    siteTaskMap[task.loginInfo.site] = &tasksVector[tasksVector.size()-1];
+    siteTaskMap[task.loginInfo->site] = &tasksVector[tasksVector.size()-1];
     //cout << "[Welcome::parseTasks] map added"<< endl;
    }
    //cout << "[Welcome::parseTasks] tasksToJson:" << endl << tasksToJson() << endl;
@@ -135,7 +149,7 @@ class Welcome {
    Revisions revisions;
    revisions.limit = countOfLastChanges;
    revisions.prop = "flags|ids|user|userid";
-   mwaapi->allrevisions(&task->loginInfo, &revisions);
+   mwaapi->allrevisions(task->loginInfo, &revisions);
    //cout << "[Welcome::processTask] revisions.revisions.size():" << revisions.revisions.size() << endl;
    if(revisions.revisions.size() == 0) {
     cout << "[Welcome::processTask] Revisions not found." << endl;
@@ -160,7 +174,7 @@ class Welcome {
    for(WelcomeTask ti : tasksVector) {
     res += (string) "           {\n"
          + "            \"project\":\"" + ti.project + "\",\n"
-         + "            \"site\":\"" + ti.loginInfo.site + "\",\n"
+         + "            \"site\":\"" + ti.loginInfo->site + "\",\n"
          + "            \"template\":\"" + ti.temp + "\",\n"
          + "            \"summary\":\"" + ti.summary + "\",\n"
          + "            \"users\":[";
@@ -200,13 +214,13 @@ class Welcome {
    task->processedRevisions[revision->revid] = true;
    if(revision->anon == 1) return;
    //cout << "[Welcome::welcomeRevision] revision.toJson(): " << revision->toJson() << endl;
-   cout << "[Welcome::welcomeRevision] revision.revid: " << revision->revid << "; revision.user: " << revision->user << endl;
+   cout << "[Welcome::welcomeRevision] revision->timestamp: " << revision->timestamp << "; revision->revid: " << revision->revid << "; revision->user: " << revision->user << endl;
    welcomeUserRaw(task, revision->user);
   }
 
   void welcomeUser(const string& userName) {
    for(WelcomeTask task : tasksVector)
-    if(task.loginInfo.site.compare(loginInfo->site) == 0)
+    if(task.loginInfo->site.compare(loginInfo->site) == 0)
      welcomeUserRaw(&task, userName);
   }
 
@@ -217,14 +231,14 @@ class Welcome {
    revisions.titles = "User talk: "+userName;
    cout << "[Welcome::welcomeUserRaw] revisions.title: " << revisions.titles << endl;
    revisions.prop="content";
-   mwaapi->revisions(&task->loginInfo, &revisions);
+   mwaapi->revisions(task->loginInfo, &revisions);
    cout << "[Welcome::welcomeUserRaw] revisions.pages.size(): " << revisions.pages.size() << endl;
    if(revisions.pages.size() == 0) { // Not found... and strange error.
     cout << "[Welcome::welcomeUserRaw] Not found... and strange error." << endl;
     return;
    }
-   cout << "[Welcome::welcomeUserRaw] revisions.pages[0].revisions.size(): " << revisions.pages[0].revisions.size() << endl;
-   if(revisions.pages[0].revisions.size() != 0) { // Page exists
+   cout << "[Welcome::welcomeUserRaw] revisions.pages[0]->revisions.size(): " << revisions.pages[0]->revisions.size() << endl;
+   if(revisions.pages[0]->revisions.size() != 0) { // Page exists
     cout << "[Welcome::welcomeUserRaw] Page exists." << endl;
     return; 
    }
@@ -245,11 +259,11 @@ class Welcome {
              + "\n";
    edit.summary = task->summary;
    cout << "[Welcome::welcomeUser] edit.text: \n" << edit.text << endl;
-   if(!task->loginInfo.isLogin()) {
-    cout << "[Welcome::welcomeUser] editLoginInfo->isLogin(): \n" << task->loginInfo.isLogin() << endl;
+   if(!task->loginInfo->isLogin()) {
+    cout << "[Welcome::welcomeUser] editLoginInfo->isLogin(): \n" << task->loginInfo->isLogin() << endl;
     return; // not logined
    }
-   mwaapi->edit(&task->loginInfo, &task->tokens, &edit);   
+   mwaapi->edit(task->loginInfo, &task->tokens, &edit);   
   }
 
 };

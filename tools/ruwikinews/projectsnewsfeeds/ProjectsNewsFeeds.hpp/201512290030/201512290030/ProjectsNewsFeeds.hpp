@@ -77,8 +77,8 @@ class ProjectsNewsFeeds {
    revisions.prop="content";
    mwaapi->revisions(loginInfo, &revisions);
    if(revisions.pages.size()==0) return;
-   if(revisions.pages[0].revisions.size()==0) return;
-   tasksPage = revisions.pages[0].revisions[0].content;
+   if(revisions.pages[0]->revisions.size()==0) return;
+   tasksPage = revisions.pages[0]->revisions[0]->content;
    //cout << "\t\tProjectsNewsFeeds::loadTasksPage tasksPage:" << endl << tasksPage << endl;
   }
 

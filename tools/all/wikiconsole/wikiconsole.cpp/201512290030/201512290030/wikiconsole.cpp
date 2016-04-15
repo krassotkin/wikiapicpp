@@ -373,12 +373,12 @@ bool expectsContent(const vector<string>& commandVector) {
   cout << "Page not found..." << endl;
   return true;
  }
- cout << "Content of \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ")" << endl;
- if(revisions.pages[0].revisions.size()==0) {
+ cout << "Content of \"" << revisions.pages[0]->title << "\" (" << revisions.pages[0]->pageid  << ")" << endl;
+ if(revisions.pages[0]->revisions.size()==0) {
   cout << "Content not found." << endl;
   return true;
  }
- cout << revisions.pages[0].revisions[0].content << endl;
+ cout << revisions.pages[0]->revisions[0]->content << endl;
  return true;
 }
 
@@ -402,7 +402,7 @@ bool expectsCreate(const vector<string>& commandVector) {
  revisions.titles = commandVector[1];
  revisions.prop="ids|timestamp";
  mwaapi.revisions(&loginInfo, &revisions);
- if(revisions.pages.size()>0 && revisions.pages[0].revisions.size() > 0) {
+ if(revisions.pages.size()>0 && revisions.pages[0]->revisions.size() > 0) {
   cout << "Page \"" << revisions.titles << "\" already exists." << endl;
   cout << "Please use \"edit\" or \"upload\" for update." << endl;
   return true;
@@ -523,14 +523,14 @@ bool expectsDownload(const vector<string>& commandVector) {
   cout << "Page not found..." << endl;
   return true;
  }
- if(revisions.pages[0].revisions.size()==0) {
+ if(revisions.pages[0]->revisions.size()==0) {
   cout << "Content not found." << endl;
   return true;
  }
  ofstream outfile(commandVector[2]);
  if(outfile) {
-  outfile << revisions.pages[0].revisions[0].content;
-  cout << "Page \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ") saved to file \"" << commandVector[2] << "\"" << endl;
+  outfile << revisions.pages[0]->revisions[0]->content;
+  cout << "Page \"" << revisions.pages[0]->title << "\" (" << revisions.pages[0]->pageid  << ") saved to file \"" << commandVector[2] << "\"" << endl;
  } else {
   cout << "Cannot save to file: " << commandVector[2] << endl;
  }
@@ -634,21 +634,21 @@ bool expectsHistory(const vector<string>& commandVector) {
   cout << "Page not found..." << endl;
   return true;
  }
- cout << "Revision history of \"" << revisions.pages[0].title << "\" (" << revisions.pages[0].pageid  << ")" << endl;
- if(revisions.pages[0].revisions.size()==0) {
+ cout << "Revision history of \"" << revisions.pages[0]->title << "\" (" << revisions.pages[0]->pageid  << ")" << endl;
+ if(revisions.pages[0]->revisions.size()==0) {
   cout << "Revisions not found." << endl;
   return true;
  }
- for(Revision r : revisions.pages[0].revisions) {
-  cout << "(" << to_string(r.revid) << "|" << to_string(r.parentid) << ")  ";
-  cout << r.timestamp << "  ";
-  cout << r.user;
-  for(unsigned int i=r.user.length(); i<20; i++) cout << ' ';
-  cout << r.title;
-  if(r.minor>0) cout << " m .. "; 
+ for(Revision* r : revisions.pages[0]->revisions) {
+  cout << "(" << to_string(r->revid) << "|" << to_string(r->parentid) << ")  ";
+  cout << r->timestamp << "  ";
+  cout << r->user;
+  for(unsigned int i=r->user.length(); i<20; i++) cout << ' ';
+  cout << r->title;
+  if(r->minor>0) cout << " m .. "; 
   else cout << "  .. "; 
-  cout << "(" << to_string(r.size) << " bytes)  ";
-  cout << "(" << r.comment << ")";
+  cout << "(" << to_string(r->size) << " bytes)  ";
+  cout << "(" << r->comment << ")";
   cout << endl;
  } 
  return true;

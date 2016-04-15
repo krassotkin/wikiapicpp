@@ -89,13 +89,14 @@ class MediaWikiActionAPIParameters {
   }
 
   void fromJson(const json11::Json& json) { 
-   //cout << "[[MediaWikiActionAPIParameters::fromJson]]..." << endl;
+   cout << "[[MediaWikiActionAPIParameters::fromJson]]..." << endl;
    fromJsonSuper(json);
+   //cout << "[[MediaWikiActionAPIParameters::fromJson] before fromJsonSub(json)" << endl;
    fromJsonSub(json);
   }
   
   void fromJsonString(const string& jsonString) {
-   //cout << "[[MediaWikiActionAPIParameters::fromJsonString]]..." << endl;
+   cout << "[[MediaWikiActionAPIParameters::fromJsonString]]..." << endl;
    res = jsonString;
    auto json = json11::Json::parse(jsonString, errJson);
    fromJson(json);
@@ -104,8 +105,11 @@ class MediaWikiActionAPIParameters {
   virtual void fromJsonSub(const json11::Json& json) = 0;
 
   void fromJsonSuper(const json11::Json& json) {
-   //cout << "[[MediaWikiActionAPIParameters::fromJsonThis]]..." << endl;
-   requestid_res = json["requestid"].string_value();      
+   cout << "[[MediaWikiActionAPIParameters::fromJsonSuper]]..." << endl; 
+   //cout << "[[MediaWikiActionAPIParameters::fromJsonSuper]] json[\"requestid\"].string_value(): " << json["requestid"].string_value() << endl; 
+   requestid_res = json["requestid"].string_value(); 
+   //cout << "[[MediaWikiActionAPIParameters::fromJsonSuper]] requestid_res: " << requestid_res << endl;  
+   //cout << "[[MediaWikiActionAPIParameters::fromJsonSuper]]... end" << endl;     
   }
 
   string getSuperParameters() {

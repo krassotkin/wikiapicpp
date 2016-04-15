@@ -54,29 +54,29 @@ void processTask(ActivityTask* task) {
       revisions.revisions.end(),
       [] (const Revision& a, const Revision& b) -> bool {return a.revid < b.revid;});
  for(unsigned ir =1; ir < revisions.revisions.size(); ir++) {
-  Revision r = revisions.revisions[ir];
+  Revision* r = revisions.revisions[ir];
   // for(Revision r : revisions.revisions) {
   string tagsJsonString = "";
-  for(string it : r.tags) tagsJsonString += (string)(tagsJsonString.length()==0 ? "" : ",") + "\""+it+"\"";
+  for(string it : r->tags) tagsJsonString += (string)(tagsJsonString.length()==0 ? "" : ",") + "\""+it+"\"";
   cout << "• "
        << task->loginInfo.site << ": "
        << "{"
-       << "\"revid\":" << r.revid
-       << ",\"parentid\":" << r.parentid
-       << ",\"timestamp\":\"" << r.timestamp << "\""
-       << ",\"ns\":\"" << r.ns << "\""
-       << ",\"pageid\":\"" << r.pageid << "\""
-       << ",\"title\":\"" << r.title << "\""
-       << (r.minor==-1 ? "" : ",\"minor\":\"\"") 
-       << (r.anon==-1 ? "" : ",\"anon\"=\"\"")
-       << ",\"user\":\"" << r.user << "\""
-       << ",\"userid\":" << r.userid
-       << ",\"size\":" << r.size
-       << ",\"comment\":\"" << r.comment << "\""
-       << (r.tags.size() == 0 ? "" : ",\"tags\":["+tagsJsonString + "]")
+       << "\"revid\":" << r->revid
+       << ",\"parentid\":" << r->parentid
+       << ",\"timestamp\":\"" << r->timestamp << "\""
+       << ",\"ns\":\"" << r->ns << "\""
+       << ",\"pageid\":\"" << r->pageid << "\""
+       << ",\"title\":\"" << r->title << "\""
+       << (r->minor==-1 ? "" : ",\"minor\":\"\"") 
+       << (r->anon==-1 ? "" : ",\"anon\"=\"\"")
+       << ",\"user\":\"" << r->user << "\""
+       << ",\"userid\":" << r->userid
+       << ",\"size\":" << r->size
+       << ",\"comment\":\"" << r->comment << "\""
+       << (r->tags.size() == 0 ? "" : ",\"tags\":["+tagsJsonString + "]")
        << "}" << endl;
  }
- task->lastTimestamp = revisions.revisions.back().timestamp;
+ task->lastTimestamp = revisions.revisions.back()->timestamp;
  //cout << "\t\tactivity::processTask task->lastTimestamp: " << task->lastTimestamp << endl;
 }
 
