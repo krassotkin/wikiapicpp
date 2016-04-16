@@ -11,10 +11,12 @@
 */
 
 #include <chrono>  
+#include <ctime>  
 #include <iostream>
 #include <map>
 #include <string>
 #include <thread>
+//#include <time.h>
 #include <tuple>
 #include <vector>
 
@@ -46,8 +48,12 @@ class RevisionsTracker {
 
   string errJson;
   MediaWikiActionAPI* mwaapi;
-  string lastChangesDateTimeString;
+  string lastdatetimepage;
+  string lastDateTimeString;
+  int lastdatetimeupdate;
+  int lastdatetimeupdate_i = 0;
   LoginInfo* loginInfo;
+  string previousDateTimeString;
   string settingsPage; // content of setteings page
   map<string,string> settingPagesMap;
   string settingsPageName;
@@ -55,6 +61,7 @@ class RevisionsTracker {
   int switchStatusPrevious = -1;
   chrono::milliseconds timeout_ms = TIMEOUT_MS;
   Tokens* tokens;
+  Welcome* welcome;
 
   RevisionsTracker() {}
 
@@ -63,12 +70,32 @@ class RevisionsTracker {
   }
 
   void init() {
-   //cout << "[RevisionsTracker::init] settingsPageName:" << settingsPageName << endl;
+   cout << "[RevisionsTracker::init] settingsPageName:" << settingsPageName << endl;
    loadSettingsPage();
    parseSettings();
+   loadLastDateTime();
+  }
+
+  void loadLastDateTime() {
+   cout << "[RevisionsTracker::loadLastDateTime]" << endl;
+   lastDateTimeString.clear();
+   if(loginInfo->site.length()==0) return;
+   if(lastdatetimepage.length()==0) return;
+   Revisions revisions;
+   revisions.titles = lastdatetimepage;
+   //cout << "[RevisionsTracker::loadLastDateTime] revisions.titles: " << revisions.titles << endl;
+   revisions.prop="content";
+   mwaapi->revisions(loginInfo, &revisions);
+   //cout << "[RevisionsTracker::loadLastDateTime] revisions.pages.size(): " << revisions.pages.size() << endl;
+   if(revisions.pages.size()==0) return;
+   //cout << "[RevisionsTracker::loadLastDateTime] revisions.pages[0].revisions.size(): " << revisions.pages[0].revisions.size() << endl;
+   if(revisions.pages[0].revisions.size()==0) return;
+   lastDateTimeString = revisions.pages[0].revisions[0].content;
+   cout << "[RevisionsTracker::loadLastDateTime] lastDateTimeString:" << lastDateTimeString << endl;
   }
 
   void loadSettingsPage() {
+   cout << "[RevisionsTracker::loadSettingsPage]" << endl;
    settingsPage.clear();
    //cout << "[RevisionsTracker::loadSettingsPage] loginInfo->site:" << loginInfo->site << endl;
    if(loginInfo->site.length()==0) return;
@@ -88,14 +115,24 @@ class RevisionsTracker {
   }
 
   void parseSettings() {
+   cout << "[RevisionsTracker::parseSettings]" << endl;
    settingPagesMap.clear();
    switchStatus = -1;
    //cout << "[RevisionsTracker::parseSettings] settingsPage.length():" << settingsPage.length() << endl;
    if(settingsPage.length()==0) return;
    auto json = json11::Json::parse(settingsPage, errJson);
+   lastdatetimepage = json["lastdatetimepage"].string_value();
+   lastdatetimeupdate = json["lastdatetimeupdate"].number_value();
+   cout << "[RevisionsTracker::parseSettings] lastdatetimeupdate:" << lastdatetimeupdate << endl;
    auto settingPagesJson = json["settingpages"].object_items();
    //cout << "[RevisionsTracker::parseSettings] settingPagesJson.size():" << settingPagesJson.size() << endl;
-   for(auto sp : settingPagesJson) settingPagesMap[sp.first] = sp.second.string_value();
+   for(auto sp : settingPagesJson) {
+    settingPagesMap[sp.first] = sp.second.string_value();
+    if(sp.first.compare("Welcome") == 0) {
+     cout << "[RevisionsTracker::parseSettings] found Welcome page" << endl;
+     welcome = new Welcome(mwaapi, loginInfo, tokens, settingPagesMap[sp.first]);
+    }
+   }
    string switchString = json["switch"].string_value();
    //cout << "[RevisionsTracker::parseSettings] switchString:" << switchString << endl;
    switchStatus = (SWITCH_ON_STATUS.compare(switchString) == 0);
@@ -116,28 +153,84 @@ class RevisionsTracker {
    if(switchStatus!=1) return;
    Revisions revisions;
    revisions.prop = revisions.PROP_ARV_ALL;
-   revisions.start = lastChangesFromDateTime;
+   revisions.end = lastChangesFromDateTime;
    processRevisions(&revisions);
   }
 
   void processRevisions(Revisions* revisions) {
    mwaapi->allrevisions(loginInfo, revisions);
+   //cout << "[RevisionsTracker::processRevisions] mwaapi->lastFullUrl: " << mwaapi->lastFullUrl << endl;
+   //cout << "[RevisionsTracker::processRevisions] mwaapi->lastPostFields: " << mwaapi->lastPostFields << endl;
+   //cout << "[RevisionsTracker::processRevisions] mwaapi->lastResponse:\n" << mwaapi->lastResponse << endl;
    cout << "[RevisionsTracker::processRevisions] revisions->revisions.size(): " << revisions->revisions.size() << endl;
+   while(revisions->continue_res.length()>0) {
+    revisions->continue_req = revisions->continue_res;
+    mwaapi->allrevisions(loginInfo, revisions);
+    //cout << "[RevisionsTracker::processRevisions] mwaapi->lastFullUrl: " << mwaapi->lastFullUrl << endl;
+    //cout << "[RevisionsTracker::processRevisions] mwaapi->lastPostFields: " << mwaapi->lastPostFields << endl;
+    //cout << "[RevisionsTracker::processRevisions] mwaapi->lastResponse:\n" << mwaapi->lastResponse << endl;
+    cout << "[RevisionsTracker::processRevisions] revisions->revisions.size(): " << revisions->revisions.size() << endl;
+   }
    if(revisions->revisions.size() == 0) {
     cout << "[RevisionsTracker::processRevisions] Revisions not found." << endl;
     return;
+   }
+   time_t lastTime = 0;
+   for(Revision revision : revisions->revisions) {
+    cout << "[RevisionsTracker::processRevisions] revision.title: " << revision.title << endl; 
+    if(revision.title.compare(lastdatetimepage)==0) {
+     cout << "[RevisionsTracker::processRevisions] skiped saveLastDateTime()" << endl; 
+     continue; // skip saveLastDateTime()
+    }
+    welcome->welcomeRevision(loginInfo, &revision);
+    struct tm tmTime;
+    strptime(revision.timestamp.c_str(), "%Y-%m-%dT%H:%M:%SZ", &tmTime);
+    time_t newTime = mktime(&tmTime);
+    if(newTime > lastTime) lastTime = newTime;
+   }
+   if(lastTime > 0) {
+    cout << "[RevisionsTracker::processRevisions] lastTime: " << lastTime << endl;
+    char buf[sizeof "2015-12-29T00:30:00Z"];
+    strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", localtime(&lastTime)); // gmtime(&lastTime));
+    //string lastTimeString(buf);
+    lastDateTimeString = string(buf);
+    cout << "[RevisionsTracker::processRevisions] lastDateTimeString: " << lastDateTimeString << endl;
    }
   }
 
   void runAsDaemon() {
    cout << "[RevisionsTracker::runAsDaemon]..." << endl;
-   if(switchStatus!=1) return;
-   processLastRevisions(COUNT_OF_LAST_CHANGES);
+   //if(switchStatus!=1) return;
+   //processLastRevisions(COUNT_OF_LAST_CHANGES);
    while(switchStatus) {
     testSwitch();
-    processLastRevisions(lastChangesDateTimeString);
+    processLastRevisions(lastDateTimeString);
+    lastdatetimeupdate_i++;
+    cout << "[RevisionsTracker::runAsDaemon] lastdatetimeupdate_i: " << lastdatetimeupdate_i << endl;
+    if(lastdatetimeupdate_i > lastdatetimeupdate) {
+     saveLastDateTime();
+     lastdatetimeupdate_i = 0;
+    }
     this_thread::sleep_for(timeout_ms);
    }
+  }
+
+  void saveLastDateTime() {
+   if(lastDateTimeString.length() == 0) return;
+   if(lastDateTimeString.compare(previousDateTimeString) == 0) return;
+   Edit edit;
+   edit.bot = 1;
+   edit.minor = 1;
+   edit.summary = "Update last DateTime of RevisionsTracker.";
+   edit.text = lastDateTimeString;
+   edit.title = lastdatetimepage;
+   cout << "[RevisionsTracker::saveLastDateTime] edit.text: \n" << edit.text << endl;
+   if(!loginInfo->isLogin()) {
+    cout << "[RevisionsTracker::saveLastDateTime] loginInfo->isLogin(): " << loginInfo->isLogin() << endl;
+    return; // not logined
+   }
+   mwaapi->edit(loginInfo, tokens, &edit); 
+   previousDateTimeString = lastDateTimeString;
   }
 
   void testSwitch() {

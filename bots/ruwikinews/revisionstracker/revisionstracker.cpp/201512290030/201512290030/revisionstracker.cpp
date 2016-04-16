@@ -93,6 +93,9 @@ int main(int argc, char *argv[]) {
  Tokens tokens;
  cout << "[revisionstracker] Tokens inited..." << endl;
 
+ mwaapi.login(&loginInfo, &tokens);
+ cout << "[revisionstracker] " << (loginInfo.isSuccess() ? "Success logined to " : "Login failed to ") << loginInfo.site << endl;
+
  RevisionsTracker revisionsTracker(&mwaapi, &loginInfo, &tokens, argv[3]);
  cout << "[revisionstracker] RevisionsTracker inited..." << endl;
 
@@ -112,4 +115,4 @@ int main(int argc, char *argv[]) {
  cout << "All tasks are successfully completed." << endl;
  return 0;
 }
- 
+
