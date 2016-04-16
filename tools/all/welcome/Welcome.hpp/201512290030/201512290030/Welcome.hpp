@@ -95,7 +95,7 @@ class Welcome {
    if(revisions.pages.size()==0) return;
    if(revisions.pages[0].revisions.size()==0) return;
    tasksPage = revisions.pages[0].revisions[0].content;
-   cout << "[Welcome::loadTasksPage] tasksPage:" << endl << tasksPage << endl;
+   //cout << "[Welcome::loadTasksPage] tasksPage:" << endl << tasksPage << endl;
   }
 
   void parseTasks() {
@@ -103,10 +103,10 @@ class Welcome {
    if(tasksPage.length()==0) return;
    auto json = json11::Json::parse(tasksPage, errJson);
    auto tasksJson = json["tasks"].array_items();
-   cout << "[Welcome::parseTasks] tasksJson.size(): " << tasksJson.size() << endl;
+   //cout << "[Welcome::parseTasks] tasksJson.size(): " << tasksJson.size() << endl;
    for(auto ti : tasksJson) {
     auto tio = ti.object_items();
-    cout << "[Welcome::parseTasks] tio.size(): " << tio.size() << endl;
+    //cout << "[Welcome::parseTasks] tio.size(): " << tio.size() << endl;
     WelcomeTask task;
     task.project = tio["project"].string_value();
     task.loginInfo.update(tio["site"].string_value(), loginInfo->lgname, loginInfo->lgpassword);
@@ -215,15 +215,15 @@ class Welcome {
    task->processedUsers[userName] = true;
    Revisions revisions;
    revisions.titles = "User talk: "+userName;
-   cout << "[Welcome::welcomeUserRaw] revisions.title: " << revisions.titles << endl;
+   //cout << "[Welcome::welcomeUserRaw] revisions.title: " << revisions.titles << endl;
    revisions.prop="content";
    mwaapi->revisions(&task->loginInfo, &revisions);
-   cout << "[Welcome::welcomeUserRaw] revisions.pages.size(): " << revisions.pages.size() << endl;
+   //cout << "[Welcome::welcomeUserRaw] revisions.pages.size(): " << revisions.pages.size() << endl;
    if(revisions.pages.size() == 0) { // Not found... and strange error.
     cout << "[Welcome::welcomeUserRaw] Not found... and strange error." << endl;
     return;
    }
-   cout << "[Welcome::welcomeUserRaw] revisions.pages[0].revisions.size(): " << revisions.pages[0].revisions.size() << endl;
+   //cout << "[Welcome::welcomeUserRaw] revisions.pages[0].revisions.size(): " << revisions.pages[0].revisions.size() << endl;
    if(revisions.pages[0].revisions.size() != 0) { // Page exists
     cout << "[Welcome::welcomeUserRaw] Page exists." << endl;
     return; 
@@ -242,7 +242,7 @@ class Welcome {
              + task->temp
              + "}}\n"
              + signature
-             + "\n";
+             + " ~~~~~ \n";
    edit.summary = task->summary;
    cout << "[Welcome::welcomeUser] edit.text: \n" << edit.text << endl;
    if(!task->loginInfo.isLogin()) {

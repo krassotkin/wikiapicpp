@@ -44,7 +44,7 @@ class RevisionsTracker {
 
   const int COUNT_OF_LAST_CHANGES = 10;
   const string SWITCH_ON_STATUS = "on";
-  chrono::milliseconds TIMEOUT_MS = chrono::milliseconds(1000);
+  chrono::milliseconds TIMEOUT_MS = chrono::milliseconds(10000);
 
   string errJson;
   MediaWikiActionAPI* mwaapi;
@@ -54,6 +54,7 @@ class RevisionsTracker {
   int lastdatetimeupdate_i = 0;
   LoginInfo* loginInfo;
   string previousDateTimeString;
+  map<long int, bool> processedRevisionsMap;
   string settingsPage; // content of setteings page
   map<string,string> settingPagesMap;
   string settingsPageName;
@@ -177,7 +178,9 @@ class RevisionsTracker {
    }
    time_t lastTime = 0;
    for(Revision revision : revisions->revisions) {
-    cout << "[RevisionsTracker::processRevisions] revision.title: " << revision.title << endl; 
+    if(processedRevisionsMap.find(revision.revid) != processedRevisionsMap.end()) continue;
+    processedRevisionsMap[revision.revid] = true;
+    cout << "[RevisionsTracker::processRevisions] revision (id/title): [" << revision.revid << "; " << revision.timestamp << "] " << revision.title  << endl; 
     if(revision.title.compare(lastdatetimepage)==0) {
      cout << "[RevisionsTracker::processRevisions] skiped saveLastDateTime()" << endl; 
      continue; // skip saveLastDateTime()
@@ -207,10 +210,8 @@ class RevisionsTracker {
     processLastRevisions(lastDateTimeString);
     lastdatetimeupdate_i++;
     cout << "[RevisionsTracker::runAsDaemon] lastdatetimeupdate_i: " << lastdatetimeupdate_i << endl;
-    if(lastdatetimeupdate_i > lastdatetimeupdate) {
-     saveLastDateTime();
-     lastdatetimeupdate_i = 0;
-    }
+    if(lastdatetimeupdate_i == 1) saveLastDateTime();
+    if(lastdatetimeupdate_i == lastdatetimeupdate) lastdatetimeupdate_i = 0;
     this_thread::sleep_for(timeout_ms);
    }
   }

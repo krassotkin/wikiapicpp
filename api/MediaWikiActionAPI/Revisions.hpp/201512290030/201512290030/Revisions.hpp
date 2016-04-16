@@ -270,10 +270,12 @@ class Revisions : public MediaWikiActionAPIParameters {
 
 
   // Interfaces
-  map<long int, Page*> pagesById;
+  map<long int, int> pagesById; // pageid - index in pages
+  //map<long int, Page*> pagesById;
   //map<long int, Page> pagesById;
   map<string, string> pagesNormalizedTitles;
-  map<string, Page*> pagesByTitle;
+  map<string, int> pagesByTitle; // pagetitle - index in pages
+  // map<string, Page*> pagesByTitle;
   //map<string, Page> pagesByTitle;
   vector<Revision> revisions;
 
@@ -348,20 +350,23 @@ class Revisions : public MediaWikiActionAPIParameters {
      page.fromJson(ipro.second);
      pages.push_back(page);
      //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
-     Page* pagePointer = &pages[pages.size()-1];
+     //Page* pagePointer = &pages[pages.size()-1];
      //cout << "[[Revisions::fromJson]] page.pageid: " << page.pageid << endl;
-     pagesById[page.pageid] = pagePointer;
+     //pagesById[page.pageid] = pagePointer;
      //cout << "[[Revisions::fromJson]] page.title: " << page.title << endl;
-     pagesByTitle[page.title] = pagePointer;
+     //pagesByTitle[page.title] = pagePointer;
+     pagesById[page.pageid] = pages.size()-1;
+     pagesByTitle[page.title] = pages.size()-1;
      /*
      pagesById[page.pageid] = page;
      pagesByTitle[page.title] = page;
      */
     } else {
      //cout << "[[Revisions::fromJson]] stol(ipro.first): " << stol(ipro.first) << endl;
-     //cout << "[[Revisions::fromJson]] pagesById[stol(ipro.first)]: " << pagesById[stol(ipro.first)] << endl;
-     pagesById[stol(ipro.first)]->fromJson(ipro.second);
+     cout << "[[Revisions::fromJson]] pagesById[stol(ipro.first)]: " << pagesById[stol(ipro.first)] << endl;
+     //pagesById[stol(ipro.first)]->fromJson(ipro.second);
      //pagesById[stol(ipro.first)].fromJson(ipro.second);
+     pages[pagesById[stol(ipro.first)]].fromJson(ipro.second);
     }
    }
 
@@ -375,21 +380,24 @@ class Revisions : public MediaWikiActionAPIParameters {
     if(pagesById.find(page.pageid) == pagesById.end()) {
      pages.push_back(page);
      //cout << "[[Revisions::fromJson]] pages.size(): " << pages.size() << endl;
-     Page* pagePointer = &pages[pages.size()-1];
+     //Page* pagePointer = &pages[pages.size()-1];
      //cout << "[[Revisions::fromJson]] pagePointer: " << pagePointer << endl;
      //cout << "[[Revisions::fromJson]] page.pageid (new): " << page.pageid << endl;
-     pagesById[page.pageid] = pagePointer;
+     //pagesById[page.pageid] = pagePointer;
      //cout << "[[Revisions::fromJson]] page.title: " << page.title << endl;
-     pagesByTitle[page.title] = pagePointer;
+     //pagesByTitle[page.title] = pagePointer;
+     pagesById[page.pageid] = pages.size()-1;
+     pagesByTitle[page.title] = pages.size()-1;
      /*
      pagesById[page.pageid] = page;
      pagesByTitle[page.title] = page;
      */
     } else {
      //cout << "[[Revisions::fromJson]] page.pageid (old): " << page.pageid << endl;
-     Page* pagePointer = pagesById[page.pageid];
+     //Page* pagePointer = pagesById[page.pageid];
      //cout << "[[Revisions::fromJson]] pagesById[page.pageid]: pagePointer" << pagePointer << endl;
-     pagePointer->fromJson(ipra);
+     //pagePointer->fromJson(ipra);
+     pages[pagesById[page.pageid]].fromJson(ipra);
      //pagesById[page.pageid]->fromJson(ipra);
      //pagesById[pageRevisions.pageid].fromJson(ipra);
     }

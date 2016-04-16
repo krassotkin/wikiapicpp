@@ -80,13 +80,16 @@ class Page : public MediaWikiActionAPIParameters {
 
   // Response
   vector<Category> categories;
-  map<string, Category*> categoriesMap;
+  map<string, int> categoriesMap; // category name - index in categories
+  // map<string, Category*> categoriesMap;
   vector<LogEvent> logEvents;
-  map<long int, LogEvent*> logEventsMap;
+  map<long int, int> logEventsMap; // event id - index in logEvents
+  // map<long int, LogEvent*> logEventsMap;
   int ns=-1;
   long int pageid=-1;
   vector<Revision> revisions;
-  map<long int, Revision*> revisionsMap;
+  map<long int, int> revisionsMap; // revisions id  - index in revisions
+  // map<long int, Revision*> revisionsMap;
   string title;
 
   void clearRequest() {}
@@ -135,7 +138,8 @@ class Page : public MediaWikiActionAPIParameters {
     revision.title = title;
     //cout << "[[Page::fromJson]] (revisionsMap.find(revision.revid) == revisionsMap.end()): " << (revisionsMap.find(revision.revid) == revisionsMap.end()) << endl;
     revisions.push_back(revision);
-    revisionsMap[revision.revid] = &revisions[revisions.size()-1];
+    //revisionsMap[revision.revid] = &revisions[revisions.size()-1];
+    revisionsMap[revision.revid] = revisions.size()-1;
    }
 
    auto categoriesJson = json["categories"].array_items();
@@ -145,7 +149,8 @@ class Page : public MediaWikiActionAPIParameters {
     category.fromJson(ipr);
     if(categoriesMap.find(category.title) != categoriesMap.end()) continue;
     categories.push_back(category);
-    categoriesMap[category.title] = &categories[categories.size()-1];
+    //categoriesMap[category.title] = &categories[categories.size()-1];
+    categoriesMap[category.title] = categories.size()-1;
    }
   }
   

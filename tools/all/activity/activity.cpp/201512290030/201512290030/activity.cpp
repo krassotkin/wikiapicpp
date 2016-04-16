@@ -7,7 +7,7 @@
  Usage:
  ./activity <-option> [<-option>] <url> [<-url>]
 
- Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/), Simon Krassotkin
+ Public Domain by authors: Alexander Krassotkin (http://www.krassotkin.com/) and Simon Krassotkin
  since 2015-12-29
 */
 
