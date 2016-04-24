@@ -43,6 +43,9 @@ using namespace std;
 #include "Rollback.hpp"
 #include "Search.hpp"
 #include "SearchItem.hpp"
+#include "Sitematrix.hpp"
+#include "SitematrixLanguage.hpp"
+#include "Site.hpp"
 #include "Tokens.hpp"
 
 class MediaWikiActionAPI {
@@ -556,6 +559,31 @@ https://www.mediawiki.org/wiki/API:Rollback
    lastResponse = res;
    //cout << "\t\tmwaapi::search res:" << res << endl;
    search->fromJsonString(res);
+  }
+
+/*
+ Sitematrix:
+https://en.wikipedia.org/w/api.php?action=help&modules=sitematrix
+*/
+
+  void sitematrix(LoginInfo* loginInfo, Sitematrix* sitematrix){
+   if(loginInfo->site.length() == 0) return;
+   string fullUrl = loginInfo->site+endpointPart+"?"
+                    + "action=sitematrix"
+                    + (sitematrix->smtype.length() > 0 ? "&smtype=" + escape(sitematrix->smtype) : "")
+                    + (sitematrix->smstate.length() > 0 ? "&smstate=" + escape(sitematrix->smstate) : "")
+                    + (sitematrix->smlangprop.length() > 0 ? "&smlangprop=" + escape(sitematrix->smlangprop) : "")
+                    + (sitematrix->smsiteprop.length() > 0 ? "&smsiteprop=" + escape(sitematrix->smsiteprop) : "")
+                    + (sitematrix->smcontinue.length() > 0 ? "&smcontinue=" + escape(sitematrix->smcontinue) : "")
+                    + (sitematrix->smlimit == -1 ? "" : "&smlimit=" + to_string(sitematrix->smlimit))
+                    + sitematrix->getSuperParameters();
+   lastFullUrl = fullUrl;
+   //cout << "\t\tmwaapi::sitematrix fullUrl: " << fullUrl << endl;
+   lastPostFields = "";
+   string res=curlWrapper.getFirstPagePost(fullUrl);
+   lastResponse = res;
+   //cout << "\t\tmwaapi::sitematrix res:" << res << endl;
+   sitematrix->fromJsonString(res);
   }
   
 /*
