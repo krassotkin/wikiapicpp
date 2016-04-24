@@ -50,6 +50,9 @@ For help type:
 #include "Rollback.hpp"
 #include "Search.hpp"
 #include "SearchItem.hpp"
+#include "Sitematrix.hpp"
+#include "SitematrixLanguage.hpp"
+#include "Site.hpp"
 #include "Tokens.hpp"
 
 // abstract
@@ -926,6 +929,72 @@ bool expectsSites(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsSitematrix(const vector<string>& commandVector){
+ if(commandVector.size()<1 || commandVector[0].compare("sitematrix")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrix" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrix" << endl;
+  return true;
+ }
+ Sitematrix sitematrix;  
+ mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(sitematrix.sitematrixLanguage.size()==0) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ } else for(SitematrixLanguage si : sitematrix.sitematrixLanguage) cout << "• " << si.code << "\t" << si.localname << endl;
+ return true;
+}
+
+bool expectsisLangPrefix(const vector<string>& commandVector){
+ if(commandVector.size()<1 || commandVector[0].compare("isLangPrefix")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrix limit" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrix ru" << endl;
+  return true;
+ }
+ Sitematrix sitematrix;  
+ mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(sitematrix.sitematrixLanguage.size()==0) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ } else {
+  if(sitematrix.isLangPrefix(commandVector[1])) cout<<"Lang prefix\n";
+  else cout << "Nope\n";
+ } 
+ return true;
+}
+
+bool expectsisDbname(const vector<string>& commandVector){
+ if(commandVector.size()<1 || commandVector[0].compare("isDbname")!=0) return false;
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrix limit" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrix ru" << endl;
+  return true;
+ }
+ Sitematrix sitematrix;  
+ mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(sitematrix.sitematrixLanguage.size()==0) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ } else {
+  if(sitematrix.isDbname(commandVector[1])) cout<<"Dbname\n";
+  else cout << "Nope\n";
+ } 
+ return true;
+}
+
 bool expectsTokens(const vector<string>& commandVector){
  if(commandVector[0].compare("tokens") != 0) return false;
  if(!loginInfo.isLogin()) {
@@ -1090,6 +1159,9 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsRollback(commandVector)) return true;
  if(expectsSite(commandVector)) return true;
  if(expectsSites(commandVector)) return true;
+ if(expectsSitematrix(commandVector))return true;
+ if(expectsisLangPrefix(commandVector))return true;
+ if(expectsisDbname(commandVector))return true;
  if(expectsSearch(commandVector)) return true;
  if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
@@ -1176,6 +1248,9 @@ void showHelp() {
  cout << "  search          Perform a full text search." << endl;
  cout << "  site            Print url of connected site (after login or empty)." << endl;
  cout << "  sites           Print urls of all wikimedia projects." << endl;
+ cout << "  sitematrix      get Wikimedia sites list." << endl;
+ cout << "  isLangPrefix    check printed prefixes to lang." << endl;
+ cout << "  isDbname        check printed prefixes to dbname." << endl;
  cout << "  tokens          Get tokens for data-modifying actions." << endl;
  cout << "                  Format: tokens <type>" << endl; 
  cout << "                   <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
@@ -1216,6 +1291,7 @@ void showVersions() {
  cout << "\tRollback                     " << Rollback::versionMajor << "." << Rollback::versionMinor << endl;
  cout << "\tSearch                       " << Search::versionMajor << "." << Search::versionMinor << endl;
  cout << "\tSearchItem                   " << SearchItem::versionMajor << "." << SearchItem::versionMinor << endl;
+ cout << "\tSitematrix                   " << Sitematrix::versionMajor << "." << Sitematrix::versionMinor << endl;
  cout << "\tTokens                       " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
  cout << "\tWikimediaProject             " << WikimediaProject::versionMajor << "." << WikimediaProject::versionMinor << endl;
  cout << "\tWikimediaProjects            " << WikimediaProjects::versionMajor << "." << WikimediaProjects::versionMinor << endl;
