@@ -70,6 +70,7 @@ string consolePrefix = consolePrefixDefault;
 LoginInfo loginInfo;
 MediaWikiActionAPI mwaapi;
 chrono::nanoseconds timeout = chrono::seconds(1);
+Sitematrix sitematrix;  
 Tokens tokens;
 
 void showHelp();
@@ -657,6 +658,68 @@ bool expectsHistory(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsIsDbname(const vector<string>& commandVector){
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("isDbname")!=0
+    && commandVector[0].compare("isdbname")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"history\"." << endl;
+  return true;
+ }
+ if (commandVector.size() < 2) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrix dbname" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrix ruwiki" << endl;
+  return true;
+ }
+ if(!sitematrix.isReady()) mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(!sitematrix.isReady()) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ }
+ cout << "\""+commandVector[1]+"\"";
+ if(sitematrix.isDbname(commandVector[1])) cout << " is";
+ else cout << " isn't";
+ cout << " dbname." << endl;
+ return true;
+}
+
+bool expectsIsLangPrefix(const vector<string>& commandVector) {
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("isLangPrefix")!=0
+    && commandVector[0].compare("islangprefix")!=0
+    && commandVector[0].compare("isLangCode")!=0
+    && commandVector[0].compare("islangcode")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"history\"." << endl;
+  return true;
+ }
+ if (commandVector.size() < 2) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrix langcode" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrix ru" << endl;
+  return true;
+ } 
+ if(!sitematrix.isReady()) mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(!sitematrix.isReady()) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ };
+ cout << "\""+commandVector[1]+"\"";
+ if(sitematrix.isLangPrefix(commandVector[1])) cout << " is";
+ else cout << " isn't";
+ cout << " language prefix." << endl;
+ return true;
+}
+
 bool expectsLogEvents(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("logevents")!=0) return false;
  if(loginInfo.site.length()==0) {
@@ -923,75 +986,71 @@ bool expectsSite(const vector<string>& commandVector) {
  return true;
 }
 
+bool expectsSitematrix(const vector<string>& commandVector) {
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("sitematrix")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"history\"." << endl;
+  return true;
+ }
+ if (commandVector.size() < 1) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrix" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrix" << endl;
+  return true;
+ }
+ if(!sitematrix.isReady()) mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(!sitematrix.isReady()) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ }
+ for(SitematrixLanguage sil : sitematrix.sitematrixLanguage) 
+  for(Site si : sil.sites)
+   cout << "• " << si.dbname << "\t" << si.url << endl;
+ for(Site si : sitematrix.specials) 
+  cout << "• " << si.dbname << "\t" << si.url << endl;
+ return true;
+}
+
+bool expectsSitematrixDetails(const vector<string>& commandVector) {
+ if(commandVector.size()<1) return false;
+ if(commandVector[0].compare("sitematrixDetails")!=0
+    && commandVector[0].compare("sitematrixdetails")!=0) return false;
+ if(loginInfo.site.length()==0) {
+  cout << "You are not logged in..." << endl;
+  cout << "Use \"login\" (can be a failed) before \"history\"." << endl;
+  return true;
+ }
+ if (commandVector.size() < 2) {
+  cout << "Very few arguments for searching..." << endl;
+  cout << "Sitematrix format:" << endl;
+  cout << "\tsitematrixdetails <code dbname or url or site or sitename>" << endl;
+  cout << "Example:" << endl;
+  cout << "\tsitematrixdetails ruwikinews" << endl;
+  return true;
+ }
+ if(!sitematrix.isReady()) mwaapi.sitematrix(&loginInfo, &sitematrix);
+ if(!sitematrix.isReady()) {
+  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
+  cout << sitematrix.res << endl;
+  return true;
+ }
+ Site site = sitematrix.getSite(commandVector[1]);
+ if(site.url.length() > 0) {
+  cout << site.toJson() << endl;
+ } else {
+  cout << "Wikimedia hasn't such site." << endl;
+ }
+ return true;
+}
+
 bool expectsSites(const vector<string>& commandVector) {
  if(commandVector.size()<1 || commandVector[0].compare("sites")!=0) return false;
  for(WikimediaProject wp : WikimediaProjects::list) cout << wp.getSite() << endl;
- return true;
-}
-
-bool expectsSitematrix(const vector<string>& commandVector){
- if(commandVector.size()<1 || commandVector[0].compare("sitematrix")!=0) return false;
- if (commandVector.size() < 1) {
-  cout << "Very few arguments for searching..." << endl;
-  cout << "Sitematrix format:" << endl;
-  cout << "\tsitematrix" << endl;
-  cout << "Example:" << endl;
-  cout << "\tsitematrix" << endl;
-  return true;
- }
- Sitematrix sitematrix;  
- mwaapi.sitematrix(&loginInfo, &sitematrix);
- if(sitematrix.sitematrixLanguage.size()==0) {
-  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
-  cout << sitematrix.res << endl;
-  return true;
- } else for(SitematrixLanguage si : sitematrix.sitematrixLanguage) cout << "• " << si.code << "\t" << si.localname << endl;
- return true;
-}
-
-bool expectsisLangPrefix(const vector<string>& commandVector){
- if(commandVector.size()<1 || commandVector[0].compare("isLangPrefix")!=0) return false;
- if (commandVector.size() < 1) {
-  cout << "Very few arguments for searching..." << endl;
-  cout << "Sitematrix format:" << endl;
-  cout << "\tsitematrix limit" << endl;
-  cout << "Example:" << endl;
-  cout << "\tsitematrix ru" << endl;
-  return true;
- }
- Sitematrix sitematrix;  
- mwaapi.sitematrix(&loginInfo, &sitematrix);
- if(sitematrix.sitematrixLanguage.size()==0) {
-  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
-  cout << sitematrix.res << endl;
-  return true;
- } else {
-  if(sitematrix.isLangPrefix(commandVector[1])) cout<<"Lang prefix\n";
-  else cout << "Nope\n";
- } 
- return true;
-}
-
-bool expectsisDbname(const vector<string>& commandVector){
- if(commandVector.size()<1 || commandVector[0].compare("isDbname")!=0) return false;
- if (commandVector.size() < 1) {
-  cout << "Very few arguments for searching..." << endl;
-  cout << "Sitematrix format:" << endl;
-  cout << "\tsitematrix limit" << endl;
-  cout << "Example:" << endl;
-  cout << "\tsitematrix ru" << endl;
-  return true;
- }
- Sitematrix sitematrix;  
- mwaapi.sitematrix(&loginInfo, &sitematrix);
- if(sitematrix.sitematrixLanguage.size()==0) {
-  cout << "Something went wrong..." << endl << "Read server response:" <<  endl;
-  cout << sitematrix.res << endl;
-  return true;
- } else {
-  if(sitematrix.isDbname(commandVector[1])) cout<<"Dbname\n";
-  else cout << "Nope\n";
- } 
  return true;
 }
 
@@ -1150,6 +1209,8 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsEscape(commandVector)) return true;
  if(expectsHelp(commandVector)) return true;
  if(expectsHistory(commandVector)) return true;
+ if(expectsIsDbname(commandVector))return true;
+ if(expectsIsLangPrefix(commandVector))return true;
  if(expectsLogin(commandVector))return true;
  if(expectsLoginAll(commandVector))return true;
  if(expectsLogout(commandVector)) return true;
@@ -1160,8 +1221,7 @@ bool parseCommandLine(const vector<string>& commandVector) {
  if(expectsSite(commandVector)) return true;
  if(expectsSites(commandVector)) return true;
  if(expectsSitematrix(commandVector))return true;
- if(expectsisLangPrefix(commandVector))return true;
- if(expectsisDbname(commandVector))return true;
+ if(expectsSitematrixDetails(commandVector))return true;
  if(expectsSearch(commandVector)) return true;
  if(expectsTokens(commandVector)) return true;
  if(expectsThank(commandVector)) return true;
@@ -1193,76 +1253,77 @@ void showHelp() {
  cout << endl << "Console format:" << endl;
  cout << "\t<command> <options>" << endl;
  cout << endl << "The most commonly used wikiapicpp commands are:" << endl;
- cout << "  allpages        Enumerate all pages sequentially in a given namespace (without redirects)." << endl;
- cout << "                  Examples: allpages 0" << endl;
- cout << "  categories      List all categories the pages belong to." << endl;
- cout << "                  Format: categories \"Name or id of a page\"" << endl;
- cout << "                  Example: categories \"Category:Google\"" << endl;
- cout << "  categorymembers List all pages in a given category." << endl;
- cout << "                  Format: categorymembers \"Name or id of a page\"" << endl;
- cout << "                  Example: categorymembers \"Category:Google\"" << endl;
- cout << "  content         Return content of a wikipage. Use after \"login\"." << endl;
- cout << "                  Format: content \"Name or id of a page\"" << endl;
- cout << "                  Example: content \"Main Page\"" << endl;
- cout << "  compare         Return diff between to page. Use after \"login\"." << endl;
- cout << "                  Format: compare \"Type from: title, pageid, revid\" \"Diff, id, or revid of a page from\" \"Diff, id, or revid of a page to\"" << endl;
- cout << "                  Example: compare \"title\" \"Apple\" \"Google\"" << endl;
- cout << "                  Aliase: diff." << endl;
- cout << "  create          Create a wikipage. Use after \"login\"." << endl;
- cout << "                  Format: create \"User:Wikiapicpp/test page\"" << endl;
- cout << "                  Example: content \"Main Page\"" << endl;
- cout << "  createaccount   Create a new user account." << endl;
- cout << "                  Format: createaccount username password email reason" << endl;
- cout << "                  Example: createaccount https://meta.wikimedia.org ExampleBot rte1EsB2 example.bot@gmail.ru \"For fun\"" << endl;
- cout << "  diff            A aliase for \"compare\"." << endl;
- cout << "  download        Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
- cout << "                  Format: download \"Name or id of a page\" \"Path to file\"" << endl;
- cout << "                  Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
- cout << "  echo            Show parsed command line with options." << endl;
- cout << "  escape          Escape a text" << endl;
- cout << "                  Format: escape \"a text\"" << endl;
- cout << "                  Example: escape \"a text\"" << endl;
- cout << "  help            Show this help." << endl;
- cout << "                  Aliases: --help, -h, h, help." << endl;
- cout << "  history         Show standard history of page. Use after \"login\"." << endl;
- cout << "                  Format: history \"Name or id of a page\" <number of revisions> <from id or date> <to id or date>" << endl;
- cout << "                  Example: history \"Main Page\"" << endl;
- cout << "                  Type \"history\" without quotes and options for more information." << endl;
- cout << "  login           Login to a media wiki server." << endl;
- cout << "                  Format: login site username userpassword" << endl;
- cout << "                  Example: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
- cout << "  loginall        Login to all media wiki projects." << endl;
- cout << "                  Format: loginall username userpassword" << endl;
- cout << "                  Example: loginall bob bobsecretpass" << endl;
- cout << "  logout          Log out and clear session data." << endl;
- cout << "  logevents       Get events from logs." << endl;
- cout << "  purge           Purge the cache for the given titles." << endl;
- cout << "                  Example: purge \"Main Page\"" << endl;
- cout << "  quit            Exit from console." << endl;
- cout << "                  Aliases: bye, exit, q." << endl;
- cout << "  recentchanges   Return recent changes of seledted wiki." << endl;
- cout << "                  Format: recentchanges <number of revisions> <from date> <to date>" << endl;
- cout << "                  Aliases: recent." << endl;
- cout << "  rollback        Roll back the last edits of the user of the page." << endl;
- cout << "                  Format: rollback \"Title or id of a page\" UserName \"Summary\"" << endl;
- cout << "  search          Perform a full text search." << endl;
- cout << "  site            Print url of connected site (after login or empty)." << endl;
- cout << "  sites           Print urls of all wikimedia projects." << endl;
- cout << "  sitematrix      get Wikimedia sites list." << endl;
- cout << "  isLangPrefix    check printed prefixes to lang." << endl;
- cout << "  isDbname        check printed prefixes to dbname." << endl;
- cout << "  tokens          Get tokens for data-modifying actions." << endl;
- cout << "                  Format: tokens <type>" << endl; 
- cout << "                   <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
- cout << "                  Example: tokens csrf" << endl;
- cout << "  thank           Send a thank-you notification to an editor." << endl; 
- cout << "  undo            Undo a revision." << endl;
- cout << "                  Format: undo \"Name or id of a page\" \"Id of revision\"" << endl;
- cout << "  upload          Upload content of a file from local disc to a wikipage. Use after \"login\"." << endl;
- cout << "                  Format: upload \"Name or id of a page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
- cout << "                  Example: upload \"Main Page\" \"apage\" \"update data\"" << endl;
- cout << "  versions        Show versions of wikiconsole and components (major.minor)." << endl;
- cout << "                  Aliases: --version, --versions, -v, version, versions." << endl;
+ cout << "  allpages           Enumerate all pages sequentially in a given namespace (without redirects)." << endl;
+ cout << "                     Examples: allpages 0" << endl;
+ cout << "  categories         List all categories the pages belong to." << endl;
+ cout << "                     Format: categories \"Name or id of a page\"" << endl;
+ cout << "                     Example: categories \"Category:Google\"" << endl;
+ cout << "  categorymembers    List all pages in a given category." << endl;
+ cout << "                     Format: categorymembers \"Name or id of a page\"" << endl;
+ cout << "                     Example: categorymembers \"Category:Google\"" << endl;
+ cout << "  content            Return content of a wikipage. Use after \"login\"." << endl;
+ cout << "                     Format: content \"Name or id of a page\"" << endl;
+ cout << "                     Example: content \"Main Page\"" << endl;
+ cout << "  compare            Return diff between to page. Use after \"login\"." << endl;
+ cout << "                     Format: compare \"Type from: title, pageid, revid\" \"Diff, id, or revid of a page from\" \"Diff, id, or revid of a page to\"" << endl;                       
+ cout << "                     Example: compare \"title\" \"Apple\" \"Google\"" << endl;
+ cout << "                     Aliase: diff." << endl;
+ cout << "  create             Create a wikipage. Use after \"login\"." << endl;
+ cout << "                     Format: create \"User:Wikiapicpp/test page\"" << endl;
+ cout << "                     Example: content \"Main Page\"" << endl;
+ cout << "  createaccount      Create a new user account." << endl;
+ cout << "                     Format: createaccount username password email reason" << endl;
+ cout << "                     Example: createaccount https://meta.wikimedia.org ExampleBot rte1EsB2 example.bot@gmail.ru \"For fun\"" << endl;
+ cout << "  diff               A aliase for \"compare\"." << endl;
+ cout << "  download           Download and save content of a wikipage to a local disc. Use after \"login\"." << endl;
+ cout << "                     Format: download \"Name or id of a page\" \"Path to file\"" << endl;
+ cout << "                     Example: download \"Main Page\" \"wikipedia.main.page\"" << endl;
+ cout << "  echo               Show parsed command line with options." << endl;
+ cout << "  escape             Escape a text" << endl;
+ cout << "                     Format: escape \"a text\"" << endl;
+ cout << "                     Example: escape \"a text\"" << endl;
+ cout << "  help               Show this help." << endl;
+ cout << "                     Aliases: --help, -h, h, help." << endl;
+ cout << "  history            Show standard history of page. Use after \"login\"." << endl;
+ cout << "                     Format: history \"Name or id of a page\" <number of revisions> <from id or date> <to id or date>" << endl;
+ cout << "                     Example: history \"Main Page\"" << endl;
+ cout << "                     Type \"history\" without quotes and options for more information." << endl;
+ cout << "  isdbname           Check  prefixes to dbname." << endl;
+ cout << "  islangprefix       Check prefixes to lang." << endl;
+ cout << "  login              Login to a media wiki server." << endl;
+ cout << "                     Format: login site username userpassword" << endl;
+ cout << "                     Example: login https://en.wikipedia.org/ bob bobsecretpass" << endl;
+ cout << "  loginall           Login to all media wiki projects." << endl;
+ cout << "                     Format: loginall username userpassword" << endl;
+ cout << "                     Example: loginall bob bobsecretpass" << endl;
+ cout << "  logout             Log out and clear session data." << endl;
+ cout << "  logevents          Get events from logs." << endl;
+ cout << "  purge              Purge the cache for the given titles." << endl;
+ cout << "                     Example: purge \"Main Page\"" << endl;
+ cout << "  quit               Exit from console." << endl;
+ cout << "                     Aliases: bye, exit, q." << endl;
+ cout << "  recentchanges      Return recent changes of seledted wiki." << endl;
+ cout << "                     Format: recentchanges <number of revisions> <from date> <to date>" << endl;
+ cout << "                     Aliases: recent." << endl;
+ cout << "  rollback           Roll back the last edits of the user of the page." << endl;
+ cout << "                     Format: rollback \"Title or id of a page\" UserName \"Summary\"" << endl;
+ cout << "  search             Perform a full text search." << endl;
+ cout << "  site               Print url of connected site (after login or empty)." << endl;
+ cout << "  sites              Print urls of all wikimedia projects." << endl;
+ cout << "  sitematrix         Get Wikimedia sites list." << endl;
+ cout << "  sitematrixdetails  Get a Wikimedia site details." << endl;
+ cout << "  tokens             Get tokens for data-modifying actions." << endl;
+ cout << "                     Format: tokens <type>" << endl; 
+ cout << "                      <type>  (separate with |): block, centralauth, csrf, delete, deleteglobalaccount, edit, email, import, move, options, patrol, protect, rollback, setglobalaccountstatus, unblock, userrights, watch." << endl;
+ cout << "                     Example: tokens csrf" << endl;
+ cout << "  thank              Send a thank-you notification to an editor." << endl; 
+ cout << "  undo               Undo a revision." << endl;
+ cout << "                     Format: undo \"Name or id of a page\" \"Id of revision\"" << endl;
+ cout << "  upload             Upload content of a file from local disc to a wikipage. Use after \"login\"." << endl;
+ cout << "                     Format: upload \"Name or id of a page\" \"Path to file\" <\"Summary (description) of the changes\">" << endl;
+ cout << "                     Example: upload \"Main Page\" \"apage\" \"update data\"" << endl;
+ cout << "  versions           Show versions of wikiconsole and components (major.minor)." << endl;
+ cout << "                     Aliases: --version, --versions, -v, version, versions." << endl;
  cout << endl;
 }
 
@@ -1291,7 +1352,9 @@ void showVersions() {
  cout << "\tRollback                     " << Rollback::versionMajor << "." << Rollback::versionMinor << endl;
  cout << "\tSearch                       " << Search::versionMajor << "." << Search::versionMinor << endl;
  cout << "\tSearchItem                   " << SearchItem::versionMajor << "." << SearchItem::versionMinor << endl;
+ cout << "\tSite                         " << Site::versionMajor << "." << Site::versionMinor << endl;
  cout << "\tSitematrix                   " << Sitematrix::versionMajor << "." << Sitematrix::versionMinor << endl;
+ cout << "\tSitematrixLanguage           " << SitematrixLanguage::versionMajor << "." << SitematrixLanguage::versionMinor << endl;
  cout << "\tTokens                       " << Tokens::versionMajor << "." << Tokens::versionMinor << endl;
  cout << "\tWikimediaProject             " << WikimediaProject::versionMajor << "." << WikimediaProject::versionMinor << endl;
  cout << "\tWikimediaProjects            " << WikimediaProjects::versionMajor << "." << WikimediaProjects::versionMinor << endl;

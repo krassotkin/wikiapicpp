@@ -564,8 +564,8 @@ https://www.mediawiki.org/wiki/API:Rollback
 /*
  Sitematrix:
 https://en.wikipedia.org/w/api.php?action=help&modules=sitematrix
+https://www.mediawiki.org/wiki/API:Sitematrix/de (https://www.mediawiki.org/wiki/API:Sitematrix)
 */
-
   void sitematrix(LoginInfo* loginInfo, Sitematrix* sitematrix){
    if(loginInfo->site.length() == 0) return;
    string fullUrl = loginInfo->site+endpointPart+"?"
