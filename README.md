@@ -1,3 +1,6 @@
+**🛑 This project is no longer maintained.**
+----
+
 # wikiapicpp
 
 ## Review
